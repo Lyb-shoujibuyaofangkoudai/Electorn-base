@@ -19,7 +19,9 @@
 <script lang="ts" setup>
 import Icon from '../components/Icon.vue'
 import { Constant } from '../../../preload/utils/Constant'
+import { useWinInfo } from '../store/winInfo'
 
+const winInfoStore = useWinInfo()
 const iconSize = '21px'
 const tools = [
   {
@@ -44,6 +46,7 @@ const tools = [
       else
         window.electron?.ipcRenderer.invoke(Constant.WINDOW_EVENT.WINDOW_RESTORED)
       item.isMaxWindow = !item.isMaxWindow
+      winInfoStore.setIsWindowMaximization(item.isMaxWindow)
     }
   },
   {
