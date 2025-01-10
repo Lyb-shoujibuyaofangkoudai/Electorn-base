@@ -1,0 +1,30 @@
+{
+  "id": "4807167",
+  "name": "LOL",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "6151289",
+      "name": "expand-alt",
+      "font_class": "expand-alt",
+      "unicode": "e826",
+      "unicode_decimal": 59430
+    },
+    {
+      "icon_id": "6151292",
+      "name": "minus",
+      "font_class": "minus",
+      "unicode": "e828",
+      "unicode_decimal": 59432
+    },
+    {
+      "icon_id": "6151294",
+      "name": "times",
+      "font_class": "times",
+      "unicode": "e82a",
+      "unicode_decimal": 59434
+    }
+  ]
+}
