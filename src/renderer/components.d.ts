@@ -9,8 +9,5 @@ declare module 'vue' {
   export interface GlobalComponents {
     Icon: typeof import('./src/components/Icon.vue')['default']
     NConfigProvider: typeof import('naive-ui')['NConfigProvider']
-    NDivider: typeof import('naive-ui')['NDivider']
-    NGlobalStyle: typeof import('naive-ui')['NGlobalStyle']
-    NGradientText: typeof import('naive-ui')['NGradientText']
   }
 }

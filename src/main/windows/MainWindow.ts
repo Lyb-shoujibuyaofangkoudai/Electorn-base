@@ -1,9 +1,13 @@
 import { BrowserWindow, shell } from 'electron'
 import { is } from '@electron-toolkit/utils'
 import { join } from 'path'
+import { Logger } from '../logger/Logger'
+import { LoggerCommon } from '../logger/LoggerCommon'
 export class MainWindow {
   static _instance: MainWindow | null = null
   _window: BrowserWindow | null = null
+  private logger = Logger.getInstance().logger
+
 
   static get instance() {
     if (!this._instance) {
@@ -32,6 +36,10 @@ export class MainWindow {
     mainWindow.setHasShadow(true)
 
     mainWindow.on('ready-to-show', () => {
+      this.logger.info({
+        message: "主窗口创建成功",
+        namespace: LoggerCommon.NAMESPACE.APP
+      })
       mainWindow.show()
     })
 
