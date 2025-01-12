@@ -8,6 +8,10 @@ export class MainIpcHandle {
   }
 
   init() {
+    this.windowHandle()
+  }
+
+  windowHandle() {
     ipcMain.handle(Constant.WINDOW_EVENT.WINDOW_MAXIMIZED, async () => {
       console.log("窗口最大化")
       MainWindow.instance.setWindowMaximization()

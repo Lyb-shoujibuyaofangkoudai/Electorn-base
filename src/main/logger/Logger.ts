@@ -16,6 +16,9 @@ export class Logger {
     })
   }
 
+  /**
+   * 获取单例
+   */
   public static getInstance(): Logger {
     if ( !Logger.instance ) {
       Logger.instance = new Logger()
@@ -23,6 +26,10 @@ export class Logger {
     return Logger.instance
   }
 
+  /**
+   * 初始化日志记录器
+   * @returns {any} 初始化后的日志记录器对象
+   */
   init() {
     const appDir = path.join(app.getAppPath(), '/src')
     const logsDir = path.join(appDir, 'logs')
