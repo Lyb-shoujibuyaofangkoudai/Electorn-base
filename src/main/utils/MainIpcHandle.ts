@@ -13,27 +13,27 @@ export class MainIpcHandle {
 
   windowHandle() {
     ipcMain.handle(Constant.WINDOW_EVENT.WINDOW_MAXIMIZED, async () => {
-      console.log("窗口最大化")
+      // console.log("窗口最大化")
       MainWindow.instance.setWindowMaximization()
     })
 
     ipcMain.handle(Constant.WINDOW_EVENT.WINDOW_MINIMIZED, async () => {
-      console.log("窗口最小化")
+      // console.log("窗口最小化")
       MainWindow.instance.setWindowMinimization()
     })
 
     ipcMain.handle(Constant.WINDOW_EVENT.WINDOW_CLOSED, async () => {
-      console.log("窗口关闭")
+      // console.log("窗口关闭")
       MainWindow.instance.closeWindow()
     })
 
     ipcMain.handle(Constant.WINDOW_EVENT.WINDOW_RESTORED, async () => {
-      console.log("窗口恢复")
+      // console.log("窗口恢复")
       MainWindow.instance.setWindowRestore()
     })
 
     ipcMain.handle(Constant.WINDOW_EVENT.WINDOW_UNMAXIMIZED, async () => {
-      console.log("取消窗口最大化")
+      // console.log("取消窗口最大化")
       MainWindow.instance.setWindowUnmaximization()
     })
   }

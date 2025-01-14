@@ -22,9 +22,12 @@
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.0",
     "@electron-toolkit/utils": "^3.0.0",
+    "axios": "^1.7.9",
     "dayjs": "^1.11.13",
     "electron-updater": "^6.1.7",
+    "js-yaml": "^4.1.0",
     "pinia": "^2.3.0",
+    "vue-router": "4",
     "winston": "^3.17.0"
   },
   "devDependencies": {

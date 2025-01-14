@@ -32,6 +32,13 @@ export class Core {
     if (this.plugins.has(plugin.name)) {
       throw new Error(`插件 ${plugin.name} 已经被加载。`);
     }
+    this.plugins.set(plugin.name, plugin); // 将插件添加到映射中
+
+    if (plugin.init) {
+      plugin.init(this);
+    } else {
+      throw `${plugin.name}插件不存在初始化init函数`
+    }
 
     // 注册钩子函数
     if (plugin.hooks) {
@@ -47,7 +54,6 @@ export class Core {
       }
     }
 
-    this.plugins.set(plugin.name, plugin); // 将插件添加到映射中
   }
 
   // 启动插件

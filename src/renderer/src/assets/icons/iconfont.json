@@ -6,6 +6,48 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "43139170",
+      "name": "设置-copy",
+      "font_class": "shezhi-copy",
+      "unicode": "e82c",
+      "unicode_decimal": 59436
+    },
+    {
+      "icon_id": "43139173",
+      "name": "战斗-copy",
+      "font_class": "zhandou-copy",
+      "unicode": "e82d",
+      "unicode_decimal": 59437
+    },
+    {
+      "icon_id": "246289",
+      "name": "战斗",
+      "font_class": "zhandou",
+      "unicode": "e74f",
+      "unicode_decimal": 59215
+    },
+    {
+      "icon_id": "6865347",
+      "name": "设置",
+      "font_class": "shezhi",
+      "unicode": "e60f",
+      "unicode_decimal": 58895
+    },
+    {
+      "icon_id": "19573953",
+      "name": "查询",
+      "font_class": "chaxun",
+      "unicode": "e6b1",
+      "unicode_decimal": 59057
+    },
+    {
+      "icon_id": "43139106",
+      "name": "查询-copy",
+      "font_class": "chaxun-copy",
+      "unicode": "e82b",
+      "unicode_decimal": 59435
+    },
+    {
       "icon_id": "6151289",
       "name": "expand-alt",
       "font_class": "expand-alt",

@@ -1,9 +1,9 @@
 <template>
-  <div>
+  <div class="flex justify-center items-center">
     <svg aria-hidden="true" class="icon" :style="{
         color,
         width,
-        height
+        height,
       }">
       <use :xlink:href="`#${name}`"></use>
     </svg>

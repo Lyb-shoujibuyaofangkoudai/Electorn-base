@@ -5,6 +5,7 @@ import { MainIpcHandle } from './utils/MainIpcHandle'
 import { Core } from '../manager'
 import { Logger } from '../manager/plugins/logger/Logger'
 import { NAMESPACE } from '../manager/plugins/logger/LoggerCommon'
+import { Config } from '../manager/plugins/config'
 
 init()
 function init() {
@@ -13,7 +14,7 @@ function init() {
     app.on('browser-window-created', (_, window) => {
       optimizer.watchWindowShortcuts(window)
     })
-    createPluginSys()
+    initPluginSys()
     createWindow()
     new MainIpcHandle()
 
@@ -29,10 +30,14 @@ function init() {
     }
   })
 }
-function createPluginSys() {
-  const core = new Core();
-  core.use(new Logger())
-  core.run()
+function initPluginSys() {
+  try {
+    const core = new Core()
+    core.use(new Logger())
+    core.use(new Config())
+  } catch ( e ) {
+    if(Core.getInstance()) Core.getInstance().logger.error(e,NAMESPACE.APP)
+  }
 }
 
 

@@ -5,3 +5,9 @@ export const customTheme = {
   light,
   dark
 }
+
+
+export const THEME_NAME = {
+  LIGHT: 'light',
+  DARK: 'dark'
+}

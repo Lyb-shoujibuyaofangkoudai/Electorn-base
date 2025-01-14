@@ -1,13 +1,13 @@
 <template>
-  <div class="win-bar relative z-[1000] text-3 text-c_tc-stress w-full h-12 lh-12">
-    <div class="flex shrink-0 items-center gap-2 bg-blend-color">
-      <div class="flex-1 flex justify-end">
+  <div class="win-bar relative z-[1000] box-border text-3 text-c_tc-stress w-full window-bar-height flex items-center justify-end">
+    <div class="flex items-center bg-blend-color h-full">
+      <div class="flex-1 flex justify-end h-full">
         <div class="region-bar flex-1"></div>
-        <ul class="flex items-center justify-between">
+        <ul class="flex items-center h-full">
           <li v-for="item in tools"
               :key="item.name"
               @click="item.click(item)"
-              class="cursor-pointer flex items-center justify-center w-12 hover:bg-c_hover-1">
+              class="cursor-pointer px-1 h-full flex items-center justify-center w-8 hover:bg-c_hover-1">
             <Icon :height="item.height" :name="item.name" :width="item.width" />
           </li>
         </ul>
@@ -19,9 +19,9 @@
 <script lang="ts" setup>
 import Icon from '../components/Icon.vue'
 import { Constant } from '../../../preload/utils/Constant'
-import { useWinInfo } from '../store/winInfo'
+import { useWindowInfo } from '../store/windowInfo'
 
-const winInfoStore = useWinInfo()
+const winInfoStore = useWindowInfo()
 const iconSize = '21px'
 const tools = [
   {
@@ -63,7 +63,6 @@ const tools = [
 
 <style lang="scss" scoped>
 .win-bar {
-  //@apply h-12 lh-12;
 }
 
 .region-bar {

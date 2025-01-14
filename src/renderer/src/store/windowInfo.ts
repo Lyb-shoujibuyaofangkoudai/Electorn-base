@@ -1,7 +1,7 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { ref } from 'vue'
 
-export const useWinInfo = defineStore('winInfo', () => {
+export const useWindowInfo = defineStore('winInfo', () => {
   // 窗口是否最大化
   const isMaxWindow = ref(false)
 
@@ -16,4 +16,4 @@ export const useWinInfo = defineStore('winInfo', () => {
 })
 
 if ( import.meta.hot )
-  import.meta.hot.accept(acceptHMRUpdate(useWinInfo as any, import.meta.hot))
+  import.meta.hot.accept(acceptHMRUpdate(useWindowInfo as any, import.meta.hot))

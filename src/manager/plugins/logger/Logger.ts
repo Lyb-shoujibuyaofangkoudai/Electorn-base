@@ -74,28 +74,28 @@ export class Logger implements IPlugin {
 
   info(message: any, namespace: NAMESPACE) {
     this.logger.info({
-      message,
+      message: JSON.stringify(message),
       namespace
     })
   }
 
   debug(message: any, namespace: NAMESPACE) {
     this.logger.debug({
-      message,
+      message: JSON.stringify(message),
       namespace
     })
   }
 
   warn(message: any, namespace: NAMESPACE) {
     this.logger.warn({
-      message,
+      message: JSON.stringify(message),
       namespace
     })
   }
 
   error(message: any, namespace: NAMESPACE) {
     this.logger.error({
-      message,
+      message: JSON.stringify(message),
       namespace
     })
   }

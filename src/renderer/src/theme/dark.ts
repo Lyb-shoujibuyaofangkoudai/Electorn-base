@@ -30,8 +30,7 @@ export const dark = {
       2: '#A5A5A7',
       3: '#8E8F90',
       4: '#78797A',
-      5: '#616264',
-      6: '#2B3161'
+      5: '#101F4C',
     },
     // button color
     c_bt: {
@@ -75,3 +74,4 @@ export const dark = {
     }
   }
 }
+

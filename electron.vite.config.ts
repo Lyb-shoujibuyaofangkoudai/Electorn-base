@@ -41,7 +41,9 @@ export default defineConfig({
               'useLoadingBar',
               'createDiscreteApi'
             ]
-          }
+          },
+          'vue',
+          'vue-router'
         ],
         // vue3 组件 js 语句中自动引入组件
         resolvers: [NaiveUiResolver()]

@@ -3,7 +3,7 @@ import { is } from '@electron-toolkit/utils'
 import { join } from 'path'
 import { Core } from '../../manager'
 import { NAMESPACE } from '../../manager/plugins/logger/LoggerCommon'
-import { formatError } from './utils/error'
+import { formatError } from '../../manager/utils/error'
 export class MainWindow {
   static _instance: MainWindow | null = null
   _window: BrowserWindow | null = null
@@ -38,9 +38,6 @@ export class MainWindow {
 
       mainWindow.on('ready-to-show', () => {
         this.logger.info('主窗口创建成功', NAMESPACE.APP)
-        this.logger.debug('主窗口创建成功', NAMESPACE.APP)
-        this.logger.warn('主窗口创建成功', NAMESPACE.APP)
-        this.logger.error('主窗口创建成功', NAMESPACE.APP)
         mainWindow.show()
       })
 

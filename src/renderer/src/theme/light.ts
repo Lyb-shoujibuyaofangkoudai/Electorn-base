@@ -47,11 +47,15 @@ export const light = {
     },
     //   window color
     c_wc: {
-      top: '#403294',
-      slider: '#403294',
-      ct: '#3A457A',
-      vCt: '#343C6D',
-      tCt: '#242855',
+      top: 'rgba( 58, 69,121,1)',
+      // 窗体侧边渐变色
+      sd: '#2B4381',
+      vSd: '#223770',
+      tSd: '#101E4B',
+      // 窗体内容渐变色 分别对应form via to
+      ct: '#354F89',
+      vCt: '#223669',
+      tCt: '#142253',
     },
     c_card: {
       1: '#ffffff',
