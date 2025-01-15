@@ -3,7 +3,7 @@ import dayjs from 'dayjs'
 
 import { formatError } from '../../utils/error'
 import { IPlugin } from '../../interface'
-import { Core } from '../../index'
+import { Core } from '../../Core'
 import { NAMESPACE } from './LoggerCommon'
 
 

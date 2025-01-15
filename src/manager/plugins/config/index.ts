@@ -3,7 +3,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { app } from 'electron'
 import yaml from "js-yaml"
-import { Core } from '../../index'
+import { Core } from '../../Core'
 import { NAMESPACE } from '../logger/LoggerCommon'
 
 export class Config implements IPlugin {

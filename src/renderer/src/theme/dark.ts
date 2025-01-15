@@ -49,7 +49,9 @@ export const dark = {
       // 文字弱度强调色
       weak: 'rgba(255,255,255,.4)',
       // 文字加强强调色
-      primary: 'rgba( 31,157, 95,1)'
+      primary: 'rgba( 31,157, 95,1)',
+      // 侧边栏激活字体颜色
+      sd_act: "#5BC1FE"
 
     },
     //   window color
@@ -70,7 +72,10 @@ export const dark = {
       3: '#303030'
     },
     c_hover: {
-      1: 'rgba(255,255,255,.2)' // 右上角关闭 最大化 最小化 hover颜色
+      // 右上角关闭 最大化 最小化 hover颜色
+      1: 'rgba(255,255,255,.2)',
+      // 侧边栏hover颜色
+      2: '#116498'
     }
   }
 }

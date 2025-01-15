@@ -5,7 +5,7 @@ import fs from 'node:fs'
 import { createLogger, format, transports } from 'winston'
 import { NAMESPACE, STYLES, LEVEL_COLORS, NAMESPACE_COLORS, MSG_COLORS } from './LoggerCommon'
 import { IPlugin } from '../../interface'
-import { Core } from '../../index'
+import { Core } from '../../Core'
 export class Logger implements IPlugin {
   static id: string = 'logger'
   name = Logger.id

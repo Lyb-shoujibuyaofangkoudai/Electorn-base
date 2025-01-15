@@ -1,7 +1,7 @@
 import { app, BrowserWindow, shell } from 'electron'
 import { is } from '@electron-toolkit/utils'
 import { join } from 'path'
-import { Core } from '../../manager'
+import { Core } from '../../manager/Core'
 import { NAMESPACE } from '../../manager/plugins/logger/LoggerCommon'
 import { formatError } from '../../manager/utils/error'
 export class MainWindow {

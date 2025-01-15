@@ -1,4 +1,4 @@
-import { Core } from './index'
+import { Core } from './Core'
 
 type PluginHooks = {
   [key: string]: Function; // 插件钩子函数映射
