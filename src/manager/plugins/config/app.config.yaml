@@ -1,0 +1,9 @@
+# 应用配置
+# 主题颜色
+theme:
+  name: "dark"
+
+# 主窗口信息
+main_window:
+  width: 960
+  height: 720
