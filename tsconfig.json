@@ -1,10 +1,19 @@
 {
   "compilerOptions": {
+    "target": "ESNext",
+    "lib": ["ESNext"],
+    "noImplicitAny": true,
     "noUnusedLocals": false,  // 禁用未使用局部变量的检查
     "noUnusedParameters": false  // 禁用未使用参数的检查
   },
   "files": [],
-  "include": ["src/**/*"],
+  "include": [
+    "src/**/*",
+    "src/manager/*.d.ts",
+    "src/*.d.ts",
+    "src/**/*.d.ts",
+    "src/global.d.ts"
+  ],
   "references": [
     {
       "path": "./tsconfig.node.json"

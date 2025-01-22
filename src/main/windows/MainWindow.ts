@@ -11,18 +11,20 @@ export class MainWindow {
 
 
   static get instance() {
-    if (!this._instance) {
-      this._instance = new MainWindow()
+    if (!MainWindow._instance) {
+      MainWindow._instance = new MainWindow()
     }
-    return this._instance
+    return MainWindow._instance
   }
 
 
   _createWindow() {
     try { // Create the browser window.
+      const width = Core.getInstance().config.getValue('main_window.width') ?? 960
+      const height = Core.getInstance().config.getValue('main_window.height') ?? 720
       const mainWindow = new BrowserWindow({
-        width: 960,
-        height: 720,
+        width,
+        height,
         frame: false,
         autoHideMenuBar: false,
         fullscreenable: false,
@@ -34,6 +36,8 @@ export class MainWindow {
         }
       })
       mainWindow.menuBarVisible = false
+      // 打开调试工具
+      mainWindow.webContents.openDevTools({ mode: 'bottom' });
       mainWindow.setHasShadow(true)
 
       mainWindow.on('ready-to-show', () => {

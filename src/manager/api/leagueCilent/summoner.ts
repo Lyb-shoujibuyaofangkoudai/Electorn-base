@@ -1,4 +1,4 @@
-import { SummonerInfo, SummonerProfile } from '@shared/types/league-client/summoner'
+import { SummonerInfo, SummonerProfile } from './types/summoner'
 import { AxiosInstance } from 'axios'
 
 export class SummonerHttpApi {

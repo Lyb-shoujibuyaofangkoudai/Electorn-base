@@ -1,4 +1,4 @@
-import { EntitlementsToken } from '@shared/types/league-client/entitlements'
+import { EntitlementsToken } from './types/entitlements'
 import { AxiosInstance } from 'axios'
 
 export class EntitlementsHttpApi {

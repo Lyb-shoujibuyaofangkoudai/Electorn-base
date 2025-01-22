@@ -1,4 +1,4 @@
-import { LoginQueueState } from '@shared/types/league-client/login'
+import { LoginQueueState } from './types/login'
 import { AxiosInstance } from 'axios'
 
 export class LoginHttpApi {

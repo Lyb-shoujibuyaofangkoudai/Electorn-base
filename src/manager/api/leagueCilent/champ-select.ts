@@ -5,7 +5,7 @@ import {
   GridChamp,
   MySelection,
   OngoingTrade
-} from '@shared/types/league-client/champ-select'
+} from './types/champ-select'
 import { AxiosInstance } from 'axios'
 
 export class ChampSelectHttpApi {

@@ -10,7 +10,7 @@ import {
   Queue,
   StrawberryHub,
   SummonerSpell
-} from '@shared/types/league-client/game-data'
+} from './types/game-data'
 import { AxiosInstance } from 'axios'
 
 export class GameDataHttpApi {

@@ -5,9 +5,14 @@
     "src/renderer/src/**/*",
     "src/renderer/src/**/*.vue",
     "src/preload/*.d.ts",
-    "src/**/*"
+    "src/**/*",
+    "src/*.d.ts",
+    "src/**/*.d.ts",
+    "src/global.d.ts"
   ],
   "compilerOptions": {
+    "target": "ESNext",
+    "lib": ["ESNext", "DOM"],
     "noUnusedLocals": false,  // 禁用未使用局部变量的检查
     "noUnusedParameters": false,  // 禁用未使用参数的检查
     "composite": true,
@@ -21,6 +26,9 @@
       ],
       "@main/*": [
         "src/main/*"
+      ],
+      "@manager/*": [
+        "src/manager/*"
       ]
     }
   }

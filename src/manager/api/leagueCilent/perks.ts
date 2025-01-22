@@ -3,7 +3,7 @@ import {
   PerkPage,
   RecommendPage,
   RecommendPositions
-} from '@shared/types/league-client/perks'
+} from './types/perks'
 import { AxiosInstance } from 'axios'
 
 export interface PostPerkDto {

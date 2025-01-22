@@ -1,4 +1,4 @@
-import { GameflowPhase, GameflowSession } from '@shared/types/league-client/gameflow'
+import { GameflowPhase, GameflowSession } from './types/gameflow'
 import { AxiosInstance } from 'axios'
 
 export class GameflowHttpApi {

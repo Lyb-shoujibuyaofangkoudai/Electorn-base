@@ -1,4 +1,4 @@
-import { Ballot } from '@shared/types/league-client/honorV2'
+import { Ballot } from './types/honorV2'
 import { AxiosInstance } from 'axios'
 
 export class HonorHttpApi {

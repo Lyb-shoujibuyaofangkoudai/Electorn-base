@@ -1,4 +1,4 @@
-import { GetSearch } from '@shared/types/league-client/matchmaking'
+import { GetSearch } from './types/matchmaking'
 import { AxiosInstance } from 'axios'
 
 export class MatchmakingHttpApi {

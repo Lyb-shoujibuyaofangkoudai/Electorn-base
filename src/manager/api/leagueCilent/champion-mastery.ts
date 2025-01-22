@@ -1,4 +1,4 @@
-import { Mastery, PlayerChampionMastery } from '@shared/types/league-client/champion-mastery'
+import { Mastery, PlayerChampionMastery } from './types/champion-mastery'
 import { AxiosInstance } from 'axios'
 
 export class ChampionMasteryHttpApi {

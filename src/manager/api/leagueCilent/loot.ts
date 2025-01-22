@@ -1,4 +1,4 @@
-import { LootCraftResponse, LootMap } from '@shared/types/league-client/loot'
+import { LootCraftResponse, LootMap } from './types/loot'
 import { AxiosInstance } from 'axios'
 
 export class LootHttpApi {

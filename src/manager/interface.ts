@@ -40,8 +40,8 @@ type PluginCommunicate = {
  */
 export interface IPlugin {
   name: string; // 插件名称ID
-  init: (manager: Core) => void; // 初始化函数
-  destroy?: (manager: Core) => void; // 销毁函数
+  init: (core: Core) => void; // 初始化函数
+  destroy?: (core: Core) => void; // 销毁函数
   hooks?: PluginHooks; // 自定义插件钩子函数集合
   communicate?: PluginCommunicate; // 通信函数集合
 

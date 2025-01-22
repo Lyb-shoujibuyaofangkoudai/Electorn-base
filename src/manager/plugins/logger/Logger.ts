@@ -2,10 +2,13 @@ import path from 'node:path'
 import { app } from 'electron'
 import dayjs from 'dayjs'
 import fs from 'node:fs'
-import { createLogger, format, transports } from 'winston'
+import { createLogger, format, transports, Logger as WinstonLogger } from 'winston'
 import { NAMESPACE, STYLES, LEVEL_COLORS, NAMESPACE_COLORS, MSG_COLORS } from './LoggerCommon'
 import { IPlugin } from '../../interface'
 import { Core } from '../../Core'
+
+
+import { EVENT_TYPE } from '../Bridge/bridgeType'
 export class Logger implements IPlugin {
   static id: string = 'logger'
   name = Logger.id
@@ -13,11 +16,11 @@ export class Logger implements IPlugin {
   // 日志保存路径
   logDirPath: string = ''
 
-  init(manager:Core & any) {
+  init(core:Core & any) {
     this.logger = this.createLogger()
-    manager['logger'] = manager.getPlugin(Logger.id)
-    manager.logger.info('日志插件初始化成功',NAMESPACE.APP)
-    manager.logger.info(`日志保存路径：${this.logDirPath}`,NAMESPACE.APP)
+    core[this.name] = core.getPlugin(Logger.id) // 挂载到Core上
+    core.logger.info('日志插件初始化成功',NAMESPACE.APP)
+    core.logger.info(`日志保存路径：${this.logDirPath}`,NAMESPACE.APP)
   }
 
   createLogger() {
@@ -72,32 +75,33 @@ export class Logger implements IPlugin {
     })
   }
 
-  info(message: any, namespace: NAMESPACE) {
+  info(message: any, namespace: EVENT_TYPE) {
     this.logger.info({
       message: JSON.stringify(message),
       namespace
     })
   }
 
-  debug(message: any, namespace: NAMESPACE) {
+  debug(message: any, namespace: EVENT_TYPE) {
     this.logger.debug({
       message: JSON.stringify(message),
       namespace
     })
   }
 
-  warn(message: any, namespace: NAMESPACE) {
+  warn(message: any, namespace: EVENT_TYPE) {
     this.logger.warn({
       message: JSON.stringify(message),
       namespace
     })
   }
 
-  error(message: any, namespace: NAMESPACE) {
+  error(message: any, namespace: EVENT_TYPE) {
+    const error = new Error(message)
     this.logger.error({
       message: JSON.stringify(message),
-      namespace
+      namespace,
+      stack: error.stack
     })
   }
-
 }

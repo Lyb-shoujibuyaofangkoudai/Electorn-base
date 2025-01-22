@@ -1,4 +1,4 @@
-import { AccountScopeLoadouts } from '@shared/types/league-client/game-data'
+import { AccountScopeLoadouts } from './types/game-data'
 import { AxiosInstance } from 'axios'
 
 /**

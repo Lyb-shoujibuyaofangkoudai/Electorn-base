@@ -4,7 +4,10 @@
     "electron.vite.config.*",
     "src/main/**/*",
     "src/preload/**/*",
-    "src/**/*"
+    "src/**/*",
+    "src/*.d.ts",
+    "src/**/*.d.ts",
+    "src/global.d.ts"
   ],
   "compilerOptions": {
     "noUnusedLocals": false,  // 禁用未使用局部变量的检查

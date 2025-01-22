@@ -1,4 +1,4 @@
-import { Mission } from '@shared/types/league-client/missions'
+import { Mission } from './types/missions'
 import { AxiosInstance } from 'axios'
 
 export class MissionsHttpApi {

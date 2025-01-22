@@ -1,4 +1,5 @@
 export class Constant {
+
   // electron app 事件
   static readonly APP_ELECTRON_EVENT = {
     BROWSER_WINDOW_CREATED: 'browser-window-created',

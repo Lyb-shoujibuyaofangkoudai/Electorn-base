@@ -1,4 +1,4 @@
-import { ChatMessage, ChatPerson, Conversation, Friend } from '@shared/types/league-client/chat'
+import { ChatMessage, ChatPerson, Conversation, Friend } from './types/chat'
 import { AxiosInstance } from 'axios'
 
 export type AvailabilityType =

@@ -1,4 +1,4 @@
-import { RankedStats } from '@shared/types/league-client/ranked'
+import { RankedStats } from './types/ranked'
 import { AxiosInstance } from 'axios'
 
 export class RankedHttpApi {

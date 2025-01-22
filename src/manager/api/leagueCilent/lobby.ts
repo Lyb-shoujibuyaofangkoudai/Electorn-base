@@ -5,7 +5,7 @@ import {
   LobbyMember,
   QueueEligibility,
   ReceivedInvitation
-} from '@shared/types/league-client/lobby'
+} from './types/lobby'
 import { AxiosInstance } from 'axios'
 
 export class LobbyHttpApi {

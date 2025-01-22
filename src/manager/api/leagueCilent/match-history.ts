@@ -1,4 +1,4 @@
-import { Game, GameTimeline, MatchHistory } from '@shared/types/league-client/match-history'
+import { Game, GameTimeline, MatchHistory } from './types/match-history'
 import { AxiosInstance } from 'axios'
 
 export class MatchHistoryHttpApi {

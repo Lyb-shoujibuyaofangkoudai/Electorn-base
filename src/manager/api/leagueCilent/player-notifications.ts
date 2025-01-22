@@ -1,4 +1,4 @@
-import { PlayerNotifications } from '@shared/types/league-client/player-notifications'
+import { PlayerNotifications } from './types/player-notifications'
 import { AxiosInstance } from 'axios'
 
 export class PlayerNotificationsHttpApi {

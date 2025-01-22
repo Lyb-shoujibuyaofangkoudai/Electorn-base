@@ -13,22 +13,48 @@ export class Config implements IPlugin {
 
   private configInfo:any = {}
 
-  init(manager: any) {
+  init(core:Core| any) {
     this.configInfo = this.readConfig()
-    manager['config'] = manager.getPlugin(Config.id)
+    core['config'] = core.getPlugin(Config.id)
   }
 
   readConfig() {
-    const appDir = path.join(app.getAppPath(), '/src/main')
-    const yamlPath = path.join(appDir, 'app.config.yaml')
+    const appDir = path.join(app.getAppPath(), '/src/manager')
+    const yamlPath = path.join(appDir, 'plugins/config/app.config.yaml')
   //   读取配置文件
     const configContent = fs.readFileSync(yamlPath, 'utf8')
     const configData = yaml.load(configContent)
-    Core.getInstance()?.logger.info(configData,NAMESPACE.APP)
     return configData
   }
 
-  editConfigValue(key:string,value:any) {
 
+  getValue(key: string): any {
+    const keys = key.split('.')
+    let value = this.configInfo
+
+    for (const k of keys) {
+      if (value && typeof value === 'object' && k in value) {
+        value = value[k]
+      } else {
+        return undefined // 或者抛出错误，根据需求选择
+      }
+    }
+
+    return value
+  }
+
+  setValue(key: string, value: any) {
+    const keys = key.split('.')
+    let obj = this.configInfo
+
+    for (let i = 0; i < keys.length - 1; i++) {
+      const k = keys[i]
+      if (!obj[k] || typeof obj[k] !== 'object') {
+        obj[k] = {}
+      }
+      obj = obj[k]
+    }
+
+    obj[keys[keys.length - 1]] = value
   }
 }

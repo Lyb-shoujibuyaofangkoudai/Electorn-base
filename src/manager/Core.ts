@@ -11,15 +11,16 @@ export class Core {
    * 返回单例
    * @returns {Core & any}
    */
-  public static getInstance(): Core & any{
-    if (!this.instance) {
-      this.instance = new Core();
+  public static getInstance(): Core | any {
+    if (!Core.instance) {
+      Core.instance = new Core();
     }
-    return this.instance;
+    return Core.instance;
   }
 
   constructor() {
-    Core.instance = this;
+    if(!Core.instance)
+      Core.instance = this;
   }
   // 加载插件
   use(...plugins: IPlugin[]): void {
@@ -56,16 +57,6 @@ export class Core {
 
   }
 
-  // 启动插件
-  run(): void {
-    this.plugins.forEach((plugin, pluginName) => {
-      if (plugin.init) {
-        plugin.init(this);
-      } else {
-        throw `${pluginName}插件不存在初始化init函数`
-      }
-    });
-  }
 
   // 卸载插件
   removePlugin(pluginName: string): void {
