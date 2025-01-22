@@ -7,6 +7,8 @@
 export {}
 declare global {
   const EffectScope: typeof import('vue')['EffectScope']
+  const NAMESPACE2: typeof import('naive-ui')['NAMESPACE2']
+  const NAMESPACE_COLORS2: typeof import('naive-ui')['NAMESPACE_COLORS2']
   const computed: typeof import('vue')['computed']
   const createApp: typeof import('vue')['createApp']
   const createDiscreteApi: typeof import('naive-ui')['createDiscreteApi']
@@ -59,8 +61,10 @@ declare global {
   const useCssVars: typeof import('vue')['useCssVars']
   const useDialog: typeof import('naive-ui')['useDialog']
   const useId: typeof import('vue')['useId']
+  const useIpc: typeof import('./src/hooks/useIpc')['useIpc']
   const useLink: typeof import('vue-router')['useLink']
   const useLoadingBar: typeof import('naive-ui')['useLoadingBar']
+  const useLogger: typeof import('./src/hooks/useLogger')['useLogger']
   const useMessage: typeof import('naive-ui')['useMessage']
   const useModel: typeof import('vue')['useModel']
   const useNotification: typeof import('naive-ui')['useNotification']

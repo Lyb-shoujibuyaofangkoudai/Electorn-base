@@ -11,6 +11,7 @@
   "gypfile": true,
   "description": "",
   "dependencies": {
+    "naive-ui": "^2.41.0",
     "node-gyp": "^11.0.0"
   }
 }
