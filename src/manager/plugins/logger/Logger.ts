@@ -3,12 +3,12 @@ import { app } from 'electron'
 import dayjs from 'dayjs'
 import fs from 'node:fs'
 import { createLogger, format, transports, Logger as WinstonLogger } from 'winston'
-import { NAMESPACE, STYLES, LEVEL_COLORS, NAMESPACE_COLORS, MSG_COLORS } from './LoggerCommon'
+import { STYLES, LEVEL_COLORS, NAMESPACE_COLORS, MSG_COLORS } from './LoggerCommon'
 import { IPlugin } from '../../interface'
 import { Core } from '../../Core'
 
 
-import { EVENT_TYPE } from '../Bridge/bridgeType'
+import { EVENT_TYPE, LOGGER_NAMESPACE } from '../Bridge/bridgeType'
 export class Logger implements IPlugin {
   static id: string = 'logger'
   name = Logger.id
@@ -19,8 +19,8 @@ export class Logger implements IPlugin {
   init(core:Core & any) {
     this.logger = this.createLogger()
     core[this.name] = core.getPlugin(Logger.id) // 挂载到Core上
-    core.logger.info('日志插件初始化成功',NAMESPACE.APP)
-    core.logger.info(`日志保存路径：${this.logDirPath}`,NAMESPACE.APP)
+    core.logger.info('日志插件初始化成功',LOGGER_NAMESPACE.APP)
+    core.logger.info(`日志保存路径：${this.logDirPath}`,LOGGER_NAMESPACE.APP)
   }
 
   createLogger() {

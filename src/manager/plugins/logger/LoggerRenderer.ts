@@ -4,10 +4,9 @@ import dayjs from 'dayjs'
 import { formatError } from '../../utils/error'
 import { IPlugin } from '../../interface'
 import { Core } from '../../Core'
-import { NAMESPACE } from './LoggerCommon'
 
 
-import { EVENT_TYPE } from '../Bridge/bridgeType'
+import { EVENT_TYPE, LOGGER_NAMESPACE } from '../Bridge/bridgeType'
 
 /**
  * 渲染进程专用打印日志插件
@@ -51,7 +50,7 @@ export class LoggerRenderer implements IPlugin {
       .join(' ')
   }
 
-  info(message:any,namespace: EVENT_TYPE | NAMESPACE) {
+  info(message:any,namespace: EVENT_TYPE | LOGGER_NAMESPACE) {
     console.info(
       `%c[${dayjs().format('HH:mm:ss')}] %c[%c${namespace}%c] %c[info]`,
       'color: #3498db; font-weight: bold;',
@@ -64,7 +63,7 @@ export class LoggerRenderer implements IPlugin {
 
   }
 
-  warn(message:any,namespace: EVENT_TYPE | NAMESPACE) {
+  warn(message:any,namespace: EVENT_TYPE | LOGGER_NAMESPACE) {
     console.warn(
       `%c[${dayjs().format('HH:mm:ss')}] %c[%c${namespace}%c] %c[warn]`,
       'color: #3498db; font-weight: bold;',
@@ -77,7 +76,7 @@ export class LoggerRenderer implements IPlugin {
 
   }
 
-  error(message:any,namespace: EVENT_TYPE | NAMESPACE) {
+  error(message:any,namespace: EVENT_TYPE | LOGGER_NAMESPACE) {
     console.error(
       `%c[${dayjs().format('HH:mm:ss')}] %c[%c${namespace}%c] %c[error]`,
       'color: #3498db; font-weight: bold;',
@@ -90,7 +89,7 @@ export class LoggerRenderer implements IPlugin {
 
   }
 
-  debug(message:any,namespace: EVENT_TYPE | NAMESPACE) {
+  debug(message:any,namespace: EVENT_TYPE | LOGGER_NAMESPACE) {
     console.debug(
       `%c[${dayjs().format('HH:mm:ss')}] %c[%c${namespace}%c] %c[debug]`,
       'color: #3498db; font-weight: bold;',

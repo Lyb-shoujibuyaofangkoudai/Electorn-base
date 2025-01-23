@@ -9,7 +9,7 @@ import { League } from './plugins/League'
 import { Bridge } from './plugins/Bridge/Bridge'
 
 
-import { NAMESPACE } from './plugins/Bridge/bridgeType'
+import { LOGGER_NAMESPACE } from './plugins/Bridge/bridgeType'
 
 export class Manager {
   constructor() {
@@ -49,9 +49,9 @@ export class Manager {
         new Bridge(), // 进程通讯插件
       )
 
-      Core.getInstance().logger.info(`命令解析数据结果：${ Core.getInstance().league?.cmdParsedInfo?.authToken }`, NAMESPACE.APP)
+      Core.getInstance().logger.info(`命令解析数据结果：${ Core.getInstance().league?.cmdParsedInfo?.authToken }`, LOGGER_NAMESPACE.APP)
     } catch ( e ) {
-      if ( Core.getInstance() ) Core.getInstance().logger.error(e, NAMESPACE.APP)
+      if ( Core.getInstance() ) Core.getInstance().logger.error(e, LOGGER_NAMESPACE.APP)
     }
   }
 

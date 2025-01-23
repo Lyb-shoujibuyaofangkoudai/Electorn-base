@@ -1,4 +1,4 @@
-import { BRIDGE_EVENT, BridgeDataType, EVENT_TYPE, NAMESPACE } from './bridgeType'
+import { BRIDGE_EVENT, BridgeDataType, EVENT_TYPE } from './bridgeType'
 import { IpcRendererEvent } from 'electron'
 import { isAxiosError } from 'axios'
 

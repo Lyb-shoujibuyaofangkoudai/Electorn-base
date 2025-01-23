@@ -1,8 +1,4 @@
-// 通讯传输数据时，数据的命名空间
-export enum NAMESPACE {
-  APP = 'app', // APP级别
-  WINDOW = 'window', // 窗口级别
-}
+
 
 // 通讯时间通信的channel命名空间
 export enum BRIDGE_EVENT {
@@ -63,3 +59,7 @@ export interface IpcMainErrorDataType {
 export type IpcMainDataType<T = any> = BridgeDataType<T> | IpcMainErrorDataType
 
 
+// 日志插件 特有的命名空间（注意：和通讯的命名空间不是一样的）
+export enum LOGGER_NAMESPACE {
+  APP = 'app',
+}

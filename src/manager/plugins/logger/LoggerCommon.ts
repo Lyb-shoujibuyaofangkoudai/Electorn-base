@@ -66,7 +66,3 @@ export enum NAMESPACE_COLORS {
   error = STYLES.bgRed
 }
 
-// 日志插件 特有的命名空间（注意：和通讯的命名空间不是一样的）
-export enum NAMESPACE {
-  APP = 'app',
-}

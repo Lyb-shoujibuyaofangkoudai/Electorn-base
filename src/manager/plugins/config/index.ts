@@ -4,7 +4,8 @@ import path from 'node:path'
 import { app } from 'electron'
 import yaml from "js-yaml"
 import { Core } from '../../Core'
-import { NAMESPACE } from '../logger/LoggerCommon'
+
+import { LOGGER_NAMESPACE } from '../Bridge/bridgeType'
 
 export class Config implements IPlugin {
 

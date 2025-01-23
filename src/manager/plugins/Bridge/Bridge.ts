@@ -1,6 +1,6 @@
 import { IPlugin } from '../../interface'
 import { Core } from '../../Core'
-import { BRIDGE_EVENT, BridgeDataType, EVENT_TYPE, IpcMainDataType, NAMESPACE } from './bridgeType'
+import { BRIDGE_EVENT, BridgeDataType, EVENT_TYPE, IpcMainDataType } from './bridgeType'
 import { ipcMain, IpcMainInvokeEvent, webContents } from 'electron'
 import { isAxiosError } from 'axios'
 
@@ -12,10 +12,14 @@ export class Bridge implements IPlugin {
   _renderersWebContentIdsSet = new Set()
   _callMap = new Map<string, Function>()
 
+  constructor() {
+    this._handleRegister = this._handleRegister.bind(this)
+  }
+
   init(core: Core): void {
-    // 监听渲染进程的register 事件
+    // 监听渲染进程的register 事件 注意：不使用箭头函数会丢失this，需要在构造函数中绑定
     ipcMain.handle(BRIDGE_EVENT.REGISTER, this._handleRegister)
-    // 监听渲染进程的call 事件
+    // 监听渲染进程的call 事件 使用了箭头函数不会丢失this
     ipcMain.handle(BRIDGE_EVENT.CALL, this._handleCall)
     core[this.name] = core.getPlugin(this.name)
   }
@@ -31,7 +35,7 @@ export class Bridge implements IPlugin {
    * @param data BridgeDataType
    * @param cb
    * @example Core.getInstance().bridge.addCall(
-   *   NAMESPACE.APP,
+   *   LOGGER_NAMESPACE.APP,
    *   'appVersion',
    *   (data: BridgeDataType<string>) => {
    *     return {
@@ -46,6 +50,7 @@ export class Bridge implements IPlugin {
    *
    */
   addCall<T = any>(data: BridgeDataType<T>, cb: (data?: BridgeDataType<T>) => Promise<BridgeDataType<T>> | BridgeDataType<T> | void) {
+    console.log("主进程注册函数",data)
     const key = `${ data.namespace }:${ data.eventName }`
     if ( this._callMap.has(key) ) {
       throw new Error(`Function "${ data.eventName }" in namespace "${ data.namespace }" already exists`)
@@ -83,11 +88,12 @@ export class Bridge implements IPlugin {
    * @param _
    * @param data
    */
-  _handleCall(
+  _handleCall = (
     _: IpcMainInvokeEvent,
     data: BridgeDataType<any>
-  ):BridgeDataType<any> {
-    const key = `${ data.namespace }.${ data.eventName }`
+  ) :BridgeDataType<any> => {
+    const key = `${ data.namespace }:${ data.eventName }`
+    console.log("是否存在",key)
     const fn = this._callMap.get(key)
     if ( !fn ) {
       throw new Error(`No function "${ data.eventName }" in namespace "${ data.namespace }"`)

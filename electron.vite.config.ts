@@ -52,8 +52,6 @@ export default defineConfig({
           'vue',
           'vue-router'
         ],
-        // vue3 组件 js 语句中自动引入组件
-        resolvers: [NaiveUiResolver()],
         dirs: [
           resolve(__dirname, 'src/renderer/src/hooks')
         ]

@@ -2,8 +2,8 @@ import { app, BrowserWindow, shell } from 'electron'
 import { is } from '@electron-toolkit/utils'
 import { join } from 'path'
 import { Core } from '../../manager/Core'
-import { NAMESPACE } from '../../manager/plugins/logger/LoggerCommon'
 import { formatError } from '../../manager/utils/error'
+import { LOGGER_NAMESPACE } from '../../manager/plugins/Bridge/bridgeType'
 export class MainWindow {
   static _instance: MainWindow | null = null
   _window: BrowserWindow | null = null
@@ -41,7 +41,7 @@ export class MainWindow {
       mainWindow.setHasShadow(true)
 
       mainWindow.on('ready-to-show', () => {
-        this.logger.info('主窗口创建成功', NAMESPACE.APP)
+        this.logger.info('主窗口创建成功', LOGGER_NAMESPACE.APP)
         mainWindow.show()
       })
 
@@ -60,7 +60,7 @@ export class MainWindow {
       this._window = mainWindow
       return mainWindow
     } catch ( e ) {
-      this.logger.error(`[10001] 应用启动时出现错误 :${ formatError(e) }`, NAMESPACE.APP)
+      this.logger.error(`[10001] 应用启动时出现错误 :${ formatError(e) }`, LOGGER_NAMESPACE.APP)
       this.logger.on('finish', () => app.exit(10001))
       this.logger.end()
       return
