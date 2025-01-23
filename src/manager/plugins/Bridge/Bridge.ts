@@ -38,13 +38,31 @@ export class Bridge implements IPlugin {
   }
 
   /**
+   * 监听渲染进程发送过来的事件 单向通讯
+   * @param eventName
+   * @param cb
+   * @return 返回移除监听的函数
+   */
+  onEvent<T>(eventName: EVENT_TYPE, cb: (data?: BridgeDataType<T>) => Promise<BridgeDataType<T>> | BridgeDataType<T> | void) {
+    const key = `${BRIDGE_EVENT.RENDERER_TO_MAIN}:${eventName}`
+    if (!this._eventMap.has(key)) {
+      this._eventMap.set(key, new Set())
+    }
+
+    this._eventMap.get(key)!.add(cb)
+
+    return () => {
+      this._eventMap.get(key)!.delete(cb)
+    }
+  }
+
+  /**
    * 用于主进程注册函数，用于渲染进程调用主进程的函数
    * 回调函数传入的data是渲染进程传过来的数据，也需要满足 BridgeDataType 的数据结构
-   * @param data BridgeDataType
+   * @param eventName
    * @param cb
    * @example Core.getInstance().bridge.addCall(
-   *   LOGGER_NAMESPACE.APP,
-   *   'appVersion',
+   *   EVENT_TYPE.SET_LOL_DETAILS
    *   (data: BridgeDataType<string>) => {
    *     return {
    *       namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
@@ -132,25 +150,7 @@ export class Bridge implements IPlugin {
     }
   }
 
-  /**
-   * todo
-   * 监听渲染进程发送过来的事件 单向通讯
-   * @param eventName
-   * @param cb
-   * @return 返回移除监听的函数
-   */
-  onEvent<T>(eventName: EVENT_TYPE, cb: (data?: BridgeDataType<T>) => Promise<BridgeDataType<T>> | BridgeDataType<T> | void) {
-    const key = `${BRIDGE_EVENT.RENDERER_TO_MAIN}:${eventName}`
-    if (!this._eventMap.has(key)) {
-      this._eventMap.set(key, new Set())
-    }
 
-    this._eventMap.get(key)!.add(cb)
-
-    return () => {
-      this._eventMap.get(key)!.delete(cb)
-    }
-  }
 
   /**
    * 处理渲染进程发送过来的事件
