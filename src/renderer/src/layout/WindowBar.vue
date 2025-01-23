@@ -20,8 +20,11 @@
 import Icon from '../components/Icon.vue'
 import { Constant } from '../../../preload/utils/Constant'
 import { useWindowInfo } from '../store/windowInfo'
+import { BRIDGE_EVENT, EVENT_TYPE } from '../../../manager/plugins/Bridge/bridgeType'
 
 const winInfoStore = useWindowInfo()
+const ipc = useIpc()
+
 const iconSize = '21px'
 const tools = [
   {
@@ -30,7 +33,10 @@ const tools = [
     width: iconSize,
     height: iconSize,
     click: () => {
-      window.electron?.ipcRenderer.invoke(Constant.WINDOW_EVENT.WINDOW_MINIMIZED)
+      ipc.call({
+        namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
+        eventName: EVENT_TYPE.WINDOW_MINIMIZED
+      });
     }
   },
   {
@@ -42,9 +48,15 @@ const tools = [
     click: (item) => {
       console.log("查看：",item.isMaxWindow)
       if(!item.isMaxWindow)
-        window.electron?.ipcRenderer.invoke(Constant.WINDOW_EVENT.WINDOW_MAXIMIZED)
+        ipc.call({
+          namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
+          eventName: EVENT_TYPE.WINDOW_MAXIMIZED
+        });
       else
-        window.electron?.ipcRenderer.invoke(Constant.WINDOW_EVENT.WINDOW_RESTORED)
+        ipc.call({
+          namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
+          eventName: EVENT_TYPE.WINDOW_RESTORED
+        });
       item.isMaxWindow = !item.isMaxWindow
       winInfoStore.setIsWindowMaximization(item.isMaxWindow)
     }
@@ -55,7 +67,11 @@ const tools = [
     width: iconSize,
     height: iconSize,
     click: () => {
-        window.electron?.ipcRenderer.invoke(Constant.WINDOW_EVENT.WINDOW_CLOSED)
+        // window.electron?.ipcRenderer.invoke(Constant.WINDOW_EVENT.WINDOW_CLOSED)
+      ipc.call({
+        namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
+        eventName: EVENT_TYPE.WINDOW_CLOSED
+      });
     }
   }
 ]

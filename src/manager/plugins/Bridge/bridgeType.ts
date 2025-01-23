@@ -8,8 +8,10 @@ export enum BRIDGE_EVENT {
   CALL = '__CALL_',
   // 注销事件
   UNREGISTER = '__UNREGISTER__',
-  // 主进程和渲染进程互相通讯发送的事件 channel
+  // 主进程和渲染进程互相通讯发送的事件 channel 双向
   MAIN_COMMUNICATION_RENDERER = '__MAIN_COMMUNICATION_RENDERER__',
+  // 主进程向渲染进程发送的事件 channel 单向
+  MAIN_TO_RENDERER = '__MAIN_TO_RENDERER__',
 }
 
 /**
@@ -23,6 +25,7 @@ export enum CALL_FN_NAME {
  * 事件类型
  */
 export enum EVENT_TYPE {
+  TEST= "test",
   // 窗口创建
   WINDOW_CREATED = 'window-created',
   // 窗口关闭

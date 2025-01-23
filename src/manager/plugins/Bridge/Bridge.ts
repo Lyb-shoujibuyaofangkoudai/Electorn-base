@@ -49,8 +49,7 @@ export class Bridge implements IPlugin {
    *
    *
    */
-  addCall<T = any>(data: BridgeDataType<T>, cb: (data?: BridgeDataType<T>) => Promise<BridgeDataType<T>> | BridgeDataType<T> | void) {
-    console.log("主进程注册函数",data)
+  addCall<T = any>(data: Pick<BridgeDataType<T>, 'namespace' | 'eventName'>, cb: (data?: BridgeDataType<T>) => Promise<BridgeDataType<T>> | BridgeDataType<T> | void) {
     const key = `${ data.namespace }:${ data.eventName }`
     if ( this._callMap.has(key) ) {
       throw new Error(`Function "${ data.eventName }" in namespace "${ data.namespace }" already exists`)
@@ -61,11 +60,21 @@ export class Bridge implements IPlugin {
 
   /**
    * 主进程向渲染进程通讯（单向）
-   * @param data BridgeDataType
+   * @param eventName
+   * @param data T
+   * @param msg
    */
-  send<T>(data: BridgeDataType<T>) {
-    this._renderersWebContentIdsSet.forEach((id) =>
-      webContents.fromId(id as number)?.send(BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER, data)
+  send<T>(eventName: EVENT_TYPE, data?: T, msg?: string) {
+    Core.getInstance().logger.info(`发送${this._renderersWebContentIdsSet.size}`, eventName)
+    this._renderersWebContentIdsSet.forEach((id) => {
+      Core.getInstance().logger.info(`Send event ${ eventName } to renderer process id = ${id}`, eventName)
+        webContents.fromId(id as number)?.send(BRIDGE_EVENT.MAIN_TO_RENDERER, {
+          namespace: BRIDGE_EVENT.MAIN_TO_RENDERER,
+          eventName,
+          data,
+          msg
+        })
+      }
     )
   }
 
@@ -74,11 +83,12 @@ export class Bridge implements IPlugin {
    * @param e
    * @param action
    */
-  _handleRegister(e: IpcMainInvokeEvent, action: EVENT_TYPE) {
+  _handleRegister(e: IpcMainInvokeEvent, action: BridgeDataType<any>) {
     const id: number = e.sender.id
-    if ( action === EVENT_TYPE.REGISTER_WINDOW && !this._renderersWebContentIdsSet.has(id) ) {
+    Core.getInstance().logger.info(`注册窗口的id = ${id}`, action)
+    if ( action.eventName === EVENT_TYPE.REGISTER_WINDOW && !this._renderersWebContentIdsSet.has(id) ) {
       this._renderersWebContentIdsSet.add(id)
-    } else if ( action === EVENT_TYPE.UNREGISTER_WINDOW && this._renderersWebContentIdsSet.has(id) ) {
+    } else if ( action.eventName === EVENT_TYPE.UNREGISTER_WINDOW && this._renderersWebContentIdsSet.has(id) ) {
       this._renderersWebContentIdsSet.delete(id)
     }
   }
@@ -91,9 +101,8 @@ export class Bridge implements IPlugin {
   _handleCall = (
     _: IpcMainInvokeEvent,
     data: BridgeDataType<any>
-  ) :BridgeDataType<any> => {
+  ): BridgeDataType<any> => {
     const key = `${ data.namespace }:${ data.eventName }`
-    console.log("是否存在",key)
     const fn = this._callMap.get(key)
     if ( !fn ) {
       throw new Error(`No function "${ data.eventName }" in namespace "${ data.namespace }"`)
@@ -107,7 +116,7 @@ export class Bridge implements IPlugin {
       const result = wrappedFn()
       if ( result instanceof Promise ) {
         return result
-          .then((res:BridgeDataType<any>) => res)
+          .then((res: BridgeDataType<any>) => res)
           .catch((error: any) => Bridge._handleError(error))
       } else {
         return result
