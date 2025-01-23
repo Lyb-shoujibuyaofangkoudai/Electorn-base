@@ -1,5 +1,5 @@
 import { BRIDGE_EVENT, BridgeDataType, EVENT_TYPE } from './bridgeType'
-import { IpcRendererEvent } from 'electron'
+import { IpcRendererEvent,ipcRenderer } from 'electron'
 import { isAxiosError } from 'axios'
 
 /**
@@ -60,9 +60,14 @@ export class BridgeRenderer {
     }
   }
 
+  /**
+   *
+   * 监听主进程发送过来的事件 单向通讯
+   * @param eventName
+   * @param cb
+   */
   onEvent<T>(eventName: EVENT_TYPE, cb: (data?: BridgeDataType<T>) => Promise<BridgeDataType<T>> | BridgeDataType<T> | void) {
     const key = `${BRIDGE_EVENT.MAIN_TO_RENDERER}:${eventName}`
-    console.log("渲染进程注册回调",key)
     if (!this._eventMap.has(key)) {
       this._eventMap.set(key, new Set())
     }
@@ -73,4 +78,24 @@ export class BridgeRenderer {
       this._eventMap.get(key)!.delete(cb)
     }
   }
+
+  /**
+   * todo
+   * 渲染进程向主进程通讯（单向）
+   * @param eventName
+   * @param data T
+   * @param msg
+   */
+  send<T = any>(eventName: EVENT_TYPE, data?: T, msg?: string) {
+    // 注意这里只能通过preload的方式来使用，不要会报错
+    window.electron.ipcRenderer.send(BRIDGE_EVENT.RENDERER_TO_MAIN, {
+      namespace: BRIDGE_EVENT.RENDERER_TO_MAIN,
+      success: true,
+      eventName,
+      data,
+      msg
+    })
+  }
+
 }
+

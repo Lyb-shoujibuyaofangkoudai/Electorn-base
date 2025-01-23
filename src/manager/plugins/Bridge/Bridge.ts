@@ -1,7 +1,7 @@
 import { IPlugin } from '../../interface'
 import { Core } from '../../Core'
 import { BRIDGE_EVENT, BridgeDataType, EVENT_TYPE, IpcMainDataType } from './bridgeType'
-import { ipcMain, IpcMainInvokeEvent, webContents } from 'electron'
+import { ipcMain, IpcMainInvokeEvent, IpcMainEvent, webContents } from 'electron'
 import { isAxiosError } from 'axios'
 
 
@@ -11,6 +11,7 @@ export class Bridge implements IPlugin {
 
   _renderersWebContentIdsSet = new Set()
   _callMap = new Map<string, Function>()
+  _eventMap = new Map<string, Set<Function>>()
 
   constructor() {
     this._handleRegister = this._handleRegister.bind(this)
@@ -21,6 +22,8 @@ export class Bridge implements IPlugin {
     ipcMain.handle(BRIDGE_EVENT.REGISTER, this._handleRegister)
     // 监听渲染进程的call 事件 使用了箭头函数不会丢失this
     ipcMain.handle(BRIDGE_EVENT.CALL, this._handleCall)
+    // 监听渲染进程向主进程发送的消息 单向
+    ipcMain.on(BRIDGE_EVENT.RENDERER_TO_MAIN, this._handleDispatchEvent)
     core[this.name] = core.getPlugin(this.name)
   }
 
@@ -65,12 +68,11 @@ export class Bridge implements IPlugin {
    * @param msg
    */
   send<T>(eventName: EVENT_TYPE, data?: T, msg?: string) {
-    Core.getInstance().logger.info(`发送${this._renderersWebContentIdsSet.size}`, eventName)
     this._renderersWebContentIdsSet.forEach((id) => {
-      Core.getInstance().logger.info(`Send event ${ eventName } to renderer process id = ${id}`, eventName)
         webContents.fromId(id as number)?.send(BRIDGE_EVENT.MAIN_TO_RENDERER, {
           namespace: BRIDGE_EVENT.MAIN_TO_RENDERER,
           eventName,
+          success: true,
           data,
           msg
         })
@@ -123,6 +125,41 @@ export class Bridge implements IPlugin {
       }
     } catch ( error ) {
       return Bridge._handleError(error)
+    }
+  }
+
+  /**
+   * todo
+   * 监听渲染进程发送过来的事件 单向通讯
+   * @param eventName
+   * @param cb
+   * @return 返回移除监听的函数
+   */
+  onEvent<T>(eventName: EVENT_TYPE, cb: (data?: BridgeDataType<T>) => Promise<BridgeDataType<T>> | BridgeDataType<T> | void) {
+    const key = `${BRIDGE_EVENT.RENDERER_TO_MAIN}:${eventName}`
+    if (!this._eventMap.has(key)) {
+      this._eventMap.set(key, new Set())
+    }
+
+    this._eventMap.get(key)!.add(cb)
+
+    return () => {
+      this._eventMap.get(key)!.delete(cb)
+    }
+  }
+
+  /**
+   * 处理渲染进程发送过来的事件
+   * @param _
+   * @param data
+   */
+  _handleDispatchEvent = (_: IpcMainEvent, data: BridgeDataType<any>) => {
+    const key = `${ data.namespace }:${ data.eventName }`
+    const fns = this._eventMap.get(key)
+    if(fns) {
+      for ( const fn of fns ) {
+        fn(data)
+      }
     }
   }
 

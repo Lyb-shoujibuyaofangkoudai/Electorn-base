@@ -34,7 +34,6 @@ export class MainIpcHandle {
       },
       () => {
         MainWindow.instance.setWindowMinimization()
-        Core.getInstance().bridge.send(EVENT_TYPE.TEST,"哈哈哈哈测试数据啦",666)
       }
     );
 
