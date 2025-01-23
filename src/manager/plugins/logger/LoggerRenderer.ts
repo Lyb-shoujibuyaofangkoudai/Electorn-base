@@ -6,7 +6,8 @@ import { IPlugin } from '../../interface'
 import { Core } from '../../Core'
 
 
-import { EVENT_TYPE, LOGGER_NAMESPACE } from '../Bridge/bridgeType'
+import { LOGGER_NAMESPACE } from '../Bridge/bridgeType'
+import { EVENT_TYPE } from '../Bridge/eventType'
 
 /**
  * 渲染进程专用打印日志插件

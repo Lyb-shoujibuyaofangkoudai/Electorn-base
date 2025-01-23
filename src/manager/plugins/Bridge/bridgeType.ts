@@ -1,6 +1,6 @@
-
-
 // 通讯时间通信的channel命名空间
+import { EVENT_TYPE } from './eventType'
+
 export enum BRIDGE_EVENT {
   // 注册事件
   REGISTER = '__REGISTER__',
@@ -21,29 +21,6 @@ export enum BRIDGE_EVENT {
  */
 export enum CALL_FN_NAME {
   TEST = 'test'
-}
-
-/**
- * 事件类型
- */
-export enum EVENT_TYPE {
-  TEST= "test",
-  // 窗口创建
-  WINDOW_CREATED = 'window-created',
-  // 窗口关闭
-  WINDOW_CLOSED = 'window-closed',
-  // 窗口最小化
-  WINDOW_MINIMIZED = 'window-minimized',
-  // 窗口最大化
-  WINDOW_MAXIMIZED = 'window-maximized',
-  // 窗口取消最大化
-  WINDOW_UNMAXIMIZED = 'window-unmaximized',
-  // 窗口恢复
-  WINDOW_RESTORED = 'window-restored',
-  // 注册窗口
-  REGISTER_WINDOW = 'register-window',
-  // 注销窗口
-  UNREGISTER_WINDOW = 'unregister-window',
 }
 
 export type BridgeDataType<T> = {

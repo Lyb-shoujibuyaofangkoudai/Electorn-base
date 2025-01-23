@@ -10,6 +10,7 @@ import { Bridge } from './plugins/Bridge/Bridge'
 
 
 import { LOGGER_NAMESPACE } from './plugins/Bridge/bridgeType'
+import { EVENT_TYPE } from './plugins/Bridge/eventType'
 
 export class Manager {
   constructor() {
@@ -25,6 +26,8 @@ export class Manager {
       })
       this.createWindow()
       new MainIpcHandle()
+      Core.getInstance().bridge.send(EVENT_TYPE.SET_LOL_DETAILS,Core.getInstance().config?.configInfo)
+
 
       app.on('activate', () => {
         if ( BrowserWindow.getAllWindows().length === 0 ) this.createWindow()
@@ -43,15 +46,15 @@ export class Manager {
     try {
       const core = new Core()
       core.use(
-        new Logger(), // 日志插件
-        new Config(), // 配置插件
-        new League(), // LOL客户端相关插件
         new Bridge(), // 进程通讯插件
+        new Logger(), // 日志插件
+        new League(), // LOL客户端相关插件
+        new Config(), // 配置插件
       )
+      // Core.getInstance().logger.info(`命令解析数据结果：${ Core.getInstance().league?.cmdParsedInfo?.authToken }`, LOGGER_NAMESPACE.APP)
 
-      Core.getInstance().logger.info(`命令解析数据结果：${ Core.getInstance().league?.cmdParsedInfo?.authToken }`, LOGGER_NAMESPACE.APP)
     } catch ( e ) {
-      if ( Core.getInstance() ) Core.getInstance().logger.error(e, LOGGER_NAMESPACE.APP)
+      if ( Core.getInstance().logger ) Core.getInstance().logger.error(e, LOGGER_NAMESPACE.APP)
     }
   }
 

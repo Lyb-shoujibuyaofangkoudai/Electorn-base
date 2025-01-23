@@ -8,7 +8,8 @@ import { IPlugin } from '../../interface'
 import { Core } from '../../Core'
 
 
-import { EVENT_TYPE, LOGGER_NAMESPACE } from '../Bridge/bridgeType'
+import { LOGGER_NAMESPACE } from '../Bridge/bridgeType'
+import { EVENT_TYPE } from '../Bridge/eventType'
 export class Logger implements IPlugin {
   static id: string = 'logger'
   name = Logger.id

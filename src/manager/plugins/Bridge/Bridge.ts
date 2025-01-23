@@ -1,8 +1,13 @@
+/**
+ * 主进程专用
+ */
+
 import { IPlugin } from '../../interface'
 import { Core } from '../../Core'
-import { BRIDGE_EVENT, BridgeDataType, EVENT_TYPE, IpcMainDataType } from './bridgeType'
+import { BRIDGE_EVENT, BridgeDataType, IpcMainDataType } from './bridgeType'
 import { ipcMain, IpcMainInvokeEvent, IpcMainEvent, webContents } from 'electron'
 import { isAxiosError } from 'axios'
+import { EVENT_TYPE } from './eventType'
 
 
 export class Bridge implements IPlugin {
@@ -52,10 +57,10 @@ export class Bridge implements IPlugin {
    *
    *
    */
-  addCall<T = any>(data: Pick<BridgeDataType<T>, 'namespace' | 'eventName'>, cb: (data?: BridgeDataType<T>) => Promise<BridgeDataType<T>> | BridgeDataType<T> | void) {
-    const key = `${ data.namespace }:${ data.eventName }`
+  addCall<T = any>(eventName: EVENT_TYPE, cb: (data?: BridgeDataType<T>) => Promise<BridgeDataType<T>> | BridgeDataType<T> | void) {
+    const key = `${ BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER }:${ eventName }`
     if ( this._callMap.has(key) ) {
-      throw new Error(`Function "${ data.eventName }" in namespace "${ data.namespace }" already exists`)
+      throw new Error(`_callMap不存在key：${key}所对应的方法`)
     }
 
     this._callMap.set(key, cb)
@@ -87,7 +92,6 @@ export class Bridge implements IPlugin {
    */
   _handleRegister(e: IpcMainInvokeEvent, action: BridgeDataType<any>) {
     const id: number = e.sender.id
-    Core.getInstance().logger.info(`注册窗口的id = ${id}`, action)
     if ( action.eventName === EVENT_TYPE.REGISTER_WINDOW && !this._renderersWebContentIdsSet.has(id) ) {
       this._renderersWebContentIdsSet.add(id)
     } else if ( action.eventName === EVENT_TYPE.UNREGISTER_WINDOW && this._renderersWebContentIdsSet.has(id) ) {
@@ -104,10 +108,10 @@ export class Bridge implements IPlugin {
     _: IpcMainInvokeEvent,
     data: BridgeDataType<any>
   ): BridgeDataType<any> => {
-    const key = `${ data.namespace }:${ data.eventName }`
+    const key = `${ BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER }:${ data.eventName }`
     const fn = this._callMap.get(key)
     if ( !fn ) {
-      throw new Error(`No function "${ data.eventName }" in namespace "${ data.namespace }"`)
+      throw new Error(`_callMap不存在key：${key}所对应的方法`);
     }
 
     return Bridge._standardizeIpcData(() => fn(data))

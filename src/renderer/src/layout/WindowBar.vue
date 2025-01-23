@@ -20,7 +20,8 @@
 import Icon from '../components/Icon.vue'
 import { Constant } from '../../../preload/utils/Constant'
 import { useWindowInfo } from '../store/windowInfo'
-import { BRIDGE_EVENT, EVENT_TYPE } from '../../../manager/plugins/Bridge/bridgeType'
+import { BRIDGE_EVENT } from '../../../manager/plugins/Bridge/bridgeType'
+import { EVENT_TYPE } from '../../../manager/plugins/Bridge/eventType'
 
 const winInfoStore = useWindowInfo()
 const ipc = useIpc()
@@ -33,10 +34,7 @@ const tools = [
     width: iconSize,
     height: iconSize,
     click: () => {
-      ipc.call({
-        namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
-        eventName: EVENT_TYPE.WINDOW_MINIMIZED
-      });
+      ipc.call(EVENT_TYPE.WINDOW_MINIMIZED);
     }
   },
   {
@@ -46,17 +44,10 @@ const tools = [
     height: iconSize,
     isMaxWindow: false,
     click: (item) => {
-      console.log("查看：",item.isMaxWindow)
       if(!item.isMaxWindow)
-        ipc.call({
-          namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
-          eventName: EVENT_TYPE.WINDOW_MAXIMIZED
-        });
+        ipc.call( EVENT_TYPE.WINDOW_MAXIMIZED);
       else
-        ipc.call({
-          namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
-          eventName: EVENT_TYPE.WINDOW_RESTORED
-        });
+        ipc.call( EVENT_TYPE.WINDOW_RESTORED);
       item.isMaxWindow = !item.isMaxWindow
       winInfoStore.setIsWindowMaximization(item.isMaxWindow)
     }

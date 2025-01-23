@@ -1,6 +1,10 @@
-import { BRIDGE_EVENT, BridgeDataType, EVENT_TYPE } from './bridgeType'
-import { IpcRendererEvent,ipcRenderer } from 'electron'
-import { isAxiosError } from 'axios'
+/**
+ * 渲染进程专用。
+ */
+
+import { BRIDGE_EVENT, BridgeDataType } from './bridgeType'
+import { IpcRendererEvent } from 'electron'
+import { EVENT_TYPE } from './eventType'
 
 /**
  * 桥接
@@ -50,14 +54,18 @@ export class BridgeRenderer {
   /**
    * 通知主进程调用对应的函数，会执行类Bridge的_handleCall方法
    * 双向通讯
-   * @param data BridgeDataType
+   * @param eventName
+   * @param data
+   * @param msg
    */
-  async call<T = any>(data: Pick<BridgeDataType<T>,"namespace" | "eventName">) {
-    try {
-      return await window.electron.ipcRenderer.invoke(BRIDGE_EVENT.CALL, data)
-    } catch ( e ) {
-      return Promise.reject(e)
-    }
+  async call<T = any>(eventName:EVENT_TYPE,data?: T,msg?: string ) {
+    return await window.electron.ipcRenderer.invoke(BRIDGE_EVENT.CALL, {
+      namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
+      eventName,
+      success: true,
+      data,
+      msg
+    })
   }
 
   /**
@@ -80,7 +88,6 @@ export class BridgeRenderer {
   }
 
   /**
-   * todo
    * 渲染进程向主进程通讯（单向）
    * @param eventName
    * @param data T
