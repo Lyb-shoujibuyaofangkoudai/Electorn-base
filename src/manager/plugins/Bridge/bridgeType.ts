@@ -13,7 +13,9 @@ export enum BRIDGE_EVENT {
   // 主进程向渲染进程发送的事件 channel 单向
   MAIN_TO_RENDERER = '__MAIN_TO_RENDERER__',
   // 渲染进程向主进程发送的事件 channel 单向
-  RENDERER_TO_MAIN = '__RENDERER_TO_MAIN__'
+  RENDERER_TO_MAIN = '__RENDERER_TO_MAIN__',
+  // 渲染进程日志专用
+  RENDERER_LOG = '__RENDERER_LOG__',
 }
 
 /**

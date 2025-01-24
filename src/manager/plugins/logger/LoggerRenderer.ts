@@ -8,6 +8,7 @@ import { Core } from '../../Core'
 
 import { LOGGER_NAMESPACE } from '../Bridge/bridgeType'
 import { EVENT_TYPE } from '../Bridge/eventType'
+import { LOGGER_LEVEL } from './LoggerCommon'
 
 /**
  * 渲染进程专用打印日志插件
@@ -16,7 +17,7 @@ import { EVENT_TYPE } from '../Bridge/eventType'
 export class LoggerRenderer implements IPlugin {
   static id = 'logger-renderer'
   name = LoggerRenderer.id
-  // same as main shard
+  _ipc = useIpc()
 
   init(manager:Core & any) {
     if(!manager) return
@@ -61,6 +62,7 @@ export class LoggerRenderer implements IPlugin {
       'color: #004c3c; font-weight: bold;',
       message,
     )
+    this._ipc.sendLog(LOGGER_LEVEL.info,message)
 
   }
 
@@ -74,7 +76,7 @@ export class LoggerRenderer implements IPlugin {
       'color: #004c3c; font-weight: bold;',
       message,
     )
-
+    this._ipc.sendLog(LOGGER_LEVEL.warn,message)
   }
 
   error(message:any,namespace: EVENT_TYPE | LOGGER_NAMESPACE) {
@@ -87,7 +89,7 @@ export class LoggerRenderer implements IPlugin {
       'color: #004c3c; font-weight: bold;',
       message,
     )
-
+    this._ipc.sendLog(LOGGER_LEVEL.error,message)
   }
 
   debug(message:any,namespace: EVENT_TYPE | LOGGER_NAMESPACE) {
@@ -100,7 +102,7 @@ export class LoggerRenderer implements IPlugin {
       'color: #004c3c; font-weight: bold;',
       message,
     )
-
+    this._ipc.sendLog(LOGGER_LEVEL.debug,message)
   }
 
 

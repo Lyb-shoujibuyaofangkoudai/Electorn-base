@@ -8,6 +8,7 @@ import { BRIDGE_EVENT, BridgeDataType, IpcMainDataType } from './bridgeType'
 import { ipcMain, IpcMainInvokeEvent, IpcMainEvent, webContents } from 'electron'
 import { isAxiosError } from 'axios'
 import { EVENT_TYPE } from './eventType'
+import { LOGGER_LEVEL } from '../logger/LoggerCommon'
 
 
 export class Bridge implements IPlugin {
@@ -29,6 +30,8 @@ export class Bridge implements IPlugin {
     ipcMain.handle(BRIDGE_EVENT.CALL, this._handleCall)
     // 监听渲染进程向主进程发送的消息 单向
     ipcMain.on(BRIDGE_EVENT.RENDERER_TO_MAIN, this._handleDispatchEvent)
+    // 监听渲染进程向主进程发送的日志消息 专用 单向
+    ipcMain.on(BRIDGE_EVENT.RENDERER_LOG, this._handleDispatchRendererLogEvent)
     core[this.name] = core.getPlugin(this.name)
   }
 
@@ -38,6 +41,7 @@ export class Bridge implements IPlugin {
   }
 
   /**
+   * 用于存储主进程中监听渲染进程的函数 当监听到BRIDGE_EVENT.CALL时去出发相应的函数
    * 监听渲染进程发送过来的事件 单向通讯
    * @param eventName
    * @param cb
@@ -55,6 +59,8 @@ export class Bridge implements IPlugin {
       this._eventMap.get(key)!.delete(cb)
     }
   }
+
+
 
   /**
    * 用于主进程注册函数，用于渲染进程调用主进程的函数
@@ -166,6 +172,32 @@ export class Bridge implements IPlugin {
       }
     }
   }
+
+  _handleDispatchRendererLogEvent(_: IpcMainEvent, data: BridgeDataType<{
+    type: LOGGER_LEVEL
+    msg: string
+  }>) {
+    if(!Core.getInstance()?.logger) return
+    switch ( data.data!.type ) {
+      case LOGGER_LEVEL.info:
+        Core.getInstance().logger.info(data.data, EVENT_TYPE.RENDERER_LOG)
+        return
+      case LOGGER_LEVEL.warn:
+        Core.getInstance().logger.warn(data.data, EVENT_TYPE.RENDERER_LOG)
+        return
+      case LOGGER_LEVEL.error:
+        Core.getInstance().logger.error(data.data, EVENT_TYPE.RENDERER_LOG)
+        return
+      case LOGGER_LEVEL.debug:
+        Core.getInstance().logger.debug(data.data, EVENT_TYPE.RENDERER_LOG)
+        return
+      default:
+        Core.getInstance().logger.info(data.data, EVENT_TYPE.RENDERER_LOG)
+        return
+    }
+  }
+
+
 
   /**
    * 处理一般错误和 axios 错误, 包含特例, 对业务错误网开一面

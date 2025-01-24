@@ -3,6 +3,7 @@
  */
 export enum EVENT_TYPE {
   TEST = 'test',
+  RENDERER_LOG = 'RENDERER_LOG',
   // 窗口创建
   WINDOW_CREATED = 'window-created',
   // 窗口关闭

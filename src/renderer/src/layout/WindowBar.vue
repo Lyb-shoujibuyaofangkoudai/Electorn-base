@@ -4,11 +4,20 @@
       <div class="flex-1 flex justify-end h-full">
         <div class="region-bar flex-1"></div>
         <ul class="flex items-center h-full">
-          <li v-for="item in tools"
-              :key="item.name"
-              @click="item.click(item)"
-              class="cursor-pointer px-1 h-full flex items-center justify-center w-8 hover:bg-c_hover-1">
-            <Icon :height="item.height" :name="item.name" :width="item.width" />
+          <li class="rounded-1.3 !p-0.5 !h-fit cursor-pointer mr-4">
+            <a href="https://github.com/Lyb-shoujibuyaofangkoudai/Electorn-base" target="_blank">
+              <Icon height="26px" width="26px" name="icon-github"/>
+            </a>
+          </li>
+          <li class="hover:!bg-transparent">
+            <n-divider class="!bg-c_bg-9" vertical />
+          </li>
+          <li
+            v-for="(item,index) in tools"
+            :key="item.name"
+            class="px-3 h-full flex items-center justify-center w-8"
+            @click="item.click(item)">
+            <component class="w-6 h-6" :is="index !== 1 ? item.name : !item?.isMaxWindow ? item.name : item.name2" style="transform: translateY(-25rem); filter: drop-shadow(0 25rem 0 #ffffff);"/>
           </li>
         </ul>
       </div>
@@ -16,59 +25,67 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script
+  lang="ts"
+  setup>
 import Icon from '../components/Icon.vue'
-import { Constant } from '../../../preload/utils/Constant'
 import { useWindowInfo } from '../store/windowInfo'
 import { BRIDGE_EVENT } from '../../../manager/plugins/Bridge/bridgeType'
 import { EVENT_TYPE } from '../../../manager/plugins/Bridge/eventType'
+import {
+  IconClose,
+  IconFullscreen,
+  IconFullscreenExit,
+  IconDown
+} from '@arco-iconbox/vue-yyy-icon'
+
 
 const winInfoStore = useWindowInfo()
 const ipc = useIpc()
 
 const iconSize = '21px'
-const tools = [
+const tools = ref([
   {
-    name: 'icon-minus',
+    name: IconDown,
     color: 'red',
     width: iconSize,
     height: iconSize,
     click: () => {
-      ipc.call(EVENT_TYPE.WINDOW_MINIMIZED);
+      ipc.call(EVENT_TYPE.WINDOW_MINIMIZED)
     }
   },
   {
-    name: 'icon-expand-alt',
+    name: IconFullscreen,
+    name2: IconFullscreenExit,
     color: 'red',
     width: iconSize,
     height: iconSize,
     isMaxWindow: false,
     click: (item) => {
-      if(!item.isMaxWindow)
-        ipc.call( EVENT_TYPE.WINDOW_MAXIMIZED);
+      if ( !item.isMaxWindow )
+        ipc.call(EVENT_TYPE.WINDOW_MAXIMIZED)
       else
-        ipc.call( EVENT_TYPE.WINDOW_RESTORED);
+        ipc.call(EVENT_TYPE.WINDOW_RESTORED)
       item.isMaxWindow = !item.isMaxWindow
       winInfoStore.setIsWindowMaximization(item.isMaxWindow)
     }
   },
   {
-    name: 'icon-times',
+    name: IconClose,
     color: 'red',
     width: iconSize,
     height: iconSize,
     click: () => {
-        // window.electron?.ipcRenderer.invoke(Constant.WINDOW_EVENT.WINDOW_CLOSED)
-      ipc.call({
-        namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
-        eventName: EVENT_TYPE.WINDOW_CLOSED
-      });
+      // window.electron?.ipcRenderer.invoke(Constant.WINDOW_EVENT.WINDOW_CLOSED)
+      ipc.call(EVENT_TYPE.WINDOW_CLOSED)
     }
   }
-]
+])
 </script>
 
-<style lang="scss" scoped>
+<style
+  lang="scss"
+  scoped>
 .win-bar {
 }
 
@@ -76,5 +93,9 @@ const tools = [
   user-select: none;
   /* 设置该属性表明这是可拖拽区域，用来移动窗口 */
   -webkit-app-region: drag;
+}
+
+li {
+  @apply hover:bg-c_hover-1;
 }
 </style>

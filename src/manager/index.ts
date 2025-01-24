@@ -26,7 +26,6 @@ export class Manager {
       })
       this.createWindow()
       new MainIpcHandle()
-      Core.getInstance().bridge.send(EVENT_TYPE.SET_LOL_DETAILS,Core.getInstance().config?.configInfo)
 
 
       app.on('activate', () => {

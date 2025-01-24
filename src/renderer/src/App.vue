@@ -17,15 +17,27 @@ import { darkTheme, NScrollbar } from 'naive-ui'
 // const ipcHandle = () => window.electron.ipcRenderer.send('ping')
 import HomeLayout from './layout/HomeLayout.vue'
 import { useWindowInfo } from './store/windowInfo'
+import { useIpc } from './hooks/useIpc'
+import { EVENT_TYPE } from '../../manager/plugins/Bridge/eventType'
+import { useConfig } from './store/config'
 
 
 const windowInfoStore = useWindowInfo()
+const ipc = useIpc()
+const configStore = useConfig()
 
-console.log("查看：",window?.electron)
-// changeTheme('light')
-changeTheme('dark')
+
 function changeTheme(e: string) {
   document.documentElement.className = e
+}
+
+getConfigInfo()
+async function getConfigInfo() {
+  const res = await ipc.call(EVENT_TYPE.SET_LOL_DETAILS)
+  if(!res.data) return
+  configStore.setConfig(res.data)
+  changeTheme(res.data?.theme?.name ?? 'dark') // 默认暗色主题
+  useStorage("config",{}).value = res.data // 保存一份数据在本地
 }
 </script>
 

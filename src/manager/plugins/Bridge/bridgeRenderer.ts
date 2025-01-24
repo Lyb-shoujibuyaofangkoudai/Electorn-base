@@ -5,6 +5,7 @@
 import { BRIDGE_EVENT, BridgeDataType } from './bridgeType'
 import { IpcRendererEvent } from 'electron'
 import { EVENT_TYPE } from './eventType'
+import { LOGGER_LEVEL } from '../logger/LoggerCommon'
 
 /**
  * 桥接
@@ -100,6 +101,26 @@ export class BridgeRenderer {
       success: true,
       eventName,
       data,
+      msg
+    })
+  }
+
+  /**
+   * 渲染进程向主进程发送日志 专用方法
+   * @param type
+   * @param msg
+   */
+  sendLog(type:LOGGER_LEVEL,msg: string) {
+    // import.meta.env.PROD &&
+    if(type !== LOGGER_LEVEL.error) return
+    window.electron.ipcRenderer.send(BRIDGE_EVENT.RENDERER_LOG, {
+      namespace: BRIDGE_EVENT.RENDERER_LOG,
+      eventName: EVENT_TYPE.RENDERER_LOG,
+      success: true,
+      data: {
+        type,
+        msg
+      },
       msg
     })
   }

@@ -2,14 +2,13 @@ import { acceptHMRUpdate, defineStore } from 'pinia'
 import { ref } from 'vue'
 
 export const useConfig = defineStore('config', () => {
-  const theme = ref('dark')
-
-  function setTheme(themeName: string) {
-    theme.value = themeName
+  const configInfo = ref<any>({})
+  function setConfig(cfg: any) {
+    configInfo.value = cfg
   }
   return {
-    theme,
-    setTheme
+    configInfo,
+    setConfig
   }
 
 })

@@ -50,7 +50,8 @@ export default defineConfig({
             ]
           },
           'vue',
-          'vue-router'
+          'vue-router',
+          '@vueuse/core'
         ],
         dirs: [
           resolve(__dirname, 'src/renderer/src/hooks')

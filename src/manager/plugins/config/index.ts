@@ -11,6 +11,8 @@ export class Config implements IPlugin {
 
   static id = 'config'
   name = Config.id
+  _appDir = path.join(app.getAppPath(), '/src/manager')
+  _yamlPath = path.join(this._appDir, 'plugins/config/app.config.yaml')
 
   private configInfo:any = {}
 
@@ -20,15 +22,17 @@ export class Config implements IPlugin {
   }
 
   readConfig() {
-    const appDir = path.join(app.getAppPath(), '/src/manager')
-    const yamlPath = path.join(appDir, 'plugins/config/app.config.yaml')
+    const yamlPath = this._yamlPath
   //   读取配置文件
     const configContent = fs.readFileSync(yamlPath, 'utf8')
     const configData = yaml.load(configContent)
     return configData
   }
 
-
+  /**
+   * 根据key来获取配置文件中的值 如：theme.name
+   * @param key
+   */
   getValue(key: string): any {
     const keys = key.split('.')
     let value = this.configInfo
@@ -37,7 +41,7 @@ export class Config implements IPlugin {
       if (value && typeof value === 'object' && k in value) {
         value = value[k]
       } else {
-        return undefined // 或者抛出错误，根据需求选择
+        throw new Error(`Key '${key}' not found in config.`)
       }
     }
 
@@ -51,11 +55,20 @@ export class Config implements IPlugin {
     for (let i = 0; i < keys.length - 1; i++) {
       const k = keys[i]
       if (!obj[k] || typeof obj[k] !== 'object') {
-        obj[k] = {}
+        throw new Error(`Key '${keys.slice(0, i + 1).join('.')}' is not an object.`)
       }
       obj = obj[k]
     }
 
     obj[keys[keys.length - 1]] = value
+    // 将更新后的配置写入文件
+    yaml.dump(this.configInfo)
+
+  }
+
+  setConfig(config:any) {
+    this.configInfo = config
+    const yamlContent = yaml.dump(this.configInfo)
+    fs.writeFileSync(this._yamlPath, yamlContent);
   }
 }

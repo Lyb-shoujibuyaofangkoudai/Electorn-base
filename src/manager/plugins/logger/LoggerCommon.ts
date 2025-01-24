@@ -66,3 +66,9 @@ export enum NAMESPACE_COLORS {
   error = STYLES.bgRed
 }
 
+export enum LOGGER_LEVEL {
+  info = 'info',
+  debug = 'debug',
+  warn = 'warn',
+  error = 'error'
+}
