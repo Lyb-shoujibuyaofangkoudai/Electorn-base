@@ -12,6 +12,7 @@ export default defineConfig({
   main: {
     plugins: [
       externalizeDepsPlugin(),
+      vitePluginCoreTypings(resolve(__dirname,'src/manager/index.ts'))
     ],
     resolve: {
       alias: {

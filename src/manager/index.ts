@@ -44,14 +44,11 @@ export class Manager {
   initPluginSys() {
     try {
       const core = new Core()
-      core.use(
-        new Bridge(), // 进程通讯插件
-        new Logger(), // 日志插件
-        new League(), // LOL客户端相关插件
-        new Config(), // 配置插件
-      )
-      // Core.getInstance().logger.info(`命令解析数据结果：${ Core.getInstance().league?.cmdParsedInfo?.authToken }`, LOGGER_NAMESPACE.APP)
-
+      // 一个一个添加插件，可以被自定义vite插件识别，注意：插件内部将类挂在Core上时需要挂在类名小写，因为插件是这么实现
+      core.use(new Bridge())
+      core.use(new Logger())
+      core.use(new League())
+      core.use(new Config())
     } catch ( e ) {
       if ( Core.getInstance().logger ) Core.getInstance().logger.error(e, LOGGER_NAMESPACE.APP)
     }
