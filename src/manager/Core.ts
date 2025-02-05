@@ -11,7 +11,7 @@ export class Core {
    * 返回单例
    * @returns {Core & any}
    */
-  public static getInstance(): Core | any {
+  public static getInstance(): Core {
     if (!Core.instance) {
       Core.instance = new Core();
     }
