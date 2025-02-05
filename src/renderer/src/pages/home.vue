@@ -1,5 +1,5 @@
 <template>
-  <div class="" @click="test">
+  <div class="">
     这是首页
   </div>
 </template>

@@ -3,7 +3,7 @@
     <Slider />
     <div class="right flex-1 flex flex-col window-bg-content">
       <WindowBar />
-      <div class="flex-1 px-6">
+      <div class="flex-1 p-6">
         <slot />
       </div>
     </div>
