@@ -8,6 +8,9 @@
         <n-tab-pane name="自动化" tab="自动化">
           Hey Jude
         </n-tab-pane>
+        <n-tab-pane name="客户端参数" tab="客户端参数">
+          <LeagueInfo />
+        </n-tab-pane>
         <n-tab-pane name="其他" tab="其他">
           Hey Jude
         </n-tab-pane>
@@ -18,6 +21,7 @@
 
 <script setup lang="ts">
 
+import LeagueInfo from './components/LeagueInfo.vue'
 </script>
 
 <style lang="scss" scoped>

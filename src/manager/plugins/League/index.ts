@@ -39,7 +39,7 @@ type CmdParsedType = {
   authToken: string
   rsoPlatformId: string
   region: string
-  certificate: string
+  certificate?: string
   riotClientPort: number
   riotClientAuthToken: string
 }
@@ -105,7 +105,7 @@ export class League implements IPlugin {
       authToken: password,
       rsoPlatformId,
       region,
-      certificate: RIOT_CERTIFICATE,
+      // certificate: RIOT_CERTIFICATE,
       riotClientPort: Number(riotClientPort),
       riotClientAuthToken: riotClientAuth
     }

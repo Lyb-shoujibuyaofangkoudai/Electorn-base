@@ -11,6 +11,7 @@ export const dark = {
       7: '#848484',
       8: '#969696',
       9: '#ffffff',
+      10: '#343D7A'
 
     },
     // content color
@@ -48,9 +49,9 @@ export const dark = {
     // text color
     c_tc: {
       // 文字强调色
-      stress: 'rgba(255,255,255,.8)',
+      stress: 'rgba(255,255,255,1)',
       // 文字中度强调色
-      moderate: 'rgba(255,255,255,.6)',
+      moderate: 'rgba(255,255,255,.8)',
       // 文字弱度强调色
       weak: 'rgba(255,255,255,.4)',
       // 文字加强强调色

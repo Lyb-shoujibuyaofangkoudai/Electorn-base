@@ -159,6 +159,9 @@ export const nativeDarkTheme:GlobalThemeOverrides = {
     tabColorSegment: '#2D3260',
     tabBorderColor: '#3A3E67',
     paneTextColor: '#C0C0C0'
+  },
+  Tooltip: {
+    textColor: '#FFFFFF'
   }
 }
 

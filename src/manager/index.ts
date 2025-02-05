@@ -27,7 +27,6 @@ export class Manager {
       this.createWindow()
       new MainIpcHandle()
 
-
       app.on('activate', () => {
         if ( BrowserWindow.getAllWindows().length === 0 ) this.createWindow()
       })
@@ -44,7 +43,7 @@ export class Manager {
   initPluginSys() {
     try {
       const core = new Core()
-      // 一个一个添加插件，可以被自定义vite插件识别，注意：插件内部将类挂在Core上时需要挂在类名小写，因为插件是这么实现
+      // 一个一个添加插件，可以被自定义vite插件识别自动添加类型到corePlugin.d.ts文件中，注意：实现的插件内部需要将类名挂载到Core上，且类名小写
       core.use(new Bridge())
       core.use(new Logger())
       core.use(new League())

@@ -27,12 +27,13 @@ import { useIpc } from './hooks/useIpc'
 import { EVENT_TYPE } from '../../manager/plugins/Bridge/eventType'
 import { useConfig } from './store/config'
 import { nativeDarkTheme } from './theme/nativeDarkTheme'
+import { useLeague } from './store/league'
 
-// todo: 主题切换
-const theme = null
+const theme = ref(null)
 const windowInfoStore = useWindowInfo()
 const ipc = useIpc()
 const configStore = useConfig()
+const leagueStore = useLeague()
 
 
 function changeTheme(e: string) {
@@ -42,13 +43,25 @@ function changeTheme(e: string) {
 getConfigInfo()
 
 async function getConfigInfo() {
-  const res = await ipc.call(EVENT_TYPE.SET_LOL_DETAILS)
+  const res = await ipc.call(EVENT_TYPE.SET_DETAILS)
   if ( !res.data ) return
   configStore.setConfig(res.data)
+  theme.value = res.data?.theme?.name
   changeTheme(res.data?.theme?.name ?? 'dark') // 默认暗色主题
   useStorage('config', {}).value = res.data // 保存一份数据在本地
 }
 
+getLeagueInfo()
+async function getLeagueInfo() {
+  ipc.onEvent(
+    EVENT_TYPE.SET_LOL_DETAILS,
+    (data) => {
+      if(data?.data) {
+        leagueStore.setLeagueInfo(data.data)
+      }
+    },
+  )
+}
 
 
 

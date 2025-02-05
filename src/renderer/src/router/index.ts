@@ -19,7 +19,7 @@ const routes = [
   },
   {
     path: '/setting',
-    component: () => import('../pages/setting.vue'),
+    component: () => import('../pages/setting/setting.vue'),
      meta: { transition: 'slide-left' },
   },
 ]
