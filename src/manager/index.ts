@@ -10,9 +10,13 @@ import { Bridge } from './plugins/Bridge/Bridge'
 
 
 import { LOGGER_NAMESPACE } from './plugins/Bridge/bridgeType'
-import { EVENT_TYPE } from './plugins/Bridge/eventType'
+import { Schemes } from './plugins/Schemes'
+import { AxiosRequestConfig } from 'axios'
+import { LeagueMainHelper } from './plugins/LeagueMainHelper'
 
 export class Manager {
+  _logger: Logger | null = null
+
   constructor() {
     this.init()
   }
@@ -26,13 +30,14 @@ export class Manager {
       })
       this.createWindow()
       new MainIpcHandle()
-
-      app.on('activate', () => {
-        if ( BrowserWindow.getAllWindows().length === 0 ) this.createWindow()
-      })
     })
-
-
+    app.on('activate', () => {
+      if ( BrowserWindow.getAllWindows().length === 0 ) this.createWindow()
+    })
+    app.on('ready', () => {
+      // 测试自定义协议
+      Core.getInstance().schemes.handleProtocol()
+    })
     app.on('window-all-closed', () => {
       if ( process.platform !== 'darwin' ) {
         app.quit()
@@ -48,8 +53,12 @@ export class Manager {
       core.use(new Logger())
       core.use(new League())
       core.use(new Config())
+      core.use(new Schemes())
+      core.use(new LeagueMainHelper())
+      this._logger = Core.getInstance().logger
+
     } catch ( e ) {
-      if ( Core.getInstance().logger ) Core.getInstance().logger.error(e, LOGGER_NAMESPACE.APP)
+      if ( Core.getInstance().logger ) Core.getInstance().logger.error(`插件系统错误：${ e }`, LOGGER_NAMESPACE.APP)
     }
   }
 

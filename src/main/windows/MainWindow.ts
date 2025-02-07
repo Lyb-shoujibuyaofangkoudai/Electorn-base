@@ -5,6 +5,7 @@ import { Core } from '../../manager/Core'
 import { formatError } from '../../manager/utils/error'
 import { LOGGER_NAMESPACE } from '../../manager/plugins/Bridge/bridgeType'
 export class MainWindow {
+  static PARTITION_ID = 'main'
   static _instance: MainWindow | null = null
   _window: BrowserWindow | null = null
   private logger = Core.getInstance().logger
@@ -20,6 +21,7 @@ export class MainWindow {
 
   _createWindow() {
     try { // Create the browser window.
+      // app.commandLine.appendSwitch('ignore-certificate-errors')
       const width = Core.getInstance().config.getValue('main_window.width') ?? 960
       const height = Core.getInstance().config.getValue('main_window.height') ?? 720
       const mainWindow = new BrowserWindow({
@@ -32,7 +34,8 @@ export class MainWindow {
           preload: join(__dirname, '../preload/index.js'),
           sandbox: false,
           spellcheck: false,
-          backgroundThrottling: false
+          backgroundThrottling: false,
+          partition: MainWindow.PARTITION_ID,
         }
       })
       mainWindow.menuBarVisible = false

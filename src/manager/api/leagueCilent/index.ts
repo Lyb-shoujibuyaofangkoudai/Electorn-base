@@ -28,35 +28,70 @@ import { SpectatorHttpApi } from './spectator'
 import { SummonerHttpApi } from './summoner'
 
 /**
+ * 直接搬运https://github.com/Hanxven/LeagueAkari 的代码 好耶！不用自己写了！
  * 基于 Axios 封装的调用
  */
-export class LeagueClientHttpApiAxiosHelper {
+export class LeagueClientHttpApi {
+  // 冠军选择相关的 HTTP API
   public readonly champSelect: ChampSelectHttpApi
+  // 英雄掌握相关的 HTTP API
   public readonly championMastery: ChampionMasteryHttpApi
+  // 聊天相关的 HTTP API
   public readonly chat: ChatHttpApi
+  // 权益相关的 HTTP API
   public readonly entitlements: EntitlementsHttpApi
+  // 游戏数据相关的 HTTP API
   public readonly gameData: GameDataHttpApi
+  // 游戏流程相关的 HTTP API
   public readonly gameflow: GameflowHttpApi
+  // 荣誉相关的 HTTP API
   public readonly honor: HonorHttpApi
+  // 会议室相关的 HTTP API
   public readonly lobby: LobbyHttpApi
+  // 登录相关的 HTTP API
   public readonly login: LoginHttpApi
+  // 英雄联盟会话相关的 HTTP API
   public readonly lolLeagueSession: LolLeagueSessionHttpApi
+  // 战利品相关的 HTTP API
   public readonly loot: LootHttpApi
+  // 战绩历史相关的 HTTP API
   public readonly matchHistory: MatchHistoryHttpApi
+  // 匹配相关的 HTTP API
   public readonly matchmaking: MatchmakingHttpApi
+  // 玩家通知相关的 HTTP API
   public readonly playerNotifications: PlayerNotificationsHttpApi
+  // 进程控制相关的 HTTP API
   public readonly processControl: ProcessControlHttpApi
+  // 排名相关的 HTTP API
   public readonly ranked: RankedHttpApi
+  // Riot 客户端相关的 HTTP API
   public readonly riotclient: RiotClientHttpApi
+  // 观战相关的 HTTP API
   public readonly spectator: SpectatorHttpApi
+  // 召唤师相关的 HTTP API
   public readonly summoner: SummonerHttpApi
+  // 荣耀装饰相关的 HTTP API
   public readonly regalia: RegaliaHttpApi
+  // 装备相关的 HTTP API
   public readonly loadouts: LoadoutsHttpApi
+  // 挑战相关的 HTTP API
   public readonly challenges: ChallengesHttpApi
+  // 英雄特性相关的 HTTP API
   public readonly perks: PerksHttpApi
+  // 任务相关的 HTTP API
   public readonly missions: MissionsHttpApi
+  // 游戏结束相关的 HTTP API
   public readonly endOfGame: EndOfGameHttpApi
+  // 救援系统相关的 HTTP API
   public readonly remedy: RemedyHttpApi
+
+  static _instance: LeagueClientHttpApi
+  static getInstance(_http: AxiosInstance) {
+    if (!LeagueClientHttpApi._instance) {
+      LeagueClientHttpApi._instance = new LeagueClientHttpApi(_http)
+    }
+    return LeagueClientHttpApi._instance
+  }
 
   constructor(private _http: AxiosInstance) {
     this.champSelect = new ChampSelectHttpApi(this._http)

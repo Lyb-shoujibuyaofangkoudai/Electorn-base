@@ -1,7 +1,8 @@
 <template>
   <div class="win-bar relative z-[1000] box-border text-3 text-c_tc-stress w-full window-bar-height flex items-center justify-end">
-    <div class="flex items-center bg-blend-color h-full">
-      <div class="flex-1 flex justify-end h-full">
+    <div class="flex items-center bg-blend-color w-full h-full">
+      <div class="flex-1 flex justify-end h-full w-full">
+<!--        移动窗口区域-->
         <div class="region-bar flex-1"></div>
         <ul class="flex items-center h-full">
           <li class="rounded-1.3 !p-0.5 !h-fit cursor-pointer mr-4">

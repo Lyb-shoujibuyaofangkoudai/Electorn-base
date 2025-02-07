@@ -33,7 +33,7 @@ XWehWA==
 -----END CERTIFICATE-----`
 
 
-type CmdParsedType = {
+export type CmdParsedType = {
   port: number
   pid: number
   authToken: string
@@ -73,6 +73,7 @@ export class League implements IPlugin {
     const cmdLine = this.getLOLClientConnArgByNativeApi()
     this._cmdParsedInfo = this.parseCommandLine(cmdLine)
     core['league'] = core.getPlugin(League.id) // 挂载到core上
+    core.emit('leagueRegistered',this._cmdParsedInfo)
   }
 
   /**
@@ -98,7 +99,6 @@ export class League implements IPlugin {
     if ( !port || !password || !pid ) {
       return null
     }
-
     return {
       port: Number(port),
       pid: Number(pid),

@@ -6,6 +6,7 @@ export class Core {
   private plugins: Map<string, IPlugin> = new Map(); // 存储已加载插件的映射
   private listeners: Map<string, EventListener[]> = new Map(); // 存储事件监听器的映射
   private services: Map<string, Function> = new Map(); // 存储服务的映射
+  private _emits: Map<string, any> = new Map();
 
   /**
    * 返回单例
@@ -45,7 +46,12 @@ export class Core {
     if (plugin.hooks) {
       for (const [event, handler] of Object.entries(plugin.hooks)) {
         this.on(event, handler, plugin.name);
+        if(this._emits.has(event)) {
+          handler(this._emits.get(event))
+          this._emits.delete(event)
+        }
       }
+
     }
 
     // 注册通信处理器
@@ -102,7 +108,7 @@ export class Core {
     const listeners = this.listeners.get(event);
     if (listeners) {
       listeners.forEach(listener => listener.callback(data));
-    }
+    } else this._emits.set(event,data)
   }
 
   // 控制反转的占位函数

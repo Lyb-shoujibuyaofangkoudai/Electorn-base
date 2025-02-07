@@ -22,6 +22,7 @@ export class Logger implements IPlugin {
     core[this.name] = core.getPlugin(Logger.id) // 挂载到Core上
     core.logger.info('日志插件初始化成功',LOGGER_NAMESPACE.APP)
     core.logger.info(`日志保存路径：${this.logDirPath}`,LOGGER_NAMESPACE.APP)
+    core.emit('loggerRegistered',this.logger)
   }
 
   createLogger() {
@@ -76,28 +77,28 @@ export class Logger implements IPlugin {
     })
   }
 
-  info(message: any, namespace: EVENT_TYPE) {
+  info(message: any, namespace: EVENT_TYPE | LOGGER_NAMESPACE) {
     this.logger.info({
       message: JSON.stringify(message),
       namespace
     })
   }
 
-  debug(message: any, namespace: EVENT_TYPE) {
+  debug(message: any, namespace: EVENT_TYPE | LOGGER_NAMESPACE) {
     this.logger.debug({
       message: JSON.stringify(message),
       namespace
     })
   }
 
-  warn(message: any, namespace: EVENT_TYPE) {
+  warn(message: any, namespace: EVENT_TYPE | LOGGER_NAMESPACE) {
     this.logger.warn({
       message: JSON.stringify(message),
       namespace
     })
   }
 
-  error(message: any, namespace: EVENT_TYPE) {
+  error(message: any, namespace: EVENT_TYPE | LOGGER_NAMESPACE) {
     const error = new Error(message)
     this.logger.error({
       message: JSON.stringify(message),
