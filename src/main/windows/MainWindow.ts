@@ -4,6 +4,8 @@ import { join } from 'path'
 import { Core } from '../../manager/Core'
 import { formatError } from '../../manager/utils/error'
 import { LOGGER_NAMESPACE } from '../../manager/plugins/Bridge/bridgeType'
+import logo from '../../../resources/icon.ico?asset'
+
 export class MainWindow {
   static PARTITION_ID = 'main'
   static _instance: MainWindow | null = null
@@ -12,7 +14,7 @@ export class MainWindow {
 
 
   static get instance() {
-    if (!MainWindow._instance) {
+    if ( !MainWindow._instance ) {
       MainWindow._instance = new MainWindow()
     }
     return MainWindow._instance
@@ -30,17 +32,18 @@ export class MainWindow {
         frame: false,
         autoHideMenuBar: false,
         fullscreenable: false,
+        icon: logo,
         webPreferences: {
           preload: join(__dirname, '../preload/index.js'),
           sandbox: false,
           spellcheck: false,
           backgroundThrottling: false,
-          partition: MainWindow.PARTITION_ID,
+          partition: MainWindow.PARTITION_ID
         }
       })
       mainWindow.menuBarVisible = false
       // 打开调试工具
-      mainWindow.webContents.openDevTools({ mode: 'bottom' });
+      mainWindow.webContents.openDevTools({ mode: 'bottom' })
       mainWindow.setHasShadow(true)
 
       mainWindow.on('ready-to-show', () => {

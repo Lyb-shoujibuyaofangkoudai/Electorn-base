@@ -13,6 +13,9 @@ export class LeagueClientLcuUninitializedError extends Error {
   name = 'LeagueClientLcuUninitializedError'
 }
 
+/**
+ * 主要用于请求LOL客户端的API
+ */
 export class LeagueMainHelper implements IPlugin {
   static id: string = 'leagueMainHelper'
   name = LeagueMainHelper.id
@@ -25,11 +28,10 @@ export class LeagueMainHelper implements IPlugin {
 
   hooks = {
     loggerRegistered: (logger) => {
-      console.log("这玩意注册成功123了")
       this._logger = logger
     },
-    leagueRegistered: (auth:CmdParsedType) => {
-      console.log("这玩意注册成功了")
+    leagueConnSuccess: (auth:CmdParsedType) => {
+      this._logger?.info('连接LOL客户端成功', LOGGER_NAMESPACE.APP)
       this._request = new Request({
         baseURL: `${import.meta.env.VITE_BASE_HOST}:${auth.port}`,
         httpsAgent: new https.Agent({
@@ -53,7 +55,6 @@ export class LeagueMainHelper implements IPlugin {
       })
     },
     schemesRegistered: (core:Core) => {
-      console.log("自定义协议插件注册成功")
       this.proxyYYYLolClientFromRenderer(core)
     },
   }
@@ -84,7 +85,6 @@ export class LeagueMainHelper implements IPlugin {
    *
    */
   proxyYYYLolClientFromRenderer(core: Core) {
-    console.log("proxyYYYLolClientFromRenderer")
     if ( !core.schemes ) {
       if ( core?.logger ) {
         core?.logger?.error('代理渲染进程通过axios发送过来的请求（yyy://lol-client）失败，未找到Schemes插件', LOGGER_NAMESPACE.APP)
@@ -118,7 +118,6 @@ export class LeagueMainHelper implements IPlugin {
           status: res.status
         })
       } catch ( e ) {
-        this._logger?.warn(`Failed to LeagueClient request`, LOGGER_NAMESPACE.APP)
 
         if (e instanceof LeagueClientLcuUninitializedError) {
           return new Response(JSON.stringify({ error: e.name }), {

@@ -8,7 +8,6 @@
 #include <ntstatus.h>
 #include <memory> // 引入智能指针
 
-
 // 手动实现 UTF-16 到 UTF-8 的转换
 std::string utf16_to_utf8(const std::u16string &utf16)
 {
@@ -33,9 +32,6 @@ std::string utf16_to_utf8(const std::u16string &utf16)
   }
   return utf8;
 }
-
-
-
 
 // 定义NTSTATUS类型
 typedef LONG NTSTATUS;
@@ -68,7 +64,7 @@ int getProcessCommandLine(DWORD pid, WCHAR **pdata, SIZE_T *psize)
       HANDLE hProcess = OpenProcessFromPid(pid, PROCESS_QUERY_LIMITED_INFORMATION);
       if (hProcess == NULL)
       {
-//         fprintf(stderr, "Failed to open process with PID %lu: %lu\n", pid, GetLastError());
+        //         fprintf(stderr, "Failed to open process with PID %lu: %lu\n", pid, GetLastError());
         return -1;
       }
 
@@ -78,7 +74,7 @@ int getProcessCommandLine(DWORD pid, WCHAR **pdata, SIZE_T *psize)
       NTSTATUS status = NtQueryInformationProcess(hProcess, (PROCESSINFOCLASS)60, NULL, 0, &bufLen);
       if (status != STATUS_BUFFER_OVERFLOW && status != STATUS_BUFFER_TOO_SMALL && status != STATUS_INFO_LENGTH_MISMATCH)
       {
-//         fprintf(stderr, "NtQueryInformationProcess failed with status 0x%lx\n", status);
+        //         fprintf(stderr, "NtQueryInformationProcess failed with status 0x%lx\n", status);
         CloseHandle(hProcess);
         return -1;
       }
@@ -87,7 +83,7 @@ int getProcessCommandLine(DWORD pid, WCHAR **pdata, SIZE_T *psize)
       buffer.reset(new char[bufLen]);
       if (!buffer)
       {
-//         fprintf(stderr, "Memory allocation failed\n");
+        //         fprintf(stderr, "Memory allocation failed\n");
         CloseHandle(hProcess);
         return -1;
       }
@@ -96,7 +92,7 @@ int getProcessCommandLine(DWORD pid, WCHAR **pdata, SIZE_T *psize)
       status = NtQueryInformationProcess(hProcess, (PROCESSINFOCLASS)60, buffer.get(), bufLen, &bufLen);
       if (!NT_SUCCESS(status))
       {
-//         fprintf(stderr, "NtQueryInformationProcess failed with status 0x%lx\n", status);
+        //         fprintf(stderr, "NtQueryInformationProcess failed with status 0x%lx\n", status);
         CloseHandle(hProcess);
         return -1;
       }
@@ -107,7 +103,7 @@ int getProcessCommandLine(DWORD pid, WCHAR **pdata, SIZE_T *psize)
       std::unique_ptr<WCHAR[]> bufWchar(new WCHAR[size / sizeof(WCHAR)]);
       if (!bufWchar)
       {
-//         fprintf(stderr, "Memory allocation failed\n");
+        //         fprintf(stderr, "Memory allocation failed\n");
         CloseHandle(hProcess);
         return -1;
       }
@@ -122,14 +118,14 @@ int getProcessCommandLine(DWORD pid, WCHAR **pdata, SIZE_T *psize)
     else
     {
       // 处理错误：无法获取函数地址
-//       fprintf(stderr, "Failed to get address of NtQueryInformationProcess\n");
+      //       fprintf(stderr, "Failed to get address of NtQueryInformationProcess\n");
       return -1;
     }
   }
   else
   {
     // 处理错误：无法加载 ntdll.dll
-//     fprintf(stderr, "Failed to load ntdll.dll\n");
+    //     fprintf(stderr, "Failed to load ntdll.dll\n");
   }
   return -1;
 }
@@ -167,10 +163,9 @@ Napi::Value GetProcessCommandLine(const Napi::CallbackInfo &info)
   }
   else
   {
-    return Napi::String::New(env, "Failed to retrieve command line.");
+    return Napi::String::New(env, "");
   }
 }
-
 
 /*
     根据进程名称获取进程ID
@@ -215,10 +210,38 @@ Napi::Value GetPidByName(const Napi::CallbackInfo &info)
   return Napi::Number::New(env, pid);
 }
 
+Napi::Value IsElevated(const Napi::CallbackInfo &info)
+{
+  Napi::Env env = info.Env();
+  bool bIsElevated = false;
+
+  // Windows特定的权限检测
+  BOOL isMember = FALSE;
+  PSID administratorsGroup = nullptr;
+  SID_IDENTIFIER_AUTHORITY SIDAuthNT = SECURITY_NT_AUTHORITY;
+
+  if (AllocateAndInitializeSid(
+          &SIDAuthNT, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS,
+          0, 0, 0, 0, 0, 0, &administratorsGroup))
+  {
+    CheckTokenMembership(nullptr, administratorsGroup, &isMember);
+  }
+
+  if (administratorsGroup)
+  {
+    FreeSid(administratorsGroup);
+  }
+
+  bIsElevated = isMember ? true : false;
+
+  return Napi::Boolean::New(env, bIsElevated);
+}
+
 Napi::Object Init(Napi::Env env, Napi::Object exports)
 {
   exports.Set("getPidByName", Napi::Function::New(env, GetPidByName));
   exports.Set("getProcessCommandLine", Napi::Function::New(env, GetProcessCommandLine));
+  exports.Set("isElevated", Napi::Function::New(env, IsElevated));
   return exports;
 }
 

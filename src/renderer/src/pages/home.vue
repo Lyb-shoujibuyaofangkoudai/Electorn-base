@@ -1,20 +1,19 @@
 <template>
-  <div class="">
-    这是首页
-  </div>
+  <ConnLOLClient>
+    <div>显示的内容</div>
+  </ConnLOLClient>
 </template>
 
-<script setup lang="ts">
-import { useApi } from '../hooks/useApi'
+<script
+  lang="ts"
+  setup>
+import { useLeague } from '../store/league'
 
-const api = useApi()
-test()
-async function test() {
-  const res = await api.matchHistory.getCurrentSummonerMatchHistory()
-  console.log(res)
-}
+const leagueStore = useLeague()
 </script>
 
-<style lang="scss" scoped>
+<style
+  lang="scss"
+  scoped>
 
 </style>

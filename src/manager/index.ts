@@ -29,7 +29,7 @@ export class Manager {
         optimizer.watchWindowShortcuts(window)
       })
       this.createWindow()
-      new MainIpcHandle()
+      MainIpcHandle.getInstance()
     })
     app.on('activate', () => {
       if ( BrowserWindow.getAllWindows().length === 0 ) this.createWindow()

@@ -5,9 +5,16 @@ import { EVENT_TYPE } from '../../manager/plugins/Bridge/eventType'
 import { Bridge } from '../../manager/plugins/Bridge/Bridge'
 
 export class MainIpcHandle {
+  private static _instance: MainIpcHandle | null = null
   logger = Core.getInstance().logger
   bridge = Core.getInstance().bridge as Bridge
 
+  static getInstance(): MainIpcHandle {
+    if ( !MainIpcHandle._instance ) {
+      MainIpcHandle._instance = new MainIpcHandle()
+    }
+    return MainIpcHandle._instance
+  }
   constructor() {
     this.init()
   }
@@ -94,6 +101,7 @@ export class MainIpcHandle {
   }
 
   leagueHandle() {
+    if(!Core.getInstance().league?.cmdParsedInfo) return
     this.bridge.send(
       EVENT_TYPE.SET_LOL_DETAILS,
       Core.getInstance().league?.cmdParsedInfo,

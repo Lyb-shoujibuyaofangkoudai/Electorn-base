@@ -4,7 +4,7 @@ import { useLeague } from '../store/league'
 
 const leagueStore = useLeague()
 const request = new Request({
-  baseURL: `yyy://lol-client`,
+  baseURL: import.meta.env.VITE_CUS_SCHEME_LCU_URL,
   adapter: 'fetch',
 })
 export const useApi = () => LeagueClientHttpApi.getInstance(request.http)

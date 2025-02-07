@@ -69,11 +69,21 @@ export class League implements IPlugin {
     return this._cmdParsedInfo
   }
 
-  init(core:Core & any) {
-    const cmdLine = this.getLOLClientConnArgByNativeApi()
-    this._cmdParsedInfo = this.parseCommandLine(cmdLine)
+  init(core:Core) {
+   this.loopConnection(core)
     core['league'] = core.getPlugin(League.id) // 挂载到core上
-    core.emit('leagueRegistered',this._cmdParsedInfo)
+  }
+
+  loopConnection(core:Core) {
+    const timer = setInterval(() => {
+      const cmdLine = this.getLOLClientConnArgByNativeApi()
+      if(cmdLine) {
+        this._cmdParsedInfo = this.parseCommandLine(cmdLine)
+        core.emit('leagueConnSuccess',this._cmdParsedInfo)
+        clearInterval(timer)
+      }
+
+    }, 1000)
   }
 
   /**
