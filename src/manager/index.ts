@@ -36,13 +36,21 @@ export class Manager {
     })
     app.on('ready', () => {
       // 测试自定义协议
-      Core.getInstance().schemes.handleProtocol()
+      // Core.getInstance().schemes?.handleProtocol()
     })
     app.on('window-all-closed', () => {
       if ( process.platform !== 'darwin' ) {
         app.quit()
       }
     })
+    app.on("render-process-gone", function (event, webContents, details) {
+      // 输出一下捕捉到的reason，实际可以根据不同的“原因”进行具体处理
+      console.error("render-process-gone, reason => ", JSON.stringify(details));
+      Core.getInstance().logger?.error(`render-process-gone, reason => ${ JSON.stringify(details) }`, LOGGER_NAMESPACE.APP)
+      // 尝试关闭所有窗口
+      app.quit();
+    });
+
   }
 
   initPluginSys() {
@@ -56,7 +64,7 @@ export class Manager {
       core.use(new Schemes())
       core.use(new LeagueMainHelper())
       this._logger = Core.getInstance().logger
-
+      Core.getInstance().logger?.info('插件系统初始化完成', LOGGER_NAMESPACE.APP)
     } catch ( e ) {
       if ( Core.getInstance().logger ) Core.getInstance().logger.error(`插件系统错误：${ e }`, LOGGER_NAMESPACE.APP)
     }

@@ -1,22 +1,28 @@
 <template>
   <div class="py-2">
-    <div
-      v-for="item in leagueInfo"
-      @click="copy(item.value)"
-      class="bg-c_bg-10 px-3 py-2 rounded-1.2 w-1/2 mb-3">
-      <n-tooltip
-        placement="right-end"
-        trigger="hover"
-      >
-        <template #trigger>
-         <div class="w-full flex items-center justify-between gap-6">
-           <h2 class="text-c_tc-stress font-bold text-4">{{ item.key }}</h2>
-           <p class="cursor-default">{{ item.value }}</p>
-         </div>
-        </template>
-        <span>点击复制</span>
-      </n-tooltip>
-    </div>
+    <template v-if="leagueInfo.length">
+      <div
+        v-for="item in leagueInfo"
+        @click="copy(item.value)"
+        class="bg-c_bg-10 px-3 py-2 rounded-1.2 w-1/2 mb-3">
+        <n-tooltip
+          placement="right-end"
+          trigger="hover"
+        >
+          <template #trigger>
+            <div class="w-full flex items-center justify-between gap-6">
+              <h2 class="text-c_tc-stress font-bold text-4">{{ item.key }}</h2>
+              <p class="cursor-default">{{ item.value }}</p>
+            </div>
+          </template>
+          <span>点击复制</span>
+        </n-tooltip>
+      </div>
+    </template>
+    <template v-else>
+      <n-empty description="还未连接LOL客户端">
+      </n-empty>
+    </template>
   </div>
 </template>
 

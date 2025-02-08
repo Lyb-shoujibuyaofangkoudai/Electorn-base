@@ -1,10 +1,11 @@
-import { app, BrowserWindow, shell } from 'electron'
+import { app, BrowserWindow,nativeImage, shell } from 'electron'
 import { is } from '@electron-toolkit/utils'
 import { join } from 'path'
 import { Core } from '../../manager/Core'
 import { formatError } from '../../manager/utils/error'
 import { LOGGER_NAMESPACE } from '../../manager/plugins/Bridge/bridgeType'
-import logo from '../../../resources/icon.ico?asset'
+import logo from '../../../resources/icon.png'
+import { MainIpcHandle } from '../utils/MainIpcHandle'
 
 export class MainWindow {
   static PARTITION_ID = 'main'
@@ -20,34 +21,34 @@ export class MainWindow {
     return MainWindow._instance
   }
 
-
   _createWindow() {
     try { // Create the browser window.
       // app.commandLine.appendSwitch('ignore-certificate-errors')
-      const width = Core.getInstance().config.getValue('main_window.width') ?? 960
-      const height = Core.getInstance().config.getValue('main_window.height') ?? 720
+      const width = Core.getInstance()?.config?.getValue('main_window.width') ?? 960
+      const height = Core.getInstance()?.config?.getValue('main_window.height') ?? 720
       const mainWindow = new BrowserWindow({
         width,
         height,
         frame: false,
         autoHideMenuBar: false,
         fullscreenable: false,
-        icon: logo,
         webPreferences: {
           preload: join(__dirname, '../preload/index.js'),
           sandbox: false,
           spellcheck: false,
           backgroundThrottling: false,
-          partition: MainWindow.PARTITION_ID
+          partition: MainWindow.PARTITION_ID,
         }
       })
       mainWindow.menuBarVisible = false
       // 打开调试工具
-      mainWindow.webContents.openDevTools({ mode: 'bottom' })
+      process.env.NODE_ENV !== 'production' && mainWindow.webContents.openDevTools({ mode: 'bottom' })
       mainWindow.setHasShadow(true)
 
       mainWindow.on('ready-to-show', () => {
-        this.logger.info('主窗口创建成功', LOGGER_NAMESPACE.APP)
+        const mHandle = MainIpcHandle.getInstance()
+        this.logger?.info('主窗口创建成功', LOGGER_NAMESPACE.APP)
+        !this.logger?.info && mHandle.debugHandle("不存在这个东西this.logger?.info")
         mainWindow.show()
       })
 
@@ -56,19 +57,17 @@ export class MainWindow {
         return { action: 'deny' }
       })
 
-      // HMR for renderer base on electron-vite cli.
-      // Load the remote URL for development or the local html file for production.
-      if ( is.dev && process.env['ELECTRON_RENDERER_URL'] ) {
-        mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
+      if ( is.dev && ['ELECTRON_RENDERER_URL'] ) {
+        mainWindow.loadURL((process.env as any)['ELECTRON_RENDERER_URL'])
       } else {
         mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
       }
       this._window = mainWindow
       return mainWindow
     } catch ( e ) {
-      this.logger.error(`[10001] 应用启动时出现错误 :${ formatError(e) }`, LOGGER_NAMESPACE.APP)
-      this.logger.on('finish', () => app.exit(10001))
-      this.logger.end()
+      this.logger?.error(`[10001] 应用启动时出现错误 :${ formatError(e) }`, LOGGER_NAMESPACE.APP)
+      this.logger?.on('finish', () => app.exit(10001))
+      this.logger?.end()
       return
     }
   }

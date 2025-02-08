@@ -80,7 +80,7 @@ function generateCoreTypings(root: string, coreInitFilePath: string) {
   const coreExtensions: string[] = []
   importPaths.forEach((importPath, index) => {
     // 绝对路径转相对路径
-    importExtensions.push(`import ${loggerClassNames[index]} from "${path.relative(coreInitFileDir,importPath).replace(/\\/g, '/')}"`)
+    importExtensions.push(`import ${loggerClassNames[index]} from "${'./'+path.relative(coreInitFileDir,importPath).replace(/\\/g, '/')}"`)
     coreExtensions.push(`${ loggerClassNames[index].toLocaleLowerCase() }: ${ loggerClassNames[index] };`)
   })
 

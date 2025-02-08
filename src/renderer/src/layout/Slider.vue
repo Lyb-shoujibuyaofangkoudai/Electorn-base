@@ -37,7 +37,7 @@
 import logo from '@renderer/assets/image/logo.png'
 
 const route = useRoute()
-
+console.log("查看当前路由：",route)
 const leftTopTools = [
   {
     icon: 'icon-zhandou',

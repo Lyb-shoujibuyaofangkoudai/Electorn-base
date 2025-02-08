@@ -1,5 +1,5 @@
 {
-  "name": "YYY-LOL-TOOLS",
+  "name": "YYY-LOL-TOOL",
   "version": "1.0.0",
   "description": "lol工具",
   "main": "./out/main/index.js",
@@ -10,11 +10,11 @@
     "typecheck:web": "vue-tsc --noEmit -p tsconfig.web.json --composite false",
     "typecheck": "npm run typecheck:node && npm run typecheck:web",
     "start": "electron-vite preview --mode production",
-    "dev": "chcp 65001 & electron-vite dev --watch --mode development",
+    "dev": "chcp 65001 & electron-vite dev --inspect --watch --mode development",
     "build": "npm run typecheck && electron-vite build --mode production",
     "postinstall": "electron-builder install-app-deps",
-    "build:win": "npm run build && electron-builder --win --mode production",
-    "build:mac": "npm run build && electron-builder --mac --mode production"
+    "build:win": "npm run build && electron-builder --win --config",
+    "build:mac": "npm run build && electron-builder --mac"
   },
   "dependencies": {
     "@arco-iconbox/vue-yyy-icon": "^0.0.1",
@@ -42,6 +42,7 @@
     "naive-ui": "^2.41.0",
     "prettier": "^3.3.2",
     "sass": "^1.83.1",
+    "terser": "^5.38.1",
     "typescript": "^5.5.2",
     "unocss": "^0.65.3",
     "unocss-preset-theme": "^0.14.1",

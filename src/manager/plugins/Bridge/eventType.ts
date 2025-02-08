@@ -24,7 +24,12 @@ export enum EVENT_TYPE {
   SET_DETAILS = 'set-details',
   //   LOL命令行参数详情
   SET_LOL_DETAILS = 'set-lol-details',
-
+  //   管理员
+  ADMIN_DETAILS = 'admin-details',
+  // 日志配置信息
+  LOGGER_DETAILS = 'logger-details',
+  // 调试信息 主要用于打包后的调试信息 在渲染进程中显示
+  DEBUG_DETAILS = 'debug-details',
 
 
 }

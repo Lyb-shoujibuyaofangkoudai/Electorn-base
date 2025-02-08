@@ -7,7 +7,7 @@ import Components from 'unplugin-vue-components/vite'
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import vitePluginCoreTypings from './src/vitePlugins/vite-plugin-core-typings'
-
+const minify = process.env.NODE_ENV === 'production'
 export default defineConfig({
   main: {
     plugins: [
@@ -16,18 +16,28 @@ export default defineConfig({
     ],
     resolve: {
       alias: {
-        '@main': resolve(__dirname,'src/main/src'),
+        '@main': resolve(__dirname,'src/main'),
         '@': resolve(__dirname,'./src'),
         '@resources': resolve(__dirname,'resources'),
         '@manager': resolve(__dirname,'src/manager'),
+        "lol-tools.node": resolve(__dirname,'resources/addons/lol-tools.node'),
       }
     },
     publicDir: resolve(__dirname,'resources'),
+    build: {
+      minify
+    },
   },
   preload: {
-    plugins: [externalizeDepsPlugin()]
+    plugins: [externalizeDepsPlugin()],
+    build: {
+      minify
+    },
   },
   renderer: {
+    build: {
+      minify
+    },
     resolve: {
       alias: {
         '@renderer': resolve(__dirname,'src/renderer/src'),
@@ -37,7 +47,6 @@ export default defineConfig({
     },
     plugins: [
       vue(),
-      UnoCSS(),
       vueDevTools(),
       AutoImport({
         imports: [
@@ -60,7 +69,8 @@ export default defineConfig({
       }),
       Components({
         resolvers: [NaiveUiResolver()]
-      })
+      }),
+      UnoCSS(),
     ],
     // 设置scss的api类型为modern-compiler
     css: {

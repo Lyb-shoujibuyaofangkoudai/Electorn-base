@@ -1,5 +1,6 @@
 import { IPlugin } from '../../interface'
-import lolTools from '@resources/addons/lol-tools.node'
+// import lolTools from '../../../../resources/addons/lol-tools.node'
+import lolTools from 'lol-tools.node'
 import { Core } from '../../Core'
 
 
@@ -50,9 +51,9 @@ export class League implements IPlugin {
   name = League.id
 
   private _PROCESS_NAME = 'LeagueClientUx.exe'
-  private tools: LOLToolsAddon = lolTools
+  private tools = lolTools
   private _cmdOriginInfo = ''
-  private _cmdParsedInfo:CmdParsedType | null = null
+  private _cmdParsedInfo: CmdParsedType | null = null
 
   // 端口号
   private _portRegex = /--app-port=([0-9]+)/
@@ -69,17 +70,17 @@ export class League implements IPlugin {
     return this._cmdParsedInfo
   }
 
-  init(core:Core) {
-   this.loopConnection(core)
+  init(core: Core) {
+    this.loopConnection(core)
     core['league'] = core.getPlugin(League.id) // 挂载到core上
   }
 
-  loopConnection(core:Core) {
+  loopConnection(core: Core) {
     const timer = setInterval(() => {
       const cmdLine = this.getLOLClientConnArgByNativeApi()
-      if(cmdLine) {
+      if ( cmdLine ) {
         this._cmdParsedInfo = this.parseCommandLine(cmdLine)
-        core.emit('leagueConnSuccess',this._cmdParsedInfo)
+        core.emit('leagueConnSuccess', this._cmdParsedInfo)
         clearInterval(timer)
       }
 

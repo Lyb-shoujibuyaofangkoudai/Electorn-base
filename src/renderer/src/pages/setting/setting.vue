@@ -12,7 +12,7 @@
           <LeagueInfo />
         </n-tab-pane>
         <n-tab-pane name="其他" tab="其他">
-          Hey Jude
+          <OtherSetting />
         </n-tab-pane>
       </n-tabs>
     </n-card>
@@ -22,6 +22,7 @@
 <script setup lang="ts">
 
 import LeagueInfo from './components/LeagueInfo.vue'
+import OtherSetting from './components/OtherSetting.vue'
 </script>
 
 <style lang="scss" scoped>

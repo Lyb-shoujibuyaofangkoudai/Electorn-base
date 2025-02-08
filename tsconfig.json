@@ -1,10 +1,14 @@
 {
   "compilerOptions": {
+    "baseUrl": "./",
     "target": "ESNext",
     "lib": ["ESNext"],
     "noImplicitAny": true,
     "noUnusedLocals": false,  // 禁用未使用局部变量的检查
-    "noUnusedParameters": false  // 禁用未使用参数的检查
+    "noUnusedParameters": false,  // 禁用未使用参数的检查
+    "paths": {
+      "lol-tools.node": ["./resources/addons/lol-tools.node"]
+    }
   },
   "files": [],
   "include": [
@@ -12,7 +16,7 @@
     "src/manager/*.d.ts",
     "src/*.d.ts",
     "src/**/*.d.ts",
-    "src/global.d.ts"
+    "src/global.d.ts",
   ],
   "references": [
     {
