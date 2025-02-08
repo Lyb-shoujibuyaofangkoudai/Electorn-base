@@ -5,7 +5,7 @@
       <NScrollbar :class="`bg-c_wc-top ${!windowInfoStore.isMaxWindow ? 'rounded-xl' : ''}`">
         <HomeLayout>
           <RouterView v-slot="{ Component,route  }">
-            <transition :name="route.meta.transition || 'fade'">
+            <transition :name="'fade'">
               <component
                 :is="Component"
                 v-if="Component"
@@ -34,7 +34,6 @@ const windowInfoStore = useWindowInfo()
 const ipc = useIpc()
 const configStore = useConfig()
 const leagueStore = useLeague()
-
 
 function changeTheme(e: string) {
   document.documentElement.className = e

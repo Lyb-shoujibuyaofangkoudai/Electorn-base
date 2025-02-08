@@ -7,6 +7,7 @@
 #include <winternl.h> // 引入 winternl.h
 #include <ntstatus.h>
 #include <memory> // 引入智能指针
+#include <shellapi.h>
 
 // 手动实现 UTF-16 到 UTF-8 的转换
 std::string utf16_to_utf8(const std::u16string &utf16)
@@ -237,11 +238,68 @@ Napi::Value IsElevated(const Napi::CallbackInfo &info)
   return Napi::Boolean::New(env, bIsElevated);
 }
 
+bool IsRunAsAdmin()
+{
+  BOOL fRet = FALSE;
+  DWORD dwError = 0;
+  PSID pAdministratorsGroup;
+
+  SID_IDENTIFIER_AUTHORITY NtAuthority = SECURITY_NT_AUTHORITY;
+  if (!AllocateAndInitializeSid(
+          &NtAuthority,
+          2,
+          SECURITY_BUILTIN_DOMAIN_RID,
+          DOMAIN_ALIAS_RID_ADMINS,
+          0, 0, 0, 0, 0, 0,
+          &pAdministratorsGroup))
+  {
+    dwError = GetLastError();
+    return false;
+  }
+
+  if (!CheckTokenMembership(NULL, pAdministratorsGroup, &fRet))
+  {
+    dwError = GetLastError();
+    FreeSid(pAdministratorsGroup);
+    return false;
+  }
+
+  FreeSid(pAdministratorsGroup);
+  return fRet;
+}
+
+bool RequestAdminPrivileges()
+{
+  if (IsRunAsAdmin())
+  {
+    return true;
+  }
+
+  HINSTANCE hInst = ShellExecute(NULL, TEXT("runas"), TEXT("your_application_path.exe"), NULL, NULL, SW_SHOWNORMAL);
+  if ((int)hInst <= 32)
+  {
+    return false;
+  }
+
+  return true;
+}
+Napi::Value RequestAdmin(Napi::CallbackInfo const &info)
+{
+  Napi::Env env = info.Env();
+  if (!RequestAdminPrivileges())
+  {
+    Napi::TypeError::New(env, "Failed to request admin privileges").ThrowAsJavaScriptException();
+    return env.Null();
+  }
+  return Napi::Boolean::New(env, true);
+}
+
 Napi::Object Init(Napi::Env env, Napi::Object exports)
 {
   exports.Set("getPidByName", Napi::Function::New(env, GetPidByName));
   exports.Set("getProcessCommandLine", Napi::Function::New(env, GetProcessCommandLine));
   exports.Set("isElevated", Napi::Function::New(env, IsElevated));
+  exports.Set("requestAdmin", Napi::Function::New(env, RequestAdmin));
   return exports;
 }
 

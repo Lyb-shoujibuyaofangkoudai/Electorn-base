@@ -15,18 +15,6 @@ declare global {
     };
   }
 
-  interface LOLToolsAddon {
-    /**
-     * 获取进程 PID
-     */
-    getProcessCommandLine(pid: number): string
 
-    /**
-     * 获取进程名的 PID
-     * @param name 进程名
-     */
-    getPidByName(name: string): number
-  }
 
 }
-

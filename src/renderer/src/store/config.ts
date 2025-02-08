@@ -6,9 +6,15 @@ export const useConfig = defineStore('config', () => {
   function setConfig(cfg: any) {
     configInfo.value = cfg
   }
+
+  function addConfig(cfg: any) {
+    configInfo.value = { ...configInfo.value, ...cfg }
+  }
+
   return {
     configInfo,
-    setConfig
+    setConfig,
+    addConfig
   }
 
 })

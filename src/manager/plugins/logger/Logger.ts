@@ -26,7 +26,10 @@ export class Logger implements IPlugin {
   }
 
   createLogger() {
-    const appDir = path.join(app.getAppPath(), '/src')
+    // const appDir = path.join(app.getPath('exe'), '..')
+    // const logsDir = path.join(appDir, 'logs')
+    console.log("日志保存路径：",path.join(app.getPath('exe'), '..'))
+    const appDir = process.env.NODE_ENV === 'production' ? path.join(app.getPath('exe'), '..') : path.join(app.getAppPath(), '/src')
     const logsDir = path.join(appDir, 'logs')
     this.logDirPath = logsDir
     // console.log("查看日志路径:", logsDir,import.meta.env)
@@ -47,18 +50,18 @@ export class Logger implements IPlugin {
 
     return createLogger({
       transports: [
-        // new transports.File({
-        //   filename: `YYY_${ dayjs().format('YYYY-MM-DD_HHmmssSSS') }.log`,
-        //   dirname: logsDir,
-        //   level: 'info',
-        //   maxsize: 1024 * 1024 * 128, // 128MB
-        //   format: format.combine(
-        //     format.timestamp(),
-        //     format.printf(({ level, message, namespace, timestamp }) => {
-        //       return `[${ dayjs(timestamp as number).format('YYYY-MM-DD HH:mm:ss:SSS') }] [${ namespace }] [${ level }] ${ message }`
-        //     })
-        //   )
-        // }),
+        new transports.File({
+          filename: `YYY_${ dayjs().format('YYYY-MM-DD_HHmmssSSS') }.log`,
+          dirname: logsDir,
+          level: 'info',
+          maxsize: 1024 * 1024 * 128, // 128MB
+          format: format.combine(
+            format.timestamp(),
+            format.printf(({ level, message, namespace, timestamp }) => {
+              return `[${ dayjs(timestamp as number).format('YYYY-MM-DD HH:mm:ss:SSS') }] [${ namespace }] [${ level }] ${ message }`
+            })
+          )
+        }),
         new transports.Console({
           level: import.meta.env.DEV ? 'debug' : 'warn',
           format: format.combine(
