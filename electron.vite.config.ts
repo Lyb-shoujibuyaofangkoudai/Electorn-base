@@ -7,7 +7,7 @@ import Components from 'unplugin-vue-components/vite'
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import vitePluginCoreTypings from './src/vitePlugins/vite-plugin-core-typings'
-const minify = process.env.NODE_ENV === 'production'
+const minify = process.env.NODE_ENV !== 'development' // 打包后 process.env.NODE_ENV会是undefined
 export default defineConfig({
   main: {
     plugins: [

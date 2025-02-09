@@ -1,10 +1,5 @@
-test:
-  a: 1
-  b: 4
-  c:
-    d: 90000
 theme:
   name: dark
 main_window:
-  width: 1280
-  height: 960
+  width: 1200
+  height: 800

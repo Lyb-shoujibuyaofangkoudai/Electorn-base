@@ -11,22 +11,78 @@ export class Config implements IPlugin {
 
   static id = 'config'
   name = Config.id
-  _appDir = path.join(app.getAppPath(), '/src/manager')
-  _yamlPath = path.join(this._appDir, 'plugins/config/app.config.yaml')
+  _yamlPath = ""
 
-  private configInfo:any = {}
+  private configInfo:any = {
+    theme: {
+      name: 'dark'
+    },
+    main_window: {
+      width: 1200,
+      height: 800
+    }
+  }
 
   init(core:Core| any) {
     this.configInfo = this.readConfig()
     core['config'] = core.getPlugin(Config.id)
   }
 
+  /**
+   * 检查文件是否存在，如果不存在且目录也不存在，则创建目录并返回 false，
+   * 如果文件存在则返回 true。
+   * @param filePath - 要检查的文件路径
+   * @returns 如果文件存在返回 true，否则返回 false
+   */
+   checkFileExists(filePath: string): boolean {
+    const dirPath = path.dirname(filePath);
+
+    try {
+      // 检查文件是否存在
+      fs.accessSync(filePath, fs.constants.F_OK);
+      return true;
+    } catch (err) {
+      if ((err as any).code === 'ENOENT') {
+        // 文件不存在，检查目录是否存在
+        try {
+          fs.accessSync(dirPath, fs.constants.F_OK);
+          return false;
+        } catch (err) {
+          if ((err as any).code === 'ENOENT') {
+            // 目录也不存在，创建目录
+            fs.mkdirSync(dirPath, { recursive: true });
+          }
+          return false;
+        }
+      } else {
+        // 其他错误
+        throw err;
+      }
+    }
+  }
+
   readConfig() {
-    const yamlPath = this._yamlPath
-  //   读取配置文件
-    const configContent = fs.readFileSync(yamlPath, 'utf8')
-    const configData = yaml.load(configContent)
-    return configData
+    const appDir = import.meta.env.MODE === 'production' ? path.join(app.getPath('userData'), '..') : path.join(app.getAppPath(), '/src/manager/plugins')
+    const configDir = path.join(appDir, 'config')
+    const configFilePath = path.join(configDir, 'app.config.yaml')
+    this._yamlPath = configFilePath
+    let configData = this.configInfo
+    try {
+      const fileExists =this.checkFileExists(configFilePath)
+      if(!fileExists) this.setConfig(this.configInfo)
+      else {
+        //   读取配置文件
+        const configContent = fs.readFileSync(configFilePath, 'utf8')
+        configData = yaml.load(configContent)
+      }
+      return configData
+    } catch ( error ) {
+      if ( (error as any).code === 'ENOENT' ) {
+        fs.mkdirSync(configDir)
+      }
+      this.setConfig(configData) // 保存默认配置信息
+      return configData
+    }
   }
 
   /**
@@ -67,6 +123,7 @@ export class Config implements IPlugin {
   }
 
   setConfig(config:any) {
+    console.log('写入配置文件', config,this._yamlPath)
     this.configInfo = config
     const yamlContent = yaml.dump(this.configInfo)
     fs.writeFileSync(this._yamlPath, yamlContent);

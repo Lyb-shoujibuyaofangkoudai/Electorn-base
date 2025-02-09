@@ -21,9 +21,15 @@ export class Schemes implements IPlugin {
   _logger = Core.getInstance()?.logger
 
   init(core: Core): void {
-    this.register()
-    core[this.name] = core.getPlugin(this.name)
-    core.emit('schemesRegistered',core)
+    try {
+      // console.log('注册自定义协议插件：', core, this.name)
+      this.register()
+      core[this.name] = core.getPlugin(this.name)
+      // console.log('注册自定义协议插件2：', this.name)
+      core.emit('schemesRegistered', core)
+    } catch ( e ) {
+      console.log('注册自定义协议插件失败', e)
+    }
   }
 
   destroy() {

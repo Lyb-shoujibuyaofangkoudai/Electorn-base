@@ -41,4 +41,7 @@ linux:
 appImage:
   artifactName: ${name}-${version}.${ext}
 npmRebuild: false
+extraResources:
+  from: src/manager/plugins/config/app.config.yaml
+  to: resources/app.config.yaml
 publish:

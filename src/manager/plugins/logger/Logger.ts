@@ -19,17 +19,16 @@ export class Logger implements IPlugin {
 
   init(core:Core & any) {
     this.logger = this.createLogger()
+    this.logger.info('日志插件初始化成功',LOGGER_NAMESPACE.APP)
+    this.logger.info(`日志保存路径：${this.logDirPath}`,LOGGER_NAMESPACE.APP)
     core[this.name] = core.getPlugin(Logger.id) // 挂载到Core上
-    core.logger.info('日志插件初始化成功',LOGGER_NAMESPACE.APP)
-    core.logger.info(`日志保存路径：${this.logDirPath}`,LOGGER_NAMESPACE.APP)
     core.emit('loggerRegistered',this.logger)
   }
 
   createLogger() {
     // const appDir = path.join(app.getPath('exe'), '..')
     // const logsDir = path.join(appDir, 'logs')
-    console.log("日志保存路径：",path.join(app.getPath('exe'), '..'))
-    const appDir = process.env.NODE_ENV === 'production' ? path.join(app.getPath('exe'), '..') : path.join(app.getAppPath(), '/src')
+    const appDir = import.meta.env.MODE === 'production' ? path.join(app.getPath('userData'), '..') : path.join(app.getAppPath(), '/src')
     const logsDir = path.join(appDir, 'logs')
     this.logDirPath = logsDir
     // console.log("查看日志路径:", logsDir,import.meta.env)

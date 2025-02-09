@@ -10,7 +10,7 @@
     "typecheck:web": "vue-tsc --noEmit -p tsconfig.web.json --composite false",
     "typecheck": "npm run typecheck:node && npm run typecheck:web",
     "start": "electron-vite preview --mode production",
-    "dev": "chcp 65001 & electron-vite dev --inspect --watch --mode development",
+    "dev": "chcp 65001 & electron-vite dev --inspect=5858 --watch --mode development",
     "build": "npm run typecheck && electron-vite build --mode production",
     "postinstall": "electron-builder install-app-deps",
     "build:win": "npm run build && electron-builder --win --config",

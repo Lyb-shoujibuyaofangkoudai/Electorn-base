@@ -24,6 +24,7 @@ export class MainWindow {
   _createWindow() {
     try { // Create the browser window.
       // app.commandLine.appendSwitch('ignore-certificate-errors')
+      // console.log("查看插件系统2：",Core.getInstance())
       const width = Core.getInstance()?.config?.getValue('main_window.width') ?? 960
       const height = Core.getInstance()?.config?.getValue('main_window.height') ?? 720
       const mainWindow = new BrowserWindow({
@@ -42,13 +43,12 @@ export class MainWindow {
       })
       mainWindow.menuBarVisible = false
       // 打开调试工具
-      process.env.NODE_ENV !== 'production' && mainWindow.webContents.openDevTools({ mode: 'bottom' })
+      import.meta.env.MODE === 'production' && mainWindow.webContents.openDevTools({ mode: 'bottom' })
       mainWindow.setHasShadow(true)
 
       mainWindow.on('ready-to-show', () => {
         const mHandle = MainIpcHandle.getInstance()
         this.logger?.info('主窗口创建成功', LOGGER_NAMESPACE.APP)
-        !this.logger?.info && mHandle.debugHandle("不存在这个东西this.logger?.info")
         mainWindow.show()
       })
 

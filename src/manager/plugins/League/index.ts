@@ -71,12 +71,17 @@ export class League implements IPlugin {
   }
 
   init(core: Core) {
-    this.loopConnection(core)
-    core['league'] = core.getPlugin(League.id) // 挂载到core上
+    try {
+      this.loopConnection(core)
+      core['league'] = core.getPlugin(League.id) // 挂载到core上
+    } catch ( e ) {
+      console.log("初始化League插件失败",e)
+    }
   }
 
   loopConnection(core: Core) {
     const timer = setInterval(() => {
+      console.log("等待LOL客户端连接...")
       const cmdLine = this.getLOLClientConnArgByNativeApi()
       if ( cmdLine ) {
         this._cmdParsedInfo = this.parseCommandLine(cmdLine)

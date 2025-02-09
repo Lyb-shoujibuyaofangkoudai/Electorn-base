@@ -7,6 +7,7 @@ import Request from '../../utils/request'
 import https from 'node:https'
 import { CmdParsedType, League } from '../League'
 import { Logger } from '../logger/Logger'
+import { MainIpcHandle } from '../../../main/utils/MainIpcHandle'
 
 
 export class LeagueClientLcuUninitializedError extends Error {
@@ -23,7 +24,12 @@ export class LeagueMainHelper implements IPlugin {
   _logger: Logger | null = null
 
   init(core: Core): void {
-    core[this.name] = core.getPlugin(this.name)
+    try {
+      // console.log('初始化LeagueMainHelper插件', core, this.name)
+      core[this.name] = core.getPlugin(this.name)
+    } catch ( e ) {
+      console.log('初始化LeagueMainHelper插件失败', e)
+    }
   }
 
   hooks = {
@@ -31,7 +37,9 @@ export class LeagueMainHelper implements IPlugin {
       this._logger = logger
     },
     leagueConnSuccess: (auth:CmdParsedType) => {
+      console.log('连接LOL客户端成功', auth,MainIpcHandle.getInstance())
       this._logger?.info('连接LOL客户端成功', LOGGER_NAMESPACE.APP)
+      MainIpcHandle.getInstance().leagueHandle()
       this._request = new Request({
         baseURL: `${import.meta.env.VITE_BASE_HOST}:${auth.port}`,
         httpsAgent: new https.Agent({

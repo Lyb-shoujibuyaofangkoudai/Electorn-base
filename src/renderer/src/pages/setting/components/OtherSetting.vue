@@ -64,7 +64,6 @@ getLoggerInfo()
 
 async function getLoggerInfo() {
   const res = await ipc.call(EVENT_TYPE.LOGGER_DETAILS)
-  console.log('获取日志信息：', res)
   if ( res.data?.loggerSavePath ) {
     loggerPath.value = res.data.loggerSavePath
     configStore.addConfig({
@@ -73,11 +72,6 @@ async function getLoggerInfo() {
   }
 }
 
-test()
-async function test() {
-  const res = await ipc.call(EVENT_TYPE.DEBUG_DETAILS)
-  console.log('test：', res)
-}
 </script>
 
 <style

@@ -41,7 +41,7 @@ export class Core {
     } else {
       throw `${plugin.name}插件不存在初始化init函数`
     }
-
+    // console.log("是否存在plugin.hooks钩子：",plugin)
     // 注册钩子函数
     if (plugin.hooks) {
       for (const [event, handler] of Object.entries(plugin.hooks)) {
@@ -97,6 +97,7 @@ export class Core {
 
   // 注册事件监听器
   on(event: string, callback: Function, pluginName: string): void {
+    // console.log("监听事件：",event,pluginName,this)
     if (!this.listeners.has(event)) {
       this.listeners.set(event, []);
     }
@@ -105,6 +106,7 @@ export class Core {
 
   // 触发事件
   emit(event: string, data?: any): void {
+    // console.log("触发事件：",event,data,this)
     const listeners = this.listeners.get(event);
     if (listeners) {
       listeners.forEach(listener => listener.callback(data));
