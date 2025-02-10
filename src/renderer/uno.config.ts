@@ -1,6 +1,7 @@
 // uno.config.ts
 import { defineConfig, presetWind } from 'unocss'
 import transformerDirectives from '@unocss/transformer-directives'
+import transformerVariantGroup from '@unocss/transformer-variant-group'
 import presetTheme from 'unocss-preset-theme'
 import type { Theme } from 'unocss/preset-uno'
 import { customTheme } from './src/theme'
@@ -12,7 +13,7 @@ export default defineConfig({
       theme: customTheme
     })
   ],
-  transformers: [transformerDirectives()],
+  transformers: [transformerDirectives(),transformerVariantGroup()],
   shortcuts: [
     {
       'window-bg-top': 'bg-c_wc-top',

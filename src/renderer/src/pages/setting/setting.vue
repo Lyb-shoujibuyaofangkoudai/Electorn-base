@@ -8,6 +8,9 @@
         <n-tab-pane name="自动化" tab="自动化">
           Hey Jude
         </n-tab-pane>
+        <n-tab-pane name="应用主题色" tab="应用主题色">
+          <ThemeSetting />
+        </n-tab-pane>
         <n-tab-pane name="客户端参数" tab="客户端参数">
           <LeagueInfo />
         </n-tab-pane>
@@ -23,6 +26,7 @@
 
 import LeagueInfo from './components/LeagueInfo.vue'
 import OtherSetting from './components/OtherSetting.vue'
+import ThemeSetting from './components/ThemeSetting.vue'
 </script>
 
 <style lang="scss" scoped>

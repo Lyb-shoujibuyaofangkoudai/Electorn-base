@@ -8,7 +8,7 @@
           v-if="!isAdmin"
           :loading="loading"
           type="primary"
-          @cliccck="getAdmin(true)">
+          @click="openModal">
           申请管理员权限
         </n-button>
       </div>
@@ -19,7 +19,7 @@
         <span class="text-3">{{ loggerPath }}</span>
         <n-button
           type="primary"
-          @cliccck="getAdmin(true)">
+          @click="getAdmin(true)">
           打开所在文件夹
         </n-button>
       </div>
@@ -35,13 +35,14 @@ import { EVENT_TYPE } from '../../../../../manager/plugins/Bridge/eventType'
 import { useConfig } from '../../../store/config'
 
 const ipc = useIpc()
-const { message } = useMsg()
+const { message,modal } = useMsg()
 const isAdmin = ref(false)
 const loading = ref(false)
 const configStore = useConfig()
 getAdmin()
 
 async function getAdmin(applyAdmin = false) {
+  console.log('申请管理员权限：', applyAdmin)
   if ( applyAdmin ) {
     loading.value = true
   }
@@ -70,6 +71,22 @@ async function getLoggerInfo() {
       loggerSavePath: res.data.loggerSavePath
     })
   }
+}
+
+function openModal() {
+  modal.create({
+    show: true,
+    preset: 'dialog',
+    title: "申请管理员权限",
+    content: "申请管理员权限需要重新重启程序，是否确认申请？",
+    negativeText: "取消",
+    positiveText: "申请",
+    type: "warning",
+    onPositiveClick: () => {
+      console.log("申请管理员权限")
+      // getAdmin(true)
+    }
+  })
 }
 
 </script>

@@ -17,11 +17,13 @@
     "build:mac": "npm run build && electron-builder --mac"
   },
   "dependencies": {
+    "@ant-design/colors": "^7.2.0",
     "@arco-iconbox/vue-yyy-icon": "^0.0.1",
     "@electron-toolkit/preload": "^3.0.0",
     "@electron-toolkit/utils": "^3.0.0",
     "@vueuse/core": "^12.5.0",
     "axios": "^1.7.9",
+    "colord": "^2.9.3",
     "dayjs": "^1.11.13",
     "electron-updater": "^6.1.7",
     "js-yaml": "^4.1.0",
@@ -35,6 +37,7 @@
     "@types/node": "^20.14.8",
     "@unocss/preset-wind": "^0.65.3",
     "@unocss/transformer-directives": "^0.65.3",
+    "@unocss/transformer-variant-group": "^65.4.3",
     "@vitejs/plugin-vue": "^5.0.5",
     "electron": "^31.0.2",
     "electron-builder": "^24.13.3",

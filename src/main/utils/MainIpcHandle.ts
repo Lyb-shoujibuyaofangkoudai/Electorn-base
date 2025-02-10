@@ -12,7 +12,7 @@ import lolTools from 'lol-tools.node'
  */
 export class MainIpcHandle {
   private static _instance: MainIpcHandle | null = null
-  logger = Core.getInstance().logger
+  _logger = Core.getInstance().logger
   bridge = Core.getInstance().bridge as Bridge
   _tools = lolTools
 
@@ -125,6 +125,7 @@ export class MainIpcHandle {
         applyAdmin:boolean
       }>): BridgeDataType<any> => {
         if(data?.data?.applyAdmin) {
+          console.log("申请管理员权限")
           if(this._tools.requestAdmin())
             return {
               namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
@@ -153,7 +154,7 @@ export class MainIpcHandle {
           namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
           eventName: EVENT_TYPE.LOGGER_DETAILS,
           data: {
-            loggerSavePath: Core.getInstance().logger?.logDirPath,
+            loggerSavePath: this._logger?.logDirPath,
           }
         }
       }

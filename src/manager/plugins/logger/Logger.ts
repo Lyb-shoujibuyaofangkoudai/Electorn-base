@@ -49,18 +49,18 @@ export class Logger implements IPlugin {
 
     return createLogger({
       transports: [
-        new transports.File({
-          filename: `YYY_${ dayjs().format('YYYY-MM-DD_HHmmssSSS') }.log`,
-          dirname: logsDir,
-          level: 'info',
-          maxsize: 1024 * 1024 * 128, // 128MB
-          format: format.combine(
-            format.timestamp(),
-            format.printf(({ level, message, namespace, timestamp }) => {
-              return `[${ dayjs(timestamp as number).format('YYYY-MM-DD HH:mm:ss:SSS') }] [${ namespace }] [${ level }] ${ message }`
-            })
-          )
-        }),
+        // new transports.File({
+        //   filename: `YYY_${ dayjs().format('YYYY-MM-DD_HHmmssSSS') }.log`,
+        //   dirname: logsDir,
+        //   level: 'info',
+        //   maxsize: 1024 * 1024 * 128, // 128MB
+        //   format: format.combine(
+        //     format.timestamp(),
+        //     format.printf(({ level, message, namespace, timestamp }) => {
+        //       return `[${ dayjs(timestamp as number).format('YYYY-MM-DD HH:mm:ss:SSS') }] [${ namespace }] [${ level }] ${ message }`
+        //     })
+        //   )
+        // }),
         new transports.Console({
           level: import.meta.env.DEV ? 'debug' : 'warn',
           format: format.combine(

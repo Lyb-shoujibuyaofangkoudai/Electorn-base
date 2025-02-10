@@ -61,7 +61,8 @@ export default defineConfig({
           },
           'vue',
           'vue-router',
-          '@vueuse/core'
+          '@vueuse/core',
+          'pinia'
         ],
         dirs: [
           resolve(__dirname, 'src/renderer/src/hooks')

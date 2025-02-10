@@ -8,6 +8,7 @@
 #include <ntstatus.h>
 #include <memory> // 引入智能指针
 #include <shellapi.h>
+#include <windows.h>
 
 // 手动实现 UTF-16 到 UTF-8 的转换
 std::string utf16_to_utf8(const std::u16string &utf16)
@@ -238,12 +239,20 @@ Napi::Value IsElevated(const Napi::CallbackInfo &info)
   return Napi::Boolean::New(env, bIsElevated);
 }
 
+// 获取当前应用程序的路径
+std::wstring GetCurrentAppPath()
+{
+  wchar_t buffer[MAX_PATH];
+  // 显式调用 Unicode 版本的函数
+  GetModuleFileNameW(NULL, buffer, MAX_PATH);
+  return std::wstring(buffer);
+}
+// 检查当前进程是否以管理员权限运行
 bool IsRunAsAdmin()
 {
   BOOL fRet = FALSE;
   DWORD dwError = 0;
   PSID pAdministratorsGroup;
-
   SID_IDENTIFIER_AUTHORITY NtAuthority = SECURITY_NT_AUTHORITY;
   if (!AllocateAndInitializeSid(
           &NtAuthority,
@@ -256,34 +265,33 @@ bool IsRunAsAdmin()
     dwError = GetLastError();
     return false;
   }
-
   if (!CheckTokenMembership(NULL, pAdministratorsGroup, &fRet))
   {
     dwError = GetLastError();
     FreeSid(pAdministratorsGroup);
     return false;
   }
-
   FreeSid(pAdministratorsGroup);
   return fRet;
 }
-
+// 请求管理员权限
 bool RequestAdminPrivileges()
 {
   if (IsRunAsAdmin())
   {
     return true;
   }
-
-  HINSTANCE hInst = ShellExecute(NULL, TEXT("runas"), TEXT("your_application_path.exe"), NULL, NULL, SW_SHOWNORMAL);
+  std::wstring appPath = GetCurrentAppPath();
+  HINSTANCE hInst = ShellExecuteW(NULL, L"runas", appPath.c_str(), NULL, NULL, SW_SHOWNORMAL);
   if ((int)hInst <= 32)
   {
     return false;
   }
-
+  ExitProcess(0);
   return true;
 }
-Napi::Value RequestAdmin(Napi::CallbackInfo const &info)
+// N-API 包装函数，用于在 Node.js 中调用请求管理员权限的功能
+Napi::Value RequestAdmin(const Napi::CallbackInfo &info)
 {
   Napi::Env env = info.Env();
   if (!RequestAdminPrivileges())

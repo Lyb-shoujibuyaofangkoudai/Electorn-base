@@ -31,6 +31,7 @@
   setup>
 import { useLeague } from '../../../store/league'
 import { useMsg } from '../../../hooks/useMsg'
+import { copy } from '../../../utils/utils'
 
 const keysMap = {
   port: '端口',
@@ -55,18 +56,7 @@ const leagueInfo = computed(() => {
 })
 
 
-const { message} = useMsg()
-function copy(value: string) {
-  const { text, copy, copied, isSupported } = useClipboard({ source: value })
-  if(isSupported.value) {
-    copy()
-    if(copied.value) {
-      message.success('复制成功')
-    } else {
-      message.error('复制失败')
-    }
-  }
-}
+
 </script>
 
 <style

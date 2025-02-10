@@ -81,7 +81,6 @@ export class League implements IPlugin {
 
   loopConnection(core: Core) {
     const timer = setInterval(() => {
-      console.log("等待LOL客户端连接...")
       const cmdLine = this.getLOLClientConnArgByNativeApi()
       if ( cmdLine ) {
         this._cmdParsedInfo = this.parseCommandLine(cmdLine)
