@@ -6,10 +6,10 @@ import { createLogger, format, transports, Logger as WinstonLogger } from 'winst
 import { STYLES, LEVEL_COLORS, NAMESPACE_COLORS, MSG_COLORS } from './LoggerCommon'
 import { IPlugin } from '../../interface'
 import { Core } from '../../Core'
-
-
 import { LOGGER_NAMESPACE } from '../Bridge/bridgeType'
 import { EVENT_TYPE } from '../Bridge/eventType'
+
+
 export class Logger implements IPlugin {
   static id: string = 'logger'
   name = Logger.id

@@ -3,6 +3,12 @@ import { Plugin } from 'vite'
 import * as fs from 'fs'
 import * as path from 'path'
 
+function pascalToCamelCase(str: string): string {
+  // 将字符串的第一个字符转换为小写，并与剩余部分拼接
+  return str.charAt(0).toLowerCase() + str.slice(1);
+}
+
+
 /**
  * 获取 Core 函数初始化文件路径，并返回使用了如 core.use(new Logger()) 的Logger类名和对应的导入路径(绝对路径)
  *
@@ -81,7 +87,7 @@ function generateCoreTypings(root: string, coreInitFilePath: string) {
   importPaths.forEach((importPath, index) => {
     // 绝对路径转相对路径
     importExtensions.push(`import ${loggerClassNames[index]} from "${'./'+path.relative(coreInitFileDir,importPath).replace(/\\/g, '/')}"`)
-    coreExtensions.push(`${ loggerClassNames[index].toLocaleLowerCase() }: ${ loggerClassNames[index] };`)
+    coreExtensions.push(`${ pascalToCamelCase(loggerClassNames[index]) }: ${ loggerClassNames[index] };`)
   })
 
   // 生成 corePlugin.d.ts 文件的内容

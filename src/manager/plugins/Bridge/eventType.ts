@@ -30,6 +30,10 @@ export enum EVENT_TYPE {
   LOGGER_DETAILS = 'logger-details',
   // 调试信息 主要用于打包后的调试信息 在渲染进程中显示
   DEBUG_DETAILS = 'debug-details',
+  // 数据库
+  DB_DETAILS = 'db-details',
+  // 打开文件夹
+  OPEN_FOLDER = 'open-folder',
 
 
 }

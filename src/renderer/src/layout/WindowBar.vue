@@ -15,7 +15,7 @@
           </li>
           <li
             v-for="(item,index) in tools"
-            :key="item.name"
+            :key="index"
             class="px-3 h-full flex items-center justify-center w-8"
             @click="item.click(item)">
             <component class="w-6 h-6" :is="index !== 1 ? item.name : !item?.isMaxWindow ? item.name : item.name2" style="transform: translateY(-25rem); filter: drop-shadow(0 25rem 0 #ffffff);"/>
@@ -33,13 +33,13 @@ import Icon from '../components/Icon.vue'
 import { useWindowInfo } from '../store/windowInfo'
 import { BRIDGE_EVENT } from '../../../manager/plugins/Bridge/bridgeType'
 import { EVENT_TYPE } from '../../../manager/plugins/Bridge/eventType'
-import {
-  IconClose,
-  IconFullscreen,
-  IconFullscreenExit,
-  IconDown
-} from '@arco-iconbox/vue-yyy-icon'
 
+import {
+  CloseRound,
+  FullscreenExitOutlined,
+  FullscreenRound,
+  KeyboardArrowDownSharp
+} from '@vicons/material'
 
 const winInfoStore = useWindowInfo()
 const ipc = useIpc()
@@ -47,7 +47,7 @@ const ipc = useIpc()
 const iconSize = '21px'
 const tools = ref([
   {
-    name: IconDown,
+    name: KeyboardArrowDownSharp,
     color: 'red',
     width: iconSize,
     height: iconSize,
@@ -56,8 +56,8 @@ const tools = ref([
     }
   },
   {
-    name: IconFullscreen,
-    name2: IconFullscreenExit,
+    name: FullscreenRound,
+    name2: FullscreenExitOutlined,
     color: 'red',
     width: iconSize,
     height: iconSize,
@@ -72,7 +72,7 @@ const tools = ref([
     }
   },
   {
-    name: IconClose,
+    name: CloseRound,
     color: 'red',
     width: iconSize,
     height: iconSize,

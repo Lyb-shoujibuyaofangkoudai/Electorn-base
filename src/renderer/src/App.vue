@@ -2,6 +2,7 @@
   <n-config-provider
     :theme="theme"
     :theme-overrides="themeOverrides">
+    <n-global-style />
     <!--    <n-theme-editor>-->
     <NScrollbar :class="`bg-c_wc-top ${!windowInfoStore.isMaxWindow ? 'rounded-xl' : ''}`">
       <HomeLayout>
@@ -66,10 +67,11 @@ function initTheme() {
   // todo；存储数据到本地 待选库
   const localThemeConfig = useStorage('themeConfig',{})
   const localNeutralThemeConfig = useStorage('neutralThemeConfig',{})
-  if(localThemeConfig.value) {
+  console.log("初始化主题，获取本地主题配置",localThemeConfig.value,localNeutralThemeConfig.value)
+  if(!Object.keys(localThemeConfig.value).length) {
     themeStore.setThemeConfig(localThemeConfig.value as NTheme.Config)
   }
-  if(localNeutralThemeConfig.value) {
+  if(!Object.keys(localNeutralThemeConfig.value).length) {
     themeStore.setNeutralThemeConfig(localNeutralThemeConfig.value as NTheme.NeutralThemeType)
   }
 }

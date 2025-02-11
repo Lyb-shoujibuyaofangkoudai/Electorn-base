@@ -3,8 +3,8 @@ import { Core } from '../../manager/Core'
 import { BRIDGE_EVENT, BridgeDataType } from '../../manager/plugins/Bridge/bridgeType'
 import { EVENT_TYPE } from '../../manager/plugins/Bridge/eventType'
 import { Bridge } from '../../manager/plugins/Bridge/Bridge'
-// import lolTools from '../../../resources/addons/lol-tools.node'
 import lolTools from 'lol-tools.node'
+import { openFolder } from './util'
 
 
 /**
@@ -31,6 +31,8 @@ export class MainIpcHandle {
     this.settingHandle()
     this.adminHandle()
     this.loggerHandle()
+    this.dbHandle()
+    this.folderHandle()
   }
 
   windowHandle() {
@@ -146,6 +148,9 @@ export class MainIpcHandle {
     )
   }
 
+  /**
+   * 日志相关的handle
+   */
   loggerHandle() {
     this.bridge.addCall(
       EVENT_TYPE.LOGGER_DETAILS,
@@ -159,6 +164,35 @@ export class MainIpcHandle {
         }
       }
     )
+  }
+
+  /**
+   * 数据库相关的handle
+   */
+  dbHandle() {
+    this.bridge.addCall(
+      EVENT_TYPE.DB_DETAILS,
+      (): BridgeDataType<any> => {
+        return {
+          namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
+          eventName: EVENT_TYPE.DB_DETAILS,
+          data: {
+            dbPath: Core.getInstance().db?._dbPath,
+          }
+        }
+      }
+    )
+  }
+
+  /**
+   * 文件夹handle
+   */
+  folderHandle() {
+    this.bridge.onEvent(EVENT_TYPE.OPEN_FOLDER,(data?: BridgeDataType<string>) => {
+      const filePath = data?.data
+      if(!filePath) return
+      openFolder(filePath)
+    })
   }
 
   debugHandle(info:any) {

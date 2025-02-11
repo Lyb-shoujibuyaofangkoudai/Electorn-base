@@ -4,7 +4,7 @@
       <div
         v-for="item in leagueInfo"
         @click="copy(item.value)"
-        class="bg-c_bg-10 px-3 py-2 rounded-1.2 w-1/2 mb-3">
+        class="bg-c_bg-10 px-3 py-2 rounded-1.2 mb-3 w-3/4">
         <n-tooltip
           placement="right-end"
           trigger="hover"

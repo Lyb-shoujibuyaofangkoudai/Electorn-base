@@ -43,7 +43,8 @@ export class MainWindow {
       })
       mainWindow.menuBarVisible = false
       // 打开调试工具
-      import.meta.env.MODE !== 'production' && mainWindow.webContents.openDevTools({ mode: 'bottom' })
+      // import.meta.env.MODE !== 'production' && mainWindow.webContents.openDevTools({ mode: 'bottom' })
+      mainWindow.webContents.openDevTools({ mode: 'bottom' })
       mainWindow.setHasShadow(true)
 
       mainWindow.on('ready-to-show', () => {
