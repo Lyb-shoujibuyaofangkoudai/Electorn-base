@@ -3,3 +3,31 @@ theme:
 main_window:
   width: 1200
   height: 800
+themeConfig:
+  primary: '#169EFF'
+  info: '#722ed1'
+  success: '#52c41a'
+  warning: '#faad14'
+  error: '#f5222d'
+neutralThemeConfig:
+  neutralPopover:
+    color: '#2D3260'
+    effects:
+      - popoverColor
+    title: neutralPopover
+  neutralCard:
+    color: '#2D3260'
+    effects:
+      - tableColor
+      - cardColor
+    title: neutralCard
+  neutralModal:
+    color: '#2D3260'
+    effects:
+      - modalColor
+    title: neutralModal
+  neutralBody:
+    color: '#2D3260'
+    effects:
+      - bodyColor
+    title: neutralBody

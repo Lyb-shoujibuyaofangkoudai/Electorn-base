@@ -1,5 +1,6 @@
 <template>
   <div class="py-2">
+    
     <n-row>
       <n-form inline>
         <n-col :span="4" v-for="item in neutralThemeConfig" :key="item.title">
@@ -45,6 +46,16 @@
         </div>
       </n-col>
     </n-row>
+    <n-row class="!mt-4 !justify-end">
+      <n-popconfirm
+        @positive-click="handleResetTheme"
+      >
+        <template #trigger>
+          <n-button type="warning">重置</n-button>
+        </template>
+        是否重置主题配置？
+      </n-popconfirm>
+    </n-row>
   </div>
 </template>
 
@@ -53,8 +64,12 @@
   setup>
 import { useThemeStore } from '../../../store/theme'
 import { copy } from '../../../utils/utils'
+import { useConfig } from '../../../store/config'
+import { EVENT_TYPE } from '../../../../../manager/plugins/Bridge/eventType'
 
+const configStore = useConfig()
 const themeStore = useThemeStore()
+const ipc = useIpc()
 const { themeConfig, themeColors, neutralThemeConfig } =
   storeToRefs(themeStore)
 
@@ -63,8 +78,18 @@ const colorTypes = computed(
 )
 
 function handleChangeColor() {
+  console.log("修改颜色")
+  configStore.addConfig({
+    themeConfig: themeConfig.value,
+    neutralThemeConfig: neutralThemeConfig.value
+  })
+  ipc.call(EVENT_TYPE.SET_DETAILS, configStore.configInfo)
+}
+
+function handleResetTheme() {
 
 }
+
 </script>
 
 <style

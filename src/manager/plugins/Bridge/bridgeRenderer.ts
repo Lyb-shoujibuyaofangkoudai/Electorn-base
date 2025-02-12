@@ -60,11 +60,15 @@ export class BridgeRenderer {
    * @param msg
    */
   async call<T = any>(eventName:EVENT_TYPE,data?: T,msg?: string ) {
-    return await window.electron.ipcRenderer.invoke(BRIDGE_EVENT.CALL, {
+    let resultData = data
+    if(isReactive(data) || isRef(data)) {
+      resultData = JSON.parse(JSON.stringify(data))
+    }
+    return window.electron.ipcRenderer.invoke(BRIDGE_EVENT.CALL, {
       namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
       eventName,
       success: true,
-      data,
+      data:resultData,
       msg
     })
   }

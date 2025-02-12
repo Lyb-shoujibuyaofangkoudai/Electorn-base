@@ -19,8 +19,8 @@ export class Logger implements IPlugin {
 
   init(core:Core & any) {
     this.logger = this.createLogger()
-    this.logger.info('日志插件初始化成功',LOGGER_NAMESPACE.APP)
-    this.logger.info(`日志保存路径：${this.logDirPath}`,LOGGER_NAMESPACE.APP)
+    this.logger.info('日志插件初始化成功')
+    this.logger.info(`日志保存路径：${this.logDirPath}`)
     core[this.name] = core.getPlugin(Logger.id) // 挂载到Core上
     core.emit('loggerRegistered',this.logger)
   }
@@ -79,28 +79,28 @@ export class Logger implements IPlugin {
     })
   }
 
-  info(message: any, namespace: EVENT_TYPE | LOGGER_NAMESPACE) {
+  info(message: any, namespace: string | EVENT_TYPE | LOGGER_NAMESPACE = LOGGER_NAMESPACE.APP) {
     this.logger.info({
       message: JSON.stringify(message),
       namespace
     })
   }
 
-  debug(message: any, namespace: EVENT_TYPE | LOGGER_NAMESPACE) {
+  debug(message: any, namespace: string | EVENT_TYPE | LOGGER_NAMESPACE = LOGGER_NAMESPACE.APP) {
     this.logger.debug({
       message: JSON.stringify(message),
       namespace
     })
   }
 
-  warn(message: any, namespace: EVENT_TYPE | LOGGER_NAMESPACE) {
+  warn(message: any, namespace: string | EVENT_TYPE | LOGGER_NAMESPACE = LOGGER_NAMESPACE.APP) {
     this.logger.warn({
       message: JSON.stringify(message),
       namespace
     })
   }
 
-  error(message: any, namespace: EVENT_TYPE | LOGGER_NAMESPACE) {
+  error(message: any, namespace: string | EVENT_TYPE | LOGGER_NAMESPACE = LOGGER_NAMESPACE.APP) {
     const error = new Error(message)
     this.logger.error({
       message: JSON.stringify(message),

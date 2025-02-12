@@ -2,28 +2,32 @@ import { IPlugin } from '../../interface'
 import fs from 'node:fs'
 import path from 'node:path'
 import { app } from 'electron'
-import yaml from "js-yaml"
+import yaml from 'js-yaml'
 import { Core } from '../../Core'
-
-import { LOGGER_NAMESPACE } from '../Bridge/bridgeType'
+import { Settings } from '../db/entities/Settings'
+import { Db } from '../db/Db'
+import { SettingsDao } from '../db/dao/SettingsDao'
 
 export class Config implements IPlugin {
 
   static id = 'config'
   name = Config.id
-  _yamlPath = ""
+  _yamlPath = ''
 
-  private configInfo:any = {
-    theme: {
-      name: 'dark'
-    },
-    main_window: {
-      width: 1200,
-      height: 800
+  private configInfo: any = Settings.defaultSettings
+  private settingsDao: SettingsDao | null = null
+
+  hooks = {
+    dbRegistered: async (db: Db) => {
+      this.settingsDao = db._dao.settings
+      const configInfo = await this.settingsDao!.getSetting('config')
+      if(!configInfo) {
+        await db._dao.settings!.addSetting('config', Settings.defaultSettings)
+      } else this.setConfig(configInfo.value)
     }
   }
 
-  init(core:Core| any) {
+  init(core: Core | any) {
     this.configInfo = this.readConfig()
     core['config'] = core.getPlugin(Config.id)
   }
@@ -34,29 +38,29 @@ export class Config implements IPlugin {
    * @param filePath - 要检查的文件路径
    * @returns 如果文件存在返回 true，否则返回 false
    */
-   checkFileExists(filePath: string): boolean {
-    const dirPath = path.dirname(filePath);
+  checkFileExists(filePath: string): boolean {
+    const dirPath = path.dirname(filePath)
 
     try {
       // 检查文件是否存在
-      fs.accessSync(filePath, fs.constants.F_OK);
-      return true;
-    } catch (err) {
-      if ((err as any).code === 'ENOENT') {
+      fs.accessSync(filePath, fs.constants.F_OK)
+      return true
+    } catch ( err ) {
+      if ( (err as any).code === 'ENOENT' ) {
         // 文件不存在，检查目录是否存在
         try {
-          fs.accessSync(dirPath, fs.constants.F_OK);
-          return false;
-        } catch (err) {
-          if ((err as any).code === 'ENOENT') {
+          fs.accessSync(dirPath, fs.constants.F_OK)
+          return false
+        } catch ( err ) {
+          if ( (err as any).code === 'ENOENT' ) {
             // 目录也不存在，创建目录
-            fs.mkdirSync(dirPath, { recursive: true });
+            fs.mkdirSync(dirPath, { recursive: true })
           }
-          return false;
+          return false
         }
       } else {
         // 其他错误
-        throw err;
+        throw err
       }
     }
   }
@@ -68,8 +72,8 @@ export class Config implements IPlugin {
     this._yamlPath = configFilePath
     let configData = this.configInfo
     try {
-      const fileExists =this.checkFileExists(configFilePath)
-      if(!fileExists) this.setConfig(this.configInfo)
+      const fileExists = this.checkFileExists(configFilePath)
+      if ( !fileExists ) this.setConfig(this.configInfo)
       else {
         //   读取配置文件
         const configContent = fs.readFileSync(configFilePath, 'utf8')
@@ -93,11 +97,11 @@ export class Config implements IPlugin {
     const keys = key.split('.')
     let value = this.configInfo
 
-    for (const k of keys) {
-      if (value && typeof value === 'object' && k in value) {
+    for ( const k of keys ) {
+      if ( value && typeof value === 'object' && k in value ) {
         value = value[k]
       } else {
-        throw new Error(`Key '${key}' not found in config.`)
+        throw new Error(`Key '${ key }' not found in config.`)
       }
     }
 
@@ -108,10 +112,10 @@ export class Config implements IPlugin {
     const keys = key.split('.')
     let obj = this.configInfo
 
-    for (let i = 0; i < keys.length - 1; i++) {
+    for ( let i = 0; i < keys.length - 1; i++ ) {
       const k = keys[i]
-      if (!obj[k] || typeof obj[k] !== 'object') {
-        throw new Error(`Key '${keys.slice(0, i + 1).join('.')}' is not an object.`)
+      if ( !obj[k] || typeof obj[k] !== 'object' ) {
+        throw new Error(`Key '${ keys.slice(0, i + 1).join('.') }' is not an object.`)
       }
       obj = obj[k]
     }
@@ -122,10 +126,9 @@ export class Config implements IPlugin {
 
   }
 
-  setConfig(config:any) {
-    console.log('写入配置文件', config,this._yamlPath)
+  setConfig(config: any) {
     this.configInfo = config
     const yamlContent = yaml.dump(this.configInfo)
-    fs.writeFileSync(this._yamlPath, yamlContent);
+    fs.writeFileSync(this._yamlPath, yamlContent)
   }
 }

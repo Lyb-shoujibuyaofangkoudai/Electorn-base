@@ -22,6 +22,7 @@ export class MainIpcHandle {
     }
     return MainIpcHandle._instance
   }
+
   constructor() {
     this.init()
   }
@@ -95,9 +96,13 @@ export class MainIpcHandle {
   settingHandle() {
     this.bridge.addCall(
       EVENT_TYPE.SET_DETAILS,
-      (data?: BridgeDataType<any>): BridgeDataType<any> => {
+       (data?: BridgeDataType<any>): BridgeDataType<any> => {
         if ( data?.data ) {
-          Core.getInstance().config?.setConfig(data?.data)
+          Core.getInstance().config.setConfig(data?.data)
+          // todo: 这里有问题
+           Core.getInstance().config.settingsDao.updateSetting('config', data?.data).then(res => {
+            console.log("修改是否成功：”",res)
+          })
         }
         this.leagueHandle() // 写在这里可以保证渲染端已经在监听事件了
 
@@ -112,11 +117,11 @@ export class MainIpcHandle {
   }
 
   leagueHandle() {
-    if(!Core.getInstance().league?.cmdParsedInfo) return
+    if ( !Core.getInstance().league?.cmdParsedInfo ) return
     this.bridge.send(
       EVENT_TYPE.SET_LOL_DETAILS,
       Core.getInstance().league?.cmdParsedInfo,
-      "lol客户端参数详情"
+      'lol客户端参数详情'
     )
   }
 
@@ -124,11 +129,11 @@ export class MainIpcHandle {
     this.bridge.addCall(
       EVENT_TYPE.ADMIN_DETAILS,
       (data?: BridgeDataType<{
-        applyAdmin:boolean
+        applyAdmin: boolean
       }>): BridgeDataType<any> => {
-        if(data?.data?.applyAdmin) {
-          console.log("申请管理员权限")
-          if(this._tools.requestAdmin())
+        if ( data?.data?.applyAdmin ) {
+          console.log('申请管理员权限')
+          if ( this._tools.requestAdmin() )
             return {
               namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
               eventName: EVENT_TYPE.ADMIN_DETAILS,
@@ -159,7 +164,7 @@ export class MainIpcHandle {
           namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
           eventName: EVENT_TYPE.LOGGER_DETAILS,
           data: {
-            loggerSavePath: this._logger?.logDirPath,
+            loggerSavePath: this._logger?.logDirPath
           }
         }
       }
@@ -177,7 +182,7 @@ export class MainIpcHandle {
           namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
           eventName: EVENT_TYPE.DB_DETAILS,
           data: {
-            dbPath: Core.getInstance().db?._dbPath,
+            dbPath: Core.getInstance().db?._dbPath
           }
         }
       }
@@ -188,14 +193,14 @@ export class MainIpcHandle {
    * 文件夹handle
    */
   folderHandle() {
-    this.bridge.onEvent(EVENT_TYPE.OPEN_FOLDER,(data?: BridgeDataType<string>) => {
+    this.bridge.onEvent(EVENT_TYPE.OPEN_FOLDER, (data?: BridgeDataType<string>) => {
       const filePath = data?.data
-      if(!filePath) return
+      if ( !filePath ) return
       openFolder(filePath)
     })
   }
 
-  debugHandle(info:any) {
+  debugHandle(info: any) {
     this.bridge.addCall(
       EVENT_TYPE.DEBUG_DETAILS,
       (): BridgeDataType<any> => {

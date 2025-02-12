@@ -8,6 +8,16 @@ import { Logger } from '../logger/Logger'
 import { LOGGER_NAMESPACE } from '../Bridge/bridgeType'
 import dayjs from 'dayjs'
 import { existsSync, renameSync } from 'node:fs'
+import { DbVersions } from './entities/DbVersions'
+import { V_1 } from './migrations/v1.0'
+import { SettingsDao } from './dao/SettingsDao'
+import { DbVersionsDao } from './dao/DbVersionsDao'
+
+
+type DaoType = {
+  settings: SettingsDao | null
+  dbVersions: DbVersionsDao | null
+}
 
 // todo: 数据库插件
 export class Db implements IPlugin {
@@ -17,18 +27,25 @@ export class Db implements IPlugin {
   _dbSource: DataSource | null = null
   _dbPath: string = ''
   _upgrades = {
-    10: (a:any) => {},
-    20: (a:any) => {}
+    1: new V_1(),
+  }
+  _dao: DaoType = {
+    settings: null,
+    dbVersions: null
   }
 
   get dbSource() {
     return this._dbSource
   }
 
+  constructor() {
+  }
+
 
   async init(core: Core): Promise<void> {
+    await this._initDataBase()
     core[this.name] = core.getPlugin(Db.id)
-    this._initDataBase()
+    core.emit('dbRegistered',this)
   }
 
   async _initDataBase() {
@@ -38,12 +55,14 @@ export class Db implements IPlugin {
         type: 'sqlite',
         database: this._dbPath,
         synchronize: false,
-        entities: [ Settings ]
+        entities: [ Settings,DbVersions ]
       })
 
       this._logger!.info(`当前数据库文件位于 ${ this._dbPath }`, LOGGER_NAMESPACE.APP)
 
       await this._dbSource.initialize()
+      this._dao.settings = new SettingsDao(this._dbSource)
+      this._dao.dbVersions = new DbVersionsDao(this._dbSource)
       const {
         needToRecreateDatabase,
         needToPerformUpgrade,
@@ -66,8 +85,10 @@ export class Db implements IPlugin {
 
       if (needToPerformUpgrade) {
         this._logger.info(`数据库需要从 ${cv} 版本升级`,LOGGER_NAMESPACE.APP)
-        this._upgrade(this._dbSource,cv)
+        await this._upgrade(this._dbSource,cv)
       }
+
+
 
     } catch ( e ) {
       this._logger!.error('数据库初始化失败' + e, LOGGER_NAMESPACE.APP)
@@ -85,28 +106,22 @@ export class Db implements IPlugin {
     let currentVersion = 0
 
     try {
-      const metadataTable = await queryRunner.getTable('Metadata')
+      const metadataTable = await queryRunner.getTable('db_versions')
       if ( metadataTable ) {
-        const versionResult = await queryRunner.manager.query(
-          'SELECT value FROM Metadata WHERE key = \'version\''
-        )
-        if ( versionResult.length ) {
-          currentVersion = parseInt(versionResult[0].value, 10)
+        const versionResult = await this._dao.dbVersions!.getDbVersion('version')
+        if ( versionResult ) {
+          currentVersion = parseInt(versionResult.value, 10)
           if ( currentVersion > import.meta.env.VITE_DB_VERSION ) {
-            // version is too high and needs recreation
             needToRecreateDatabase = true
             needToPerformUpgrade = true
           } else if ( currentVersion < import.meta.env.VITE_DB_VERSION ) {
-            // low version, need to upgrade
             needToPerformUpgrade = true
           }
         } else {
-          // no version field, malformed db
           needToRecreateDatabase = true
           needToPerformUpgrade = true
         }
       } else {
-        // just created, need to build the db
         needToPerformUpgrade = true
       }
     } finally {
@@ -160,9 +175,9 @@ export class Db implements IPlugin {
 
     this._logger.info(`即将进行的数据库升级数量: ${pendingUpgrades.length}`, LOGGER_NAMESPACE.APP)
 
-    for (const [v, fn] of pendingUpgrades) {
+    for (const [v, cls] of pendingUpgrades) {
       this._logger.info(`正在执行 => 版本 ${v} 的迁移`, LOGGER_NAMESPACE.APP)
-      await fn(r)
+      await cls.up(r)
     }
 
     this._logger.info(`已完成所有数据库迁移`, LOGGER_NAMESPACE.APP)

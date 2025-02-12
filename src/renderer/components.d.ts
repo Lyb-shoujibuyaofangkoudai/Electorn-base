@@ -24,6 +24,7 @@ declare module 'vue' {
     NGradientText: typeof import('naive-ui')['NGradientText']
     NIcon: typeof import('naive-ui')['NIcon']
     NImage: typeof import('naive-ui')['NImage']
+    NPopconfirm: typeof import('naive-ui')['NPopconfirm']
     NRow: typeof import('naive-ui')['NRow']
     NTabPane: typeof import('naive-ui')['NTabPane']
     NTabs: typeof import('naive-ui')['NTabs']
