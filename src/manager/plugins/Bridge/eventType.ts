@@ -37,3 +37,12 @@ export enum EVENT_TYPE {
 
 
 }
+
+
+export enum DATA_ACTION {
+  ADD = 'add',
+  DELETE = 'delete',
+  UPDATE = 'update',
+  QUERY = 'query',
+  INIT = 'init',
+}

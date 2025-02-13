@@ -22,13 +22,12 @@ export class Schemes implements IPlugin {
 
   init(core: Core): void {
     try {
-      // console.log('注册自定义协议插件：', core, this.name)
       this.register()
       core[this.name] = core.getPlugin(this.name)
-      // console.log('注册自定义协议插件2：', this.name)
       core.emit('schemesRegistered', core)
     } catch ( e ) {
       console.log('注册自定义协议插件失败', e)
+      this._logger?.error(`注册自定义协议插件失败：${ e }`, Schemes.id)
     }
   }
 
@@ -106,6 +105,7 @@ export class Schemes implements IPlugin {
       throw new Error(`Domain ${ domain } is already registered`)
     }
     this._domainRegistry.set(domain, handler)
+    this._logger?.info(`注册域名：${ domain } ${this._domainRegistry.size}`)
   }
 
   /**
@@ -114,28 +114,33 @@ export class Schemes implements IPlugin {
    */
   register() {
     // 使用 protocol.registerSchemesAsPrivileged 方法注册自定义协议
-    this._logger?.info('注册自定义协议成功',this.name)
-    protocol.registerSchemesAsPrivileged([
-      {
-        // 指定自定义协议的名称
-        scheme: Schemes.SCHEME_HEADER,
-        // 定义自定义协议的特权
-        privileges: {
-          // 表示该协议是标准协议，遵循标准的 URL 解析规则
-          standard: true,
-          // 表示该协议是安全的，通常用于 HTTPS 协议
-          secure: true,
-          // 表示该协议支持 Fetch API，允许使用 fetch 方法进行网络请求
-          supportFetchAPI: true,
-          // 表示该协议启用了跨源资源共享（CORS），允许跨域请求
-          corsEnabled: true,
-          // 表示该协议支持流式传输，适用于处理大文件或实时数据
-          stream: true,
-          // 表示该协议可以绕过内容安全策略（CSP），允许加载不受信任的资源
-          bypassCSP: true
+    try {
+
+      protocol.registerSchemesAsPrivileged([
+        {
+          // 指定自定义协议的名称
+          scheme: Schemes.SCHEME_HEADER,
+          // 定义自定义协议的特权
+          privileges: {
+            // 表示该协议是标准协议，遵循标准的 URL 解析规则
+            standard: true,
+            // 表示该协议是安全的，通常用于 HTTPS 协议
+            secure: true,
+            // 表示该协议支持 Fetch API，允许使用 fetch 方法进行网络请求
+            supportFetchAPI: true,
+            // 表示该协议启用了跨源资源共享（CORS），允许跨域请求
+            corsEnabled: true,
+            // 表示该协议支持流式传输，适用于处理大文件或实时数据
+            stream: true,
+            // 表示该协议可以绕过内容安全策略（CSP），允许加载不受信任的资源
+            bypassCSP: true
+          }
         }
-      }
-    ])
+      ])
+      this._logger?.info('注册自定义协议成功', Schemes.id)
+    } catch ( e ) {
+      this._logger?.error(`注册自定义协议失败${e}`,Schemes.id)
+    }
   }
 
 

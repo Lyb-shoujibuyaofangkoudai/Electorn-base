@@ -23,6 +23,8 @@ export class Config implements IPlugin {
       const configInfo = await this.settingsDao!.getSetting('config')
       if(!configInfo) {
         await db._dao.settings!.addSetting('config', Settings.defaultSettings)
+      } else if(!configInfo.value?.main_window) {
+        await db._dao.settings!.updateSetting('config', Settings.defaultSettings)
       } else this.setConfig(configInfo.value)
     }
   }
@@ -78,6 +80,10 @@ export class Config implements IPlugin {
         //   读取配置文件
         const configContent = fs.readFileSync(configFilePath, 'utf8')
         configData = yaml.load(configContent)
+        if(!configData) {
+          this.setConfig(this.configInfo)
+          return this.configInfo
+        }
       }
       return configData
     } catch ( error ) {

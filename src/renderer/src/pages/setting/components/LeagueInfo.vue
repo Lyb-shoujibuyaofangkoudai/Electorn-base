@@ -32,7 +32,10 @@
 import { useLeague } from '../../../store/league'
 import { useMsg } from '../../../hooks/useMsg'
 import { copy } from '../../../utils/utils'
+import { EVENT_TYPE } from '../../../../../manager/plugins/Bridge/eventType'
+import { useIpc } from '../../../hooks/useIpc'
 
+const ipc = useIpc()
 const keysMap = {
   port: '端口',
   pid: '进程ID',
@@ -55,7 +58,14 @@ const leagueInfo = computed(() => {
   return []
 })
 
+getLeagueInfo()
 
+async function getLeagueInfo() {
+  const res = await ipc.call(
+    EVENT_TYPE.SET_LOL_DETAILS,
+  )
+  leagueStore.setLeagueInfo(res.data)
+}
 
 </script>
 

@@ -26,6 +26,7 @@
     "dayjs": "^1.11.13",
     "electron-updater": "^6.1.7",
     "js-yaml": "^4.1.0",
+    "p-queue": "^8.1.0",
     "pinia": "^2.3.0",
     "reflect-metadata": "^0.2.2",
     "regedit": "^5.1.3",

@@ -36,8 +36,7 @@ export class Manager {
       if ( BrowserWindow.getAllWindows().length === 0 ) this.createWindow()
     })
     app.on('ready', () => {
-      // 测试自定义协议
-      // Core.getInstance().schemes?.handleProtocol()
+      Core.getInstance().schemes?.handleProtocol()
     })
     app.on('window-all-closed', () => {
       if ( process.platform !== 'darwin' ) {

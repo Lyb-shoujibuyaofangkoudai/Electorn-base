@@ -1,5 +1,7 @@
 <template>
   <n-config-provider
+    :date-locale="dateZhCN"
+    :locale="zhCN"
     :theme="theme"
     :theme-overrides="themeOverrides">
     <n-global-style />
@@ -22,13 +24,12 @@
 <script
   lang="ts"
   setup>
-import { NScrollbar } from 'naive-ui'
+import { NScrollbar, zhCN, dateZhCN } from 'naive-ui'
 import HomeLayout from './layout/HomeLayout.vue'
 import { useWindowInfo } from './store/windowInfo'
 import { useIpc } from './hooks/useIpc'
 import { EVENT_TYPE } from '../../manager/plugins/Bridge/eventType'
 import { useConfig } from './store/config'
-import { nativeDarkTheme } from './theme/nativeDarkTheme'
 import { useLeague } from './store/league'
 import { useThemeStore } from './store/theme'
 
@@ -37,7 +38,7 @@ const windowInfoStore = useWindowInfo()
 const ipc = useIpc()
 const configStore = useConfig()
 const leagueStore = useLeague()
-const { theme, themeOverrides,themeConfig, neutralThemeConfig} = storeToRefs(themeStore)
+const { theme, themeOverrides, themeConfig, neutralThemeConfig } = storeToRefs(themeStore)
 
 getConfigInfo()
 
@@ -45,35 +46,22 @@ async function getConfigInfo() {
   const res = await ipc.call(EVENT_TYPE.SET_DETAILS)
   if ( !res.data ) return
   configStore.setConfig(res.data)
-  useStorage('config', {}).value = res.data // 保存一份数据在本地
+  initTheme()
+}
+
+function initTheme() {
+  const { themeConfig, neutralThemeConfig } = configStore.configInfo
+  if ( themeConfig ) themeStore.setThemeConfig(themeConfig as NTheme.Config)
+  if ( neutralThemeConfig ) themeStore.setNeutralThemeConfig(neutralThemeConfig as NTheme.NeutralThemeType)
 }
 
 getLeagueInfo()
 
 async function getLeagueInfo() {
-  ipc.onEvent(
-    EVENT_TYPE.SET_LOL_DETAILS,
-    (data) => {
-      if ( data?.data ) {
-        leagueStore.setLeagueInfo(data.data)
-      }
-    }
+  const res = await ipc.call(
+    EVENT_TYPE.SET_LOL_DETAILS
   )
-}
-
-
-initTheme()
-function initTheme() {
-  // todo；存储数据到本地 待选库
-  const localThemeConfig = useStorage('themeConfig',{})
-  const localNeutralThemeConfig = useStorage('neutralThemeConfig',{})
-  console.log("初始化主题，获取本地主题配置",localThemeConfig.value,localNeutralThemeConfig.value)
-  if(!Object.keys(localThemeConfig.value).length) {
-    themeStore.setThemeConfig(localThemeConfig.value as NTheme.Config)
-  }
-  if(!Object.keys(localNeutralThemeConfig.value).length) {
-    themeStore.setNeutralThemeConfig(localNeutralThemeConfig.value as NTheme.NeutralThemeType)
-  }
+  leagueStore.setLeagueInfo(res.data)
 }
 
 

@@ -7,6 +7,7 @@ import Request from '../../utils/request'
 import https from 'node:https'
 import { CmdParsedType, League } from '../League'
 import { Logger } from '../logger/Logger'
+import PQueue from 'p-queue'
 import { MainIpcHandle } from '../../../main/utils/MainIpcHandle'
 
 
@@ -21,25 +22,21 @@ export class LeagueMainHelper implements IPlugin {
   static id: string = 'leagueMainHelper'
   name = LeagueMainHelper.id
   _request: Request | null = null
-  _logger: Logger | null = null
+  _logger: Logger = Core.getInstance().logger! // 因为这个插件是在logger插件之后初始化的，所以这里可以直接使用
+  _assetLimiter:PQueue = new PQueue({ concurrency: 10 })
+
 
   init(core: Core): void {
     try {
-      // console.log('初始化LeagueMainHelper插件', core, this.name)
       core[this.name] = core.getPlugin(this.name)
     } catch ( e ) {
-      console.log('初始化LeagueMainHelper插件失败', e)
+      this._logger?.error(`初始化LeagueMainHelper插件失败：${e}`, )
     }
   }
 
   hooks = {
-    loggerRegistered: (logger) => {
-      this._logger = logger
-    },
     leagueConnSuccess: (auth:CmdParsedType) => {
-      console.log('连接LOL客户端成功', auth,MainIpcHandle.getInstance())
       this._logger?.info('连接LOL客户端成功', LOGGER_NAMESPACE.APP)
-      MainIpcHandle.getInstance().leagueHandle()
       this._request = new Request({
         baseURL: `${import.meta.env.VITE_BASE_HOST}:${auth.port}`,
         httpsAgent: new https.Agent({
@@ -73,11 +70,26 @@ export class LeagueMainHelper implements IPlugin {
     }
 
     if (config.url && config.url.startsWith('lol-game-data/assets')) {
-      // todo：处理游戏静态数据，图片等资源
-      return this._request!.http.request<T>(config)
+      return this._limitedRequest(config, this._assetLimiter)
     } else {
       return this._request!.http.request<T>(config)
     }
+  }
+
+  /**
+   * 限制请求并发数
+   * @param config
+   * @param limiter
+   * @private
+   */
+  private async _limitedRequest<T = any, D = any>(config: AxiosRequestConfig<D>, limiter: PQueue) {
+    const res = await limiter.add(() => this._request!.http.request<T>(config))
+
+    if (!res) {
+      throw new Error('asset request failed')
+    }
+
+    return res
   }
 
   /**
@@ -119,7 +131,6 @@ export class LeagueMainHelper implements IPlugin {
         const resHeaders: any = Object.fromEntries(
           Object.entries(res.headers).filter(([ _, value ]) => typeof value === 'string')
         )
-
         return new Response(res.status === 204 || res.status === 304 ? null : res.data, {
           statusText: res.statusText,
           headers: resHeaders,
@@ -140,5 +151,6 @@ export class LeagueMainHelper implements IPlugin {
         })
       }
     })
+    this._logger?.info('代理渲染进程通过axios发送过来的请求（yyy://lol-client）', LOGGER_NAMESPACE.APP)
   }
 }

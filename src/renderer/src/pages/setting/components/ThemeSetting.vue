@@ -65,7 +65,7 @@
 import { useThemeStore } from '../../../store/theme'
 import { copy } from '../../../utils/utils'
 import { useConfig } from '../../../store/config'
-import { EVENT_TYPE } from '../../../../../manager/plugins/Bridge/eventType'
+import { DATA_ACTION, EVENT_TYPE } from '../../../../../manager/plugins/Bridge/eventType'
 
 const configStore = useConfig()
 const themeStore = useThemeStore()
@@ -77,17 +77,22 @@ const colorTypes = computed(
   () => Object.keys(themeConfig.value) as NTheme.ColorType[]
 )
 
-function handleChangeColor() {
+async function handleChangeColor() {
   console.log("修改颜色")
   configStore.addConfig({
     themeConfig: themeConfig.value,
     neutralThemeConfig: neutralThemeConfig.value
   })
-  ipc.call(EVENT_TYPE.SET_DETAILS, configStore.configInfo)
+  await ipc.call(EVENT_TYPE.SET_DETAILS, {
+    config: configStore.configInfo,
+    action: DATA_ACTION.UPDATE
+  })
 }
 
-function handleResetTheme() {
-
+async function handleResetTheme() {
+  await ipc.call(EVENT_TYPE.SET_DETAILS, {
+    action: DATA_ACTION.INIT
+  })
 }
 
 </script>

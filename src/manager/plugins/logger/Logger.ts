@@ -19,8 +19,8 @@ export class Logger implements IPlugin {
 
   init(core:Core & any) {
     this.logger = this.createLogger()
-    this.logger.info('日志插件初始化成功')
-    this.logger.info(`日志保存路径：${this.logDirPath}`)
+    this.logger.info('日志插件初始化成功',Logger.id)
+    this.logger.info(`日志保存路径：${this.logDirPath}`,Logger.id)
     core[this.name] = core.getPlugin(Logger.id) // 挂载到Core上
     core.emit('loggerRegistered',this.logger)
   }

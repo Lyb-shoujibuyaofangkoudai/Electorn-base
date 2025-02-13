@@ -46,4 +46,5 @@ export type IpcMainDataType<T = any> = BridgeDataType<T> | IpcMainErrorDataType
 // 日志插件 特有的命名空间（注意：和通讯的命名空间不是一样的）
 export enum LOGGER_NAMESPACE {
   APP = 'app',
+  DB = 'db'
 }

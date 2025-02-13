@@ -3,8 +3,11 @@ theme:
 main_window:
   width: 1200
   height: 800
+debug:
+  openDevTools: 1
+  recordRequest: 0
 themeConfig:
-  primary: '#169EFF'
+  primary: '#3388FF'
   info: '#722ed1'
   success: '#52c41a'
   warning: '#faad14'
@@ -16,7 +19,7 @@ neutralThemeConfig:
       - popoverColor
     title: neutralPopover
   neutralCard:
-    color: '#2D3260'
+    color: '#1E2248'
     effects:
       - tableColor
       - cardColor
@@ -31,3 +34,5 @@ neutralThemeConfig:
     effects:
       - bodyColor
     title: neutralBody
+loggerSavePath: F:\01project\nodejs\electorn-learn-01\src\logs
+dbSavePath: F:\01project\nodejs\electorn-learn-01\src\manager\plugins\db\3YLolTool.db

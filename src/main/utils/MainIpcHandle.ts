@@ -1,10 +1,11 @@
 import { MainWindow } from '../windows/MainWindow'
 import { Core } from '../../manager/Core'
 import { BRIDGE_EVENT, BridgeDataType } from '../../manager/plugins/Bridge/bridgeType'
-import { EVENT_TYPE } from '../../manager/plugins/Bridge/eventType'
+import { DATA_ACTION, EVENT_TYPE } from '../../manager/plugins/Bridge/eventType'
 import { Bridge } from '../../manager/plugins/Bridge/Bridge'
 import lolTools from 'lol-tools.node'
 import { openFolder } from './util'
+import { Settings } from '../../manager/plugins/db/entities/Settings'
 
 
 /**
@@ -27,13 +28,14 @@ export class MainIpcHandle {
     this.init()
   }
 
-  init() {
+  async init() {
     this.windowHandle()
-    this.settingHandle()
     this.adminHandle()
     this.loggerHandle()
     this.dbHandle()
+    this.settingHandle()
     this.folderHandle()
+    this.leagueHandle()
   }
 
   windowHandle() {
@@ -97,14 +99,20 @@ export class MainIpcHandle {
     this.bridge.addCall(
       EVENT_TYPE.SET_DETAILS,
        (data?: BridgeDataType<any>): BridgeDataType<any> => {
-        if ( data?.data ) {
-          Core.getInstance().config.setConfig(data?.data)
-          // todo: 这里有问题
-           Core.getInstance().config.settingsDao.updateSetting('config', data?.data).then(res => {
-            console.log("修改是否成功：”",res)
-          })
+        if(data?.data?.action === DATA_ACTION.INIT ) {
+          //   初始化配置信息
+          return {
+            namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
+            eventName: EVENT_TYPE.SET_DETAILS,
+            success: true,
+            data: Settings.defaultSettings
+          }
         }
-        this.leagueHandle() // 写在这里可以保证渲染端已经在监听事件了
+
+        if ( data?.data?.config && data?.data?.action === DATA_ACTION.UPDATE ) {
+          Core.getInstance().config.setConfig(data?.data.config)
+          Core.getInstance().config.settingsDao.updateSetting('config', data?.data.config)
+        }
 
         return {
           namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
@@ -117,11 +125,15 @@ export class MainIpcHandle {
   }
 
   leagueHandle() {
-    if ( !Core.getInstance().league?.cmdParsedInfo ) return
-    this.bridge.send(
+    this.bridge.addCall(
       EVENT_TYPE.SET_LOL_DETAILS,
-      Core.getInstance().league?.cmdParsedInfo,
-      'lol客户端参数详情'
+      (): BridgeDataType<any> => {
+        return {
+          namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
+          eventName: EVENT_TYPE.SET_LOL_DETAILS,
+          data: Core.getInstance().league?.cmdParsedInfo
+        }
+      }
     )
   }
 
