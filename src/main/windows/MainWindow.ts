@@ -27,6 +27,8 @@ export class MainWindow {
       // console.log("查看插件系统2：",Core.getInstance())
       const width = Core.getInstance()?.config?.getValue('main_window.width') ?? 960
       const height = Core.getInstance()?.config?.getValue('main_window.height') ?? 720
+      const preloadPath = join(__dirname, '../preload/index.mjs');
+      console.log('Preload script path:', preloadPath); // 打印路径
       const mainWindow = new BrowserWindow({
         width,
         height,
@@ -39,6 +41,8 @@ export class MainWindow {
           spellcheck: false,
           backgroundThrottling: false,
           partition: MainWindow.PARTITION_ID,
+          nodeIntegration: true, //开启true这一步很重要,目的是为了vue文件中可以引入node和electron相关的API
+          contextIsolation: true, // 可以使用require方法
         }
       })
       mainWindow.menuBarVisible = false

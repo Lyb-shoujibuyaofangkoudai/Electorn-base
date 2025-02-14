@@ -3,7 +3,6 @@ import './assets/icons/iconfont.js'
 import { createApp } from 'vue'
 import App from './App.vue'
 import 'virtual:uno.css'
-import "reflect-metadata"
 import { createPinia } from 'pinia'
 import router from './router'
 import loggerPlugin from './plugins/logger'

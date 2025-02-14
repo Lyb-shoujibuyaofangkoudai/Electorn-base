@@ -1,7 +1,7 @@
 <template>
   <ConnLOLClient>
     <div>
-      <LcuImg :src="profileIconUri(t.profileIconId)"/>
+      <LcuImg :src="profileIconUri(t?.profileIconId)"/>
     </div>
   </ConnLOLClient>
 </template>
@@ -12,10 +12,9 @@ import { profileIconUri } from '../../../manager/utils/utils'
 
 const api = useApi()
 test()
-const t = ref({})
+const t = ref<any>({})
 async function test() {
-  const data = await api.summoner.getCurrentSummoner()
-  t.value = data
+  t.value = await api.summoner.getCurrentSummoner()
   
   // const res2 = await api.gameData
 }

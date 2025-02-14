@@ -14,6 +14,7 @@ import { Schemes } from './plugins/Schemes'
 import { AxiosRequestConfig } from 'axios'
 import { LeagueMainHelper } from './plugins/LeagueMainHelper'
 import { Db } from './plugins/db/Db'
+import { EventManager } from './plugins/EventBus'
 
 export class Manager {
   _logger: Logger | null = null
@@ -59,6 +60,7 @@ export class Manager {
       // 一个一个添加插件，可以被自定义vite插件识别自动添加类型到corePlugin.d.ts文件中，注意：实现的插件内部需要将类名挂载到Core上，且类名小写
       core.use(new Logger()) // 第一个插件必须是Logger，因为其他插件可能直接通过Core.getInstance().logger获取logger实例
       core.use(new Bridge())
+      core.use(new EventManager())
       core.use(new League())
       core.use(new Config())
       core.use(new Schemes())

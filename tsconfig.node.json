@@ -15,8 +15,10 @@
     "noUnusedLocals": false,  // 禁用未使用局部变量的检查
     "noUnusedParameters": false,  // 禁用未使用参数的检查
     "composite": true,
+    "esModuleInterop": true, // 解决模块导入问题
+    "skipLibCheck": true, // 忽略第三方库的类型检查
     "types": [
       "electron-vite/node"
-    ]
+    ],
   }
 }

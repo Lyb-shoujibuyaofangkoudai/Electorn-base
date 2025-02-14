@@ -7,7 +7,8 @@ import Request from '../../utils/request'
 import https from 'node:https'
 import { CmdParsedType, League } from '../League'
 import { Logger } from '../logger/Logger'
-import PQueue from 'p-queue'
+// import PQueue from 'p-queue'
+import { AsyncQueue } from "../../utils/AsyncQueue"
 import { MainIpcHandle } from '../../../main/utils/MainIpcHandle'
 
 
@@ -23,7 +24,9 @@ export class LeagueMainHelper implements IPlugin {
   name = LeagueMainHelper.id
   _request: Request | null = null
   _logger: Logger = Core.getInstance().logger! // 因为这个插件是在logger插件之后初始化的，所以这里可以直接使用
-  _assetLimiter:PQueue = new PQueue({ concurrency: 10 })
+  _assetLimiter:AsyncQueue = new AsyncQueue({
+    concurrency: 10, // 最大并发数
+  })
 
 
   init(core: Core): void {
@@ -71,6 +74,7 @@ export class LeagueMainHelper implements IPlugin {
 
     if (config.url && config.url.startsWith('lol-game-data/assets')) {
       return this._limitedRequest(config, this._assetLimiter)
+      // return this._request!.http.request<T>(config)
     } else {
       return this._request!.http.request<T>(config)
     }
@@ -82,7 +86,7 @@ export class LeagueMainHelper implements IPlugin {
    * @param limiter
    * @private
    */
-  private async _limitedRequest<T = any, D = any>(config: AxiosRequestConfig<D>, limiter: PQueue) {
+  private async _limitedRequest<T = any, D = any>(config: AxiosRequestConfig<D>, limiter: AsyncQueue) {
     const res = await limiter.add(() => this._request!.http.request<T>(config))
 
     if (!res) {

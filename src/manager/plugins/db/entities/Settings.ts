@@ -8,12 +8,14 @@ export class Settings {
   /**
    * 设置项唯一标识，e.g. `some-function/setting-1/setting-2`
    */
+  // @ts-ignore
   @PrimaryColumn({ type: 'varchar' })
   key!: string
 
   /**
    * 设置内容
    */
+  // @ts-ignore
   @Column({ type: 'json' })
   value: any
 

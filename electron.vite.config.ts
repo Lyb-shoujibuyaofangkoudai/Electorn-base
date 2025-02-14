@@ -1,5 +1,5 @@
 import { resolve } from 'path'
-import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
+import { defineConfig, externalizeDepsPlugin,swcPlugin } from 'electron-vite'
 import vue from '@vitejs/plugin-vue'
 import UnoCSS from 'unocss/vite'
 import AutoImport from 'unplugin-auto-import/vite'
@@ -11,8 +11,9 @@ const minify = process.env.NODE_ENV !== 'development' // 打包后 process.env.N
 export default defineConfig({
   main: {
     plugins: [
+      swcPlugin(),
       externalizeDepsPlugin(),
-      vitePluginCoreTypings(resolve(__dirname,'src/manager/index.ts'))
+      vitePluginCoreTypings(resolve(__dirname,'src/manager/index.ts')),
     ],
     resolve: {
       alias: {
@@ -25,18 +26,23 @@ export default defineConfig({
     },
     publicDir: resolve(__dirname,'resources'),
     build: {
-      minify
+      minify,
     },
   },
   preload: {
-    plugins: [externalizeDepsPlugin()],
+    plugins: [swcPlugin(),externalizeDepsPlugin()],
     build: {
-      minify
+      minify,
     },
   },
   renderer: {
     build: {
-      minify
+      minify,
+      rollupOptions: {
+        input: {
+          index: resolve(__dirname, 'src/renderer/index.html'), // 渲染进程入口
+        },
+      },
     },
     resolve: {
       alias: {
@@ -46,6 +52,7 @@ export default defineConfig({
       }
     },
     plugins: [
+      swcPlugin(),
       vue(),
       vueDevTools(),
       AutoImport({

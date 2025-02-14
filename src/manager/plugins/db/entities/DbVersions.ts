@@ -5,12 +5,14 @@ export class DbVersions {
   /**
    * 元信息键
    */
+    // @ts-ignore
   @PrimaryColumn({ type: 'varchar' })
   key!: string
 
   /**
    * 元信息值
    */
+    // @ts-ignore
   @Column({ type: 'json' })
   value: any
 
