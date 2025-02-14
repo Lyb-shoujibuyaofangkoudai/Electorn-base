@@ -10,6 +10,8 @@ import { Logger } from '../logger/Logger'
 // import PQueue from 'p-queue'
 import { AsyncQueue } from "../../utils/AsyncQueue"
 import { MainIpcHandle } from '../../../main/utils/MainIpcHandle'
+import { EventManager } from '../EventBus'
+import { EVENT_BUS_TYPE } from '../Bridge/eventType'
 
 
 export class LeagueClientLcuUninitializedError extends Error {
@@ -27,6 +29,7 @@ export class LeagueMainHelper implements IPlugin {
   _assetLimiter:AsyncQueue = new AsyncQueue({
     concurrency: 10, // 最大并发数
   })
+  _eventManager:EventManager = Core.getInstance().eventManager!
 
 
   init(core: Core): void {
@@ -39,7 +42,6 @@ export class LeagueMainHelper implements IPlugin {
 
   hooks = {
     leagueConnSuccess: (auth:CmdParsedType) => {
-      this._logger?.info('连接LOL客户端成功', LOGGER_NAMESPACE.APP)
       this._request = new Request({
         baseURL: `${import.meta.env.VITE_BASE_HOST}:${auth.port}`,
         httpsAgent: new https.Agent({
@@ -61,6 +63,7 @@ export class LeagueMainHelper implements IPlugin {
           password: auth.authToken,
         },
       })
+      this._eventManager.emit(EVENT_BUS_TYPE.LOL_CONN_SUCCESS)
     },
     schemesRegistered: (core:Core) => {
       this.proxyYYYLolClientFromRenderer(core)

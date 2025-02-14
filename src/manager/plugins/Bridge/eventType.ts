@@ -1,5 +1,5 @@
 /**
- * 事件类型
+ * 用于进程间通信的事件类型
  */
 export enum EVENT_TYPE {
   TEST = 'test',
@@ -45,4 +45,9 @@ export enum DATA_ACTION {
   UPDATE = 'update',
   QUERY = 'query',
   INIT = 'init',
+}
+
+
+export enum EVENT_BUS_TYPE {
+  LOL_CONN_SUCCESS = 'lol-conn-success',
 }

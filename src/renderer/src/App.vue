@@ -32,12 +32,16 @@ import { EVENT_TYPE } from '../../manager/plugins/Bridge/eventType'
 import { useConfig } from './store/config'
 import { useLeague } from './store/league'
 import { useThemeStore } from './store/theme'
+import { useRequestDataStore } from './store/requestDataStore'
+import { useApi } from './hooks/useApi'
 
 const themeStore = useThemeStore()
 const windowInfoStore = useWindowInfo()
 const ipc = useIpc()
 const configStore = useConfig()
 const leagueStore = useLeague()
+const requestDataStore = useRequestDataStore()
+const api = useApi()
 const { theme, themeOverrides, themeConfig, neutralThemeConfig } = storeToRefs(themeStore)
 
 getConfigInfo()
@@ -58,10 +62,25 @@ function initTheme() {
 getLeagueInfo()
 
 async function getLeagueInfo() {
+  ipc.onEvent(
+    EVENT_TYPE.SET_LOL_DETAILS,
+    (data) => {
+      if(data?.data && !leagueStore.leagueInfo) {
+        leagueStore.setLeagueInfo(data.data)
+      }
+      getSummonerInfo()
+    },
+  )
   const res = await ipc.call(
     EVENT_TYPE.SET_LOL_DETAILS
   )
   leagueStore.setLeagueInfo(res.data)
+}
+
+
+async function getSummonerInfo() {
+  if(requestDataStore.getRequestData('summoner')) return
+  requestDataStore.fetchData('summoner',async () => await api.summoner.getCurrentSummoner())
 }
 
 

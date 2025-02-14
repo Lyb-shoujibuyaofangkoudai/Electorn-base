@@ -1,11 +1,12 @@
 import { MainWindow } from '../windows/MainWindow'
 import { Core } from '../../manager/Core'
-import { BRIDGE_EVENT, BridgeDataType } from '../../manager/plugins/Bridge/bridgeType'
-import { DATA_ACTION, EVENT_TYPE } from '../../manager/plugins/Bridge/eventType'
+import { BRIDGE_EVENT, BridgeDataType, LOGGER_NAMESPACE } from '../../manager/plugins/Bridge/bridgeType'
+import { DATA_ACTION, EVENT_BUS_TYPE, EVENT_TYPE } from '../../manager/plugins/Bridge/eventType'
 import { Bridge } from '../../manager/plugins/Bridge/Bridge'
 import lolTools from 'lol-tools.node'
 import { openFolder } from './util'
 import { Settings } from '../../manager/plugins/db/entities/Settings'
+import { EventManager } from '../../manager/plugins/EventBus'
 
 
 /**
@@ -16,6 +17,7 @@ export class MainIpcHandle {
   _logger = Core.getInstance().logger
   bridge = Core.getInstance().bridge as Bridge
   _tools = lolTools
+  _eventManager:EventManager = Core.getInstance().eventManager!
 
   static getInstance(): MainIpcHandle {
     if ( !MainIpcHandle._instance ) {
@@ -135,6 +137,15 @@ export class MainIpcHandle {
         }
       }
     )
+
+    this._eventManager.on(EVENT_BUS_TYPE.LOL_CONN_SUCCESS,() => {
+      this._logger?.info('连接LOL客户端成功', LOGGER_NAMESPACE.APP)
+      this.bridge.send(
+        EVENT_TYPE.SET_LOL_DETAILS,
+        Core.getInstance().league?.cmdParsedInfo,
+        "lol客户端参数详情"
+      )
+    })
   }
 
   adminHandle() {
