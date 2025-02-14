@@ -80,7 +80,7 @@ async function getLeagueInfo() {
 
 async function getSummonerInfo() {
   if(requestDataStore.getRequestData('summoner')) return
-  requestDataStore.fetchData('summoner',async () => await api.summoner.getCurrentSummoner())
+  await requestDataStore.fetchData('summoner',async () => await api.summoner.getCurrentSummoner())
 }
 
 
