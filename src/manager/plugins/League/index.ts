@@ -1,7 +1,7 @@
 import { IPlugin } from '../../interface'
-// import lolTools from '../../../../resources/addons/lol-tools.node'
 import lolTools from 'lol-tools.node'
 import { Core } from '../../Core'
+import { exec } from "child_process"
 
 
 /**
@@ -83,6 +83,11 @@ export class League implements IPlugin {
     const timer = setInterval(() => {
       const cmdLine = this.getLOLClientConnArgByNativeApi()
       if ( cmdLine ) {
+        this.isLeagueClientRunning(this._PROCESS_NAME).then((res) => {
+          console.log(`res`,res);
+        }).catch((err) => {
+          console.error('获取客户端信息失败:', err);
+        });
         this._cmdParsedInfo = this.parseCommandLine(cmdLine)
         core.emit('leagueConnSuccess', this._cmdParsedInfo)
         clearInterval(timer)
@@ -124,5 +129,22 @@ export class League implements IPlugin {
       riotClientPort: Number(riotClientPort),
       riotClientAuthToken: riotClientAuth
     }
+  }
+
+  /**
+   * 检查exe是否在已经运行
+   * @param exeName
+   */
+   isLeagueClientRunning(exeName: string) {
+    return new Promise((resolve, reject) => {
+      exec('tasklist', (error, stdout) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        const isRunning = stdout.includes(exeName);
+        resolve(isRunning);
+      });
+    });
   }
 }
