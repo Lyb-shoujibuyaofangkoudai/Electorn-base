@@ -12,6 +12,7 @@ import { AsyncQueue } from "../../utils/AsyncQueue"
 import { MainIpcHandle } from '../../../main/utils/MainIpcHandle'
 import { EventManager } from '../EventBus'
 import { EVENT_BUS_TYPE } from '../Bridge/eventType'
+import { LeagueClientHttpApi } from '../../api/leagueCilent'
 
 
 export class LeagueClientLcuUninitializedError extends Error {
@@ -24,12 +25,17 @@ export class LeagueClientLcuUninitializedError extends Error {
 export class LeagueMainHelper implements IPlugin {
   static id: string = 'leagueMainHelper'
   name = LeagueMainHelper.id
+  _league = Core.getInstance().league!
   _request: Request | null = null
   _logger: Logger = Core.getInstance().logger! // 因为这个插件是在logger插件之后初始化的，所以这里可以直接使用
   _assetLimiter:AsyncQueue = new AsyncQueue({
     concurrency: 10, // 最大并发数
   })
   _eventManager:EventManager = Core.getInstance().eventManager!
+  _lcuAPICanUse:boolean = false
+  _axiosLinks:AsyncQueue =  new AsyncQueue({
+    concurrency: 10, // 最大并发数
+  })
 
 
   init(core: Core): void {
@@ -64,6 +70,7 @@ export class LeagueMainHelper implements IPlugin {
         },
       })
       this._eventManager.emit(EVENT_BUS_TYPE.LOL_CONN_SUCCESS)
+      this.loopCheckLCUApiCanUse()
     },
     schemesRegistered: (core:Core) => {
       this.proxyYYYLolClientFromRenderer(core)
@@ -159,5 +166,21 @@ export class LeagueMainHelper implements IPlugin {
       }
     })
     this._logger?.info('代理渲染进程通过axios发送过来的请求（yyy://lol-client）', LOGGER_NAMESPACE.APP)
+  }
+
+  loopCheckLCUApiCanUse() {
+    const timer = setInterval(async() => {
+      try {
+        if ( !this._league._cmdParsedInfo ) return
+        const res = await LeagueClientHttpApi.getInstance(this._request!.http).summoner.getCurrentSummoner()
+        console.log('请求成功查看结果：', res.status)
+        if(res.status === 200) {
+          this._lcuAPICanUse = true
+          clearInterval(timer)
+        }
+      } catch ( e ) {
+        console.log("请求失败：",e)
+      }
+    },1000)
   }
 }
