@@ -50,7 +50,7 @@ class Request {
     this._http.interceptors.request.use(
       (config: InternalAxiosRequestConfig<any>) => {
         // 在发送请求之前做些什么
-
+        // console.log("发送请求：",config)
         return config
       },
       (error) => {
@@ -69,7 +69,6 @@ class Request {
         return response
       },
       (error) => {
-        console.error('响应错误：', error)
         // 对响应错误做点什么
         if ( isRenderer() ) {
           const { message } = useMsg()

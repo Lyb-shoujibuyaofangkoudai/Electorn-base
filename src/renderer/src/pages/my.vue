@@ -16,7 +16,7 @@ const {
 } = useRequestDataStore()
 const api = useApi()
 const t = ref<any>(null)
-// test()
+test()
 async function test() {
   t.value = await api.summoner.getCurrentSummoner()
   console.log(t.value)
