@@ -68,10 +68,7 @@ async function getLeagueInfo() {
       if(data?.data && !leagueStore.leagueInfo) {
         leagueStore.setLeagueInfo(data.data)
       }
-      // todo: 待优化（需要监听到客户端是否真的完成了启动） 注意：这里只是通过原生API获取到LOL的启动命令后就会触发的方法，但是并不代表LOL客户端已经启动，所以需要在这个方法中再去请求一次，或者延迟请求
-      setTimeout(() => {
-        getSummonerInfo()
-      },10000)
+      getSummonerInfo()
     },
   )
   const res = await ipc.call(
@@ -84,7 +81,7 @@ async function getLeagueInfo() {
 async function getSummonerInfo() {
   try {
     if ( requestDataStore.getRequestData('summoner') ) return
-    await requestDataStore.fetchData('summoner', async () => await api.summoner.getCurrentSummoner())
+    await requestDataStore.fetchData('summoner', async () => await api.lcuApi.summoner.getCurrentSummoner())
   } catch ( e ) {
     //这里打开软件之后再开启Lol客户端时马上去请求会报错，因为LOL客户端并没有立即启动，所以这里需要做一下处理
     console.log(e)

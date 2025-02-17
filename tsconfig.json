@@ -14,7 +14,8 @@
     "skipLibCheck": true, // 忽略第三方库的类型检查
     "paths": {
       "lol-tools.node": ["./resources/addons/lol-tools.node"]
-    }
+    },
+    "types": ["electron-vite/node"]
   },
   "files": [],
   "include": [

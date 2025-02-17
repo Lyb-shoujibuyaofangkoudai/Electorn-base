@@ -34,7 +34,8 @@ export enum EVENT_TYPE {
   DB_DETAILS = 'db-details',
   // 打开文件夹
   OPEN_FOLDER = 'open-folder',
-
+  // LCU API是否可用
+  API_CAN_USE = 'api-can-use',
 
 }
 

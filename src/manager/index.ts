@@ -15,6 +15,7 @@ import { AxiosRequestConfig } from 'axios'
 import { LeagueMainHelper } from './plugins/LeagueMainHelper'
 import { Db } from './plugins/db/Db'
 import { EventManager } from './plugins/EventBus'
+import { SgpMainHelper } from './plugins/SgpMainHelper'
 
 export class Manager {
   _logger: Logger | null = null
@@ -64,8 +65,9 @@ export class Manager {
       core.use(new League())
       core.use(new Config())
       core.use(new Schemes())
-      core.use(new LeagueMainHelper())
       core.use(new Db())
+      core.use(new LeagueMainHelper())
+      core.use(new SgpMainHelper())
       this._logger = Core.getInstance().logger
       Core.getInstance().logger?.info('插件系统初始化完成', LOGGER_NAMESPACE.APP)
     } catch ( e ) {

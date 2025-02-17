@@ -33,8 +33,10 @@ export class LeagueMainHelper implements IPlugin {
   })
   _eventManager:EventManager = Core.getInstance().eventManager!
   _lcuAPICanUse:boolean = false
+  // 暂存 等待lcu api接口可用后的请求
   _axiosLinks:AsyncQueue =  new AsyncQueue({
     concurrency: 10, // 最大并发数
+    autoStart: false, // 自动启动
   })
 
 
@@ -141,15 +143,15 @@ export class LeagueMainHelper implements IPlugin {
           responseType: 'stream',
           headers: reqHeaders
         }
-        const res:any = await this.request(config)
-        const resHeaders: any = Object.fromEntries(
-          Object.entries(res.headers).filter(([ _, value ]) => typeof value === 'string')
-        )
-        return new Response(res.status === 204 || res.status === 304 ? null : res.data, {
-          statusText: res.statusText,
-          headers: resHeaders,
-          status: res.status
-        })
+        if(this._lcuAPICanUse) {
+          const res:any = await this.request(config)
+          return this.handleResponse(res)
+        } else {
+          this._logger.warn('检测lcu api 接口是否可用中...')
+          const res = await this._axiosLinks.add(() => this.request(config))
+          return this.handleResponse(res)
+        }
+
       } catch ( e ) {
 
         if (e instanceof LeagueClientLcuUninitializedError) {
@@ -168,18 +170,34 @@ export class LeagueMainHelper implements IPlugin {
     this._logger?.info('代理渲染进程通过axios发送过来的请求（yyy://lol-client）', LOGGER_NAMESPACE.APP)
   }
 
+  handleResponse(res:any) {
+    const resHeaders: any = Object.fromEntries(
+      Object.entries(res.headers).filter(([ _, value ]) => typeof value === 'string')
+    )
+    return new Response(res.status === 204 || res.status === 304 ? null : res.data, {
+      statusText: res.statusText,
+      headers: resHeaders,
+      status: res.status
+    })
+  }
+
+  /**
+   * 循环检测lcu api接口是否可用
+   *
+   */
   loopCheckLCUApiCanUse() {
     const timer = setInterval(async() => {
       try {
         if ( !this._league._cmdParsedInfo ) return
         const res = await LeagueClientHttpApi.getInstance(this._request!.http).summoner.getCurrentSummoner()
-        console.log('请求成功查看结果：', res.status)
         if(res.status === 200) {
+          this._logger?.info(`LCU API接口检测完毕,可用`)
           this._lcuAPICanUse = true
+          this._axiosLinks.start()
           clearInterval(timer)
         }
       } catch ( e ) {
-        console.log("请求失败：",e)
+        throw new Error(`尝试lcu接口连通性请求失败`)
       }
     },1000)
   }

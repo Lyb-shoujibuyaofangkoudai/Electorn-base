@@ -5,8 +5,9 @@ import EventManager from "./plugins/EventBus"
 import League from "./plugins/League"
 import Config from "./plugins/config"
 import Schemes from "./plugins/Schemes"
-import LeagueMainHelper from "./plugins/LeagueMainHelper"
 import Db from "./plugins/db/Db"
+import LeagueMainHelper from "./plugins/LeagueMainHelper"
+import SgpMainHelper from "./plugins/SgpMainHelper"
 import { Core } from './Core';
 
 declare module './Core' {
@@ -17,7 +18,8 @@ declare module './Core' {
 		league: League;
 		config: Config;
 		schemes: Schemes;
-		leagueMainHelper: LeagueMainHelper;
 		db: Db;
+		leagueMainHelper: LeagueMainHelper;
+		sgpMainHelper: SgpMainHelper;
   }
 }

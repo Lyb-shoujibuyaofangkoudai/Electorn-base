@@ -1,3 +1,7 @@
+/// <reference types="vite/client" />
+/// <reference types="electron-vite/node" />
+
+
 // 拓展window对象
 import { BridgeDataType } from './manager/plugins/Bridge/bridgeType'
 

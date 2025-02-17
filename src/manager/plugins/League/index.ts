@@ -84,7 +84,6 @@ export class League implements IPlugin {
       const cmdLine = this.getLOLClientConnArgByNativeApi()
       if ( cmdLine ) {
         this.isLeagueClientRunning(this._PROCESS_NAME).then((res) => {
-          console.log(`res`,res);
         }).catch((err) => {
           console.error('获取客户端信息失败:', err);
         });

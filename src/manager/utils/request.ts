@@ -7,7 +7,7 @@ import axios, {
 } from 'axios'
 import { isRenderer } from './utils'
 
-class Request {
+export default class Request {
   private readonly _http: AxiosInstance
   get http(): AxiosInstance {
     return this._http
@@ -92,4 +92,3 @@ class Request {
   }
 }
 
-export default Request

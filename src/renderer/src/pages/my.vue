@@ -18,7 +18,7 @@ const api = useApi()
 const t = ref<any>(null)
 test()
 async function test() {
-  t.value = await api.summoner.getCurrentSummoner()
+  t.value = await api.lcuApi.summoner.getCurrentSummoner()
   console.log(t.value)
 }
 </script>

@@ -1,8 +1,18 @@
 import Request from '../../../manager/utils/request'
 import { LeagueClientHttpApi } from '../../../manager/api/leagueCilent'
 
-const request = new Request({
+const lcuRequest = new Request({
   baseURL: import.meta.env.VITE_CUS_SCHEME_LCU_URL,
   adapter: 'fetch',
 })
-export const useApi = () => LeagueClientHttpApi.getInstance(request.http)
+const sgpRequest = new Request({
+  baseURL: import.meta.env.VITE_CUS_SCHEME_RIOT_URL,
+  adapter: 'fetch',
+})
+export const useApi = (): {
+  lcuApi: LeagueClientHttpApi,
+  sgpApi: any
+} => ({
+  lcuApi: LeagueClientHttpApi.getInstance(lcuRequest.http),
+  sgpApi: {}
+})
