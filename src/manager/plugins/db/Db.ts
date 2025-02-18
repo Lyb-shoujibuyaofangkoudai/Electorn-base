@@ -23,7 +23,7 @@ type DaoType = {
 export class Db implements IPlugin {
   static id: string = 'db'
   name = Db.id
-  _logger: Logger = Core.getInstance().logger! // 因为这个插件是在logger插件之后初始化的，所以这里可以直接使用
+  _logger: Logger | null = Core.getInstance().logger
   _dbSource: DataSource | null = null
   _dbPath: string = ''
   _upgrades = {
@@ -38,14 +38,17 @@ export class Db implements IPlugin {
     return this._dbSource
   }
 
-  constructor() {
+  hooks = {
+    loggerRegistered: (logger) => {
+      this._logger = logger
+    }
   }
 
 
   async init(core: Core): Promise<void> {
     await this._initDataBase()
     core[this.name] = core.getPlugin(Db.id)
-    core.emit('dbRegistered',this)
+    core.emit(this.name,'dbRegistered',this)
   }
 
   async _initDataBase() {
@@ -58,7 +61,7 @@ export class Db implements IPlugin {
         entities: [ Settings,DbVersions ]
       })
 
-      this._logger!.info(`当前数据库文件位于 ${ this._dbPath }`, LOGGER_NAMESPACE.APP)
+      this._logger?.info(`当前数据库文件位于 ${ this._dbPath }`, LOGGER_NAMESPACE.APP)
 
       await this._dbSource.initialize()
       this._dao.settings = new SettingsDao(this._dbSource)
@@ -69,29 +72,27 @@ export class Db implements IPlugin {
         currentVersion
       } = await this._checkDatabaseVersion(this._dbSource)
 
-      this._logger.info(`当前版本 ${currentVersion}`, LOGGER_NAMESPACE.APP)
+      this._logger?.info(`当前版本 ${currentVersion}`, LOGGER_NAMESPACE.APP)
 
       let cv = currentVersion
 
       if (!needToPerformUpgrade && !needToPerformUpgrade) {
-        this._logger.info(`当前版本数据库无需迁移`,LOGGER_NAMESPACE.APP)
+        this._logger?.info(`当前版本数据库无需迁移`,LOGGER_NAMESPACE.APP)
       }
 
       if (needToRecreateDatabase) {
-        this._logger.warn(`错误的数据库格式，需要重建数据库`,LOGGER_NAMESPACE.APP)
+        this._logger?.warn(`错误的数据库格式，需要重建数据库`,LOGGER_NAMESPACE.APP)
         await this._recreateDatabase(this._dbSource, this._dbPath)
         cv = 0
       }
 
       if (needToPerformUpgrade) {
-        this._logger.info(`数据库需要从 ${cv} 版本升级`,LOGGER_NAMESPACE.APP)
+        this._logger?.info(`数据库需要从 ${cv} 版本升级`,LOGGER_NAMESPACE.APP)
         await this._upgrade(this._dbSource,cv)
       }
 
-
-
     } catch ( e ) {
-      this._logger!.error('数据库初始化失败' + e, LOGGER_NAMESPACE.APP)
+      this._logger?.error('数据库初始化失败' + e, LOGGER_NAMESPACE.APP)
     }
   }
 
@@ -138,7 +139,7 @@ export class Db implements IPlugin {
       const backupPath = join(dbPath, `../${dayjs().format('YYYYMMDDHHmmssSSS')}_bk.db`)
 
       renameSync(dbPath, backupPath)
-      this._logger.info(`原数据库无法使用, 已备份至 ${backupPath}`, LOGGER_NAMESPACE.APP)
+      // this._logger.info(`原数据库无法使用, 已备份至 ${backupPath}`, LOGGER_NAMESPACE.APP)
     }
 
     await dataSource.initialize()
@@ -173,14 +174,14 @@ export class Db implements IPlugin {
       .filter(([v]) => Number(v) > currentVersion)
       .toSorted(([v1], [v2]) => Number(v1) - Number(v2))
 
-    this._logger.info(`即将进行的数据库升级数量: ${pendingUpgrades.length}`, LOGGER_NAMESPACE.APP)
+    this._logger?.info(`即将进行的数据库升级数量: ${pendingUpgrades.length}`, LOGGER_NAMESPACE.APP)
 
     for (const [v, cls] of pendingUpgrades) {
-      this._logger.info(`正在执行 => 版本 ${v} 的迁移`, LOGGER_NAMESPACE.APP)
+      this._logger?.info(`正在执行 => 版本 ${v} 的迁移`, LOGGER_NAMESPACE.APP)
       await cls.up(r)
     }
 
-    this._logger.info(`已完成所有数据库迁移`, LOGGER_NAMESPACE.APP)
+    this._logger?.info(`已完成所有数据库迁移`, LOGGER_NAMESPACE.APP)
   }
 
 }

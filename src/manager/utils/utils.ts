@@ -1,4 +1,3 @@
-import { app } from "electron";
 
 /**
  * 召唤师头像的图片 URL
@@ -30,4 +29,22 @@ export function getStylesIconUri(styleId: number, perkId: number) {
 
 export function isRenderer() {
   return typeof window !== "undefined";
+}
+
+
+
+export function parseUrlParams(url: string): Record<string, string> {
+  const params: Record<string, string> = {};
+  const queryString = url.split('?')[1]; // 获取查询字符串部分
+
+  if (!queryString) return params;
+
+  queryString.split('&').forEach(pair => {
+    const [key, value] = pair.split('=');
+    if (key) {
+      params[decodeURIComponent(key)] = decodeURIComponent(value || '');
+    }
+  });
+
+  return params;
 }

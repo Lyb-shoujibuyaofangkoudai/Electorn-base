@@ -23,6 +23,36 @@ export class Core {
     if(!Core.instance)
       Core.instance = this;
   }
+
+  run() {
+    // 插件初始化
+    for (const plugin of this.plugins.values()) {
+      if (plugin.init) {
+        plugin.init(this);
+        if (plugin.hooks) {
+          for (const [event, handler] of Object.entries(plugin.hooks)) {
+            this.on(event, handler, plugin.name);
+          }
+        }
+        if (plugin.communicate) {
+          for (const [service, handler] of Object.entries(plugin.communicate)) {
+            this.services.set(`${plugin.name}.${service}`, handler); // 将服务注册到服务管理器中
+          }
+        }
+
+      } else {
+        throw `${plugin.name}插件不存在初始化init函数`
+      }
+    }
+
+    for ( const [event,data] of this._emits ) {
+      const listeners = this.listeners.get(event);
+      if (listeners) {
+        listeners.forEach(listener => listener.callback(data));
+      }
+    }
+  }
+
   // 加载插件
   use(...plugins: IPlugin[]): void {
     for (const plugin of plugins) {
@@ -36,30 +66,30 @@ export class Core {
     }
     this.plugins.set(plugin.name, plugin); // 将插件添加到映射中
 
-    if (plugin.init) {
-      plugin.init(this);
-    } else {
-      throw `${plugin.name}插件不存在初始化init函数`
-    }
+    // if (plugin.init) {
+    //   plugin.init(this);
+    // } else {
+    //   throw `${plugin.name}插件不存在初始化init函数`
+    // }
     // console.log("是否存在plugin.hooks钩子：",plugin)
     // 注册钩子函数
-    if (plugin.hooks) {
-      for (const [event, handler] of Object.entries(plugin.hooks)) {
-        this.on(event, handler, plugin.name);
-        if(this._emits.has(event)) {
-          handler(this._emits.get(event))
-          this._emits.delete(event)
-        }
-      }
-
-    }
+    // if (plugin.hooks) {
+    //   for (const [event, handler] of Object.entries(plugin.hooks)) {
+    //     this.on(event, handler, plugin.name);
+    //     if(this._emits.has(event)) {
+    //       handler(this._emits.get(event))
+    //       this._emits.delete(event)
+    //     }
+    //   }
+    //
+    // }
 
     // 注册通信处理器
-    if (plugin.communicate) {
-      for (const [service, handler] of Object.entries(plugin.communicate)) {
-        this.services.set(`${plugin.name}.${service}`, handler); // 将服务注册到服务管理器中
-      }
-    }
+    // if (plugin.communicate) {
+    //   for (const [service, handler] of Object.entries(plugin.communicate)) {
+    //     this.services.set(`${plugin.name}.${service}`, handler); // 将服务注册到服务管理器中
+    //   }
+    // }
 
   }
 
@@ -105,12 +135,14 @@ export class Core {
   }
 
   // 触发事件
-  emit(event: string, data?: any): void {
-    // console.log("触发事件：",event,data,this)
+  emit( pluginName: string,event: string, data?: any): void {
     const listeners = this.listeners.get(event);
     if (listeners) {
       listeners.forEach(listener => listener.callback(data));
-    } else this._emits.set(event,data)
+    } else {
+      // todo: 这里可能还有问题
+      this._emits.set(event,data)
+    }
   }
 
   // 控制反转的占位函数

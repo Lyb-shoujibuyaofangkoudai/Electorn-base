@@ -25,13 +25,13 @@ export class LeagueClientLcuUninitializedError extends Error {
 export class LeagueMainHelper implements IPlugin {
   static id: string = 'leagueMainHelper'
   name = LeagueMainHelper.id
-  _league = Core.getInstance().league!
+  _league:League | null = null
   _request: Request | null = null
-  _logger: Logger = Core.getInstance().logger! // 因为这个插件是在logger插件之后初始化的，所以这里可以直接使用
+  _logger: Logger | null = null
   _assetLimiter:AsyncQueue = new AsyncQueue({
     concurrency: 10, // 最大并发数
   })
-  _eventManager:EventManager = Core.getInstance().eventManager!
+  _eventManager: EventManager | null = null
   _lcuAPICanUse:boolean = false
   // 暂存 等待lcu api接口可用后的请求
   _axiosLinks:AsyncQueue =  new AsyncQueue({
@@ -44,11 +44,17 @@ export class LeagueMainHelper implements IPlugin {
     try {
       core[this.name] = core.getPlugin(this.name)
     } catch ( e ) {
-      this._logger?.error(`初始化LeagueMainHelper插件失败：${e}`, )
+      // this._logger?.error(`初始化LeagueMainHelper插件失败：${e}`, )
     }
   }
 
   hooks = {
+    eventManagerRegistered: (eventManager:EventManager) => {
+      this._eventManager = eventManager
+    },
+    leagueRegistered: (league:League) => {
+      this._league = league
+    },
     leagueConnSuccess: (auth:CmdParsedType) => {
       this._request = new Request({
         baseURL: `${import.meta.env.VITE_BASE_HOST}:${auth.port}`,
@@ -129,7 +135,7 @@ export class LeagueMainHelper implements IPlugin {
       }
       return
     }
-    core.schemes.registerDomain('lol-client', async (uri:string, req:any):Promise<any> => {
+    core.schemes.registerDomain(import.meta.env.VITE_CUS_SCHEME_LCU_DOMAIN, async (uri:string, req:any):Promise<any> => {
       try {
         const reqHeaders: Record<string, string> = {}
         req.headers.forEach((value, key) => {
@@ -147,7 +153,7 @@ export class LeagueMainHelper implements IPlugin {
           const res:any = await this.request(config)
           return this.handleResponse(res)
         } else {
-          this._logger.warn('检测lcu api 接口是否可用中...')
+          // this._logger.warn('检测lcu api 接口是否可用中...')
           const res = await this._axiosLinks.add(() => this.request(config))
           return this.handleResponse(res)
         }
@@ -167,7 +173,7 @@ export class LeagueMainHelper implements IPlugin {
         })
       }
     })
-    this._logger?.info('代理渲染进程通过axios发送过来的请求（yyy://lol-client）', LOGGER_NAMESPACE.APP)
+    // this._logger?.info('代理渲染进程通过axios发送过来的请求（yyy://lol-client）', LOGGER_NAMESPACE.APP)
   }
 
   handleResponse(res:any) {
@@ -195,9 +201,10 @@ export class LeagueMainHelper implements IPlugin {
           this._lcuAPICanUse = true
           this._axiosLinks.start()
           clearInterval(timer)
+          Core.getInstance().emit(this.name,'leagueMainHelperInit',LeagueClientHttpApi.getInstance(this._request!.http))
         }
       } catch ( e ) {
-        throw new Error(`尝试lcu接口连通性请求失败`)
+        throw new Error(`尝试lcu接口连通性请求失败：${e}`)
       }
     },1000)
   }

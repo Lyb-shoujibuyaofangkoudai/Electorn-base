@@ -19,6 +19,11 @@ import { Core } from "../../Core";
 import { LOGGER_NAMESPACE } from "../Bridge/bridgeType";
 import { EVENT_TYPE } from "../Bridge/eventType";
 
+/**
+ * 日志插件
+ * 可以通过new Logger(core) 先行将创建好的对象直接挂在到Core的实例上，
+ * 这样可以让其他插件直接通过Core.getInstance().logger获取logger实例
+ */
 export class Logger implements IPlugin {
   static id: string = "logger";
   name = Logger.id;
@@ -26,12 +31,15 @@ export class Logger implements IPlugin {
   // 日志保存路径
   logDirPath: string = "";
 
-  init(core: Core & any) {
+  constructor(core:Core) {
     this.logger = this.createLogger();
+    core[this.name] = core.getPlugin(Logger.id);
+  }
+  init(core: Core & any) {
     this.logger.info("日志插件初始化成功", Logger.id);
     this.logger.info(`日志保存路径：${this.logDirPath}`, Logger.id);
     core[this.name] = core.getPlugin(Logger.id); // 挂载到Core上
-    core.emit("loggerRegistered", this.logger);
+    core.emit(this.name,"loggerRegistered", this.logger);
   }
 
   createLogger() {
@@ -77,7 +85,7 @@ export class Logger implements IPlugin {
             format.timestamp(),
             format.printf(({ level, message, namespace, timestamp }) => {
               const timestampColored = `${LEVEL_COLORS[level] || STYLES.reset}[${dayjs(timestamp as any).format("YYYY-MM-DD HH:mm:ss:SSS")}]${STYLES.reset}`;
-              const namespaceColored = `${NAMESPACE_COLORS[level] || STYLES.reset}${STYLES.bold}[${namespace}]${STYLES.reset}`;
+              const namespaceColored = `${NAMESPACE_COLORS[level] || STYLES.reset}${STYLES.bold}[${namespace ?? 'app'}]${STYLES.reset}`;
               const levelColor = LEVEL_COLORS[level] || STYLES.reset;
               const levelColored = `${levelColor}[${level}]${STYLES.reset}`;
               const msg = `${MSG_COLORS[level] || STYLES.reset}${message}`;
@@ -95,7 +103,7 @@ export class Logger implements IPlugin {
   ) {
     this.logger.info({
       message: JSON.stringify(message),
-      namespace,
+      namespace
     });
   }
 

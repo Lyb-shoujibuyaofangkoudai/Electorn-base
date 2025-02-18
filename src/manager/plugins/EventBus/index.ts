@@ -14,6 +14,7 @@ export class EventManager implements IPlugin {
 
   init(core: Core): void {
     core[this.name] = core.getPlugin(this.name)
+    core.emit(this.name,'eventManagerRegistered',this)
   }
 
   /**

@@ -1,5 +1,4 @@
 
-import Logger from "./plugins/logger/Logger"
 import Bridge from "./plugins/Bridge/Bridge"
 import EventManager from "./plugins/EventBus"
 import League from "./plugins/League"
@@ -12,8 +11,7 @@ import { Core } from './Core';
 
 declare module './Core' {
   interface Core {
-    logger: Logger;
-		bridge: Bridge;
+    bridge: Bridge;
 		eventManager: EventManager;
 		league: League;
 		config: Config;

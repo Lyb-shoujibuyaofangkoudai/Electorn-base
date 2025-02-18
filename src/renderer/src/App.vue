@@ -88,6 +88,17 @@ async function getSummonerInfo() {
   }
 }
 
+test()
+async function test() {
+  const res = await api.sgpApi.getMatchHistory(
+    'TENCENT_NJ100',
+    '58612941-2c0a-5cef-8b9a-e500718ea6e9',
+    0,
+    10,
+  )
+  console.log("sgp测试：",res)
+}
+
 
 </script>
 

@@ -74,6 +74,7 @@ export class League implements IPlugin {
     try {
       this.loopConnection(core)
       core['league'] = core.getPlugin(League.id) // 挂载到core上
+      core.emit(this.name,'leagueRegistered', this)
     } catch ( e ) {
       console.log("初始化League插件失败",e)
     }
@@ -88,7 +89,7 @@ export class League implements IPlugin {
           console.error('获取客户端信息失败:', err);
         });
         this._cmdParsedInfo = this.parseCommandLine(cmdLine)
-        core.emit('leagueConnSuccess', this._cmdParsedInfo)
+        core.emit(this.name,'leagueConnSuccess', this._cmdParsedInfo)
         clearInterval(timer)
       }
 

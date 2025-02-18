@@ -18,13 +18,19 @@ export class Schemes implements IPlugin {
   >()
 
   static SCHEME_HEADER = 'yyy'
-  _logger = Core.getInstance()?.logger
+  _logger = Core.getInstance().logger
+
+  hooks = {
+    loggerRegistered: (logger) => {
+      this._logger = logger
+    }
+  }
 
   init(core: Core): void {
     try {
       this.register()
       core[this.name] = core.getPlugin(this.name)
-      core.emit('schemesRegistered', core)
+      core.emit(this.name, 'schemesRegistered', core)
     } catch ( e ) {
       console.log('注册自定义协议插件失败', e)
       this._logger?.error(`注册自定义协议插件失败：${ e }`, Schemes.id)
@@ -105,7 +111,7 @@ export class Schemes implements IPlugin {
       throw new Error(`Domain ${ domain } is already registered`)
     }
     this._domainRegistry.set(domain, handler)
-    this._logger?.info(`注册域名：${ domain } ${this._domainRegistry.size}`)
+    this._logger?.info(`注册域名 ${ domain } 成功`)
   }
 
   /**
@@ -139,7 +145,7 @@ export class Schemes implements IPlugin {
       ])
       this._logger?.info('注册自定义协议成功', Schemes.id)
     } catch ( e ) {
-      this._logger?.error(`注册自定义协议失败${e}`,Schemes.id)
+      this._logger?.error(`注册自定义协议失败${ e }`, Schemes.id)
     }
   }
 
