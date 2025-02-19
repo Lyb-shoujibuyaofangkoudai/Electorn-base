@@ -7,7 +7,8 @@
     "src/**/*",
     "src/*.d.ts",
     "src/**/*.d.ts",
-    "src/global.d.ts"
+    "src/global.d.ts",
+    "src/manager/corePlugin.d.ts"
   ],
   "compilerOptions": {
     "experimentalDecorators": true,

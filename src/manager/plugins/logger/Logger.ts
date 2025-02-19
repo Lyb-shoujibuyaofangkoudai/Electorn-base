@@ -33,7 +33,7 @@ export class Logger implements IPlugin {
 
   constructor(core:Core) {
     this.logger = this.createLogger();
-    core[this.name] = core.getPlugin(Logger.id);
+    core[this.name] = this.logger
   }
   init(core: Core & any) {
     this.logger.info("日志插件初始化成功", Logger.id);

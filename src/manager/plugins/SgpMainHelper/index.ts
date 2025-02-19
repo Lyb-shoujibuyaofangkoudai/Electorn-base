@@ -2,21 +2,20 @@ import sgpServersMap from '../../../../resources/sgp/mh-sgp-servers.json?commonj
 import fs from 'node:fs'
 import { IPlugin } from '../../interface'
 import { Core } from '../../Core'
-import { CmdParsedType } from '../League'
 import { SgpApi } from '../../api/sgp/SgpApi'
 import { LeagueClientHttpApi } from '../../api/leagueCilent'
-import { AxiosRequestConfig } from 'axios'
 import { Schemes } from '../Schemes'
 import { LOGGER_NAMESPACE } from '../Bridge/bridgeType'
 import { LeagueClientLcuUninitializedError } from '../LeagueMainHelper'
 import { parseUrlParams } from '../../utils/utils'
+import { Logger } from '../logger/Logger'
 
 
 export class SgpMainHelper implements IPlugin {
   static id: string = 'sgpMainHelper'
   name = SgpMainHelper.id
   static _instance: SgpMainHelper
-  _logger:Logger | null = Core.getInstance().logger
+  _logger:Logger = Core.getInstance()?.logger
   _sgpApi: SgpApi
 
   static getInstance() {
@@ -39,14 +38,12 @@ export class SgpMainHelper implements IPlugin {
   }
 
   hooks = {
-    loggerRegistered: (logger) => {
-      this._logger = logger
-    },
     leagueMainHelperInit: async (lcuHttpApi: LeagueClientHttpApi) => {
       try {
         await this._saveEntTokenAndLeagueSession(lcuHttpApi)
       } catch ( e ) {
         console.log('请求有问题：', e)
+        this._logger.error(`获取 Entitlements Token 和 League Session Token 失败：${ e }`, LOGGER_NAMESPACE.APP)
       }
     },
     schemesRegistered: (core:Core) => {
@@ -63,12 +60,12 @@ export class SgpMainHelper implements IPlugin {
     try {
       if ( fs.existsSync(sgpServersMap) ) {
         const data = await fs.promises.readFile(sgpServersMap, 'utf-8')
-        console.log("获取服务器配置信息：",typeof data)
+        this._logger.info(`从本地文件加载 SGP 服务器配置成功`, LOGGER_NAMESPACE.APP)
         this._sgpApi.setAvailableSgpServers(JSON.parse(data))
       }
 
     } catch ( error ) {
-      console.warn('未找到内置的 SGP 服务器配置文件',error)
+      this._logger.error(`未找到内置的 SGP 服务器配置文件：${error}`, LOGGER_NAMESPACE.APP)
     }
   }
 
@@ -98,7 +95,7 @@ export class SgpMainHelper implements IPlugin {
       copiedToken.accessToken = copiedToken.accessToken?.slice(0, 24) + '...'
       copiedToken.token = copiedToken.token?.slice(0, 24) + '...'
 
-      this._logger.info(`更新 Entitlements Token: ${ JSON.stringify(copiedToken) }`)
+      this._logger!.info(`更新 Entitlements Token: ${ JSON.stringify(copiedToken) }`)
 
       this._sgpApi.setEntitlementsToken(token.accessToken)
     }
@@ -108,7 +105,7 @@ export class SgpMainHelper implements IPlugin {
       if ( !sessionToken )
         this._sgpApi.setEntitlementsToken(null)
       else {
-        this._logger.info(`更新 league session: ${ JSON.stringify(sessionToken.slice(0, 24) + '...') }`)
+        this._logger!.info(`更新 league session: ${ JSON.stringify(sessionToken.slice(0, 24) + '...') }`)
         this._sgpApi.setLolLeagueSessionToken(sessionToken)
       }
     }
@@ -117,7 +114,7 @@ export class SgpMainHelper implements IPlugin {
   proxyYYYSgpClientFromRenderer(core: Core) {
     if ( !core.schemes ) {
       if ( core?.logger ) {
-        core?.logger?.error(`代理渲染进程通过axios发送过来的请求（${import.meta.env.VITE_CUS_SCHEME_SGP_URL}）失败，未找到Schemes插件`, LOGGER_NAMESPACE.APP)
+        core!.logger.error(`代理渲染进程通过axios发送过来的请求（${import.meta.env.VITE_CUS_SCHEME_SGP_URL}）失败，未找到Schemes插件`, LOGGER_NAMESPACE.APP)
       } else {
         console.error(`代理渲染进程通过axios发送过来的请求（${import.meta.env.VITE_CUS_SCHEME_SGP_URL}）失败，未找到Schemes插件`)
       }
@@ -129,15 +126,11 @@ export class SgpMainHelper implements IPlugin {
         req.headers.forEach((value, key) => {
           reqHeaders[key] = value
         })
-        const params = parseUrlParams(req.url)
+        const params:any = parseUrlParams(req.url)
         params['methods'] = req.method
         params['data'] = req.body ? Schemes.convertWebStreamToNodeStream(req.body) : undefined
-        const res = await this._sgpApi.requestSgp(params)
-        console.log("SGP API拦截结果：",res)
-        // todo：这里返回给渲染进程的数据会有问题，data直接会被转化为[object Object]
-        return res
+        return await this._sgpApi.requestSgp(params)
       } catch ( e ) {
-        console.log("错误：",e)
         if (e instanceof LeagueClientLcuUninitializedError) {
           return new Response(JSON.stringify({ error: e.name }), {
             headers: { 'Content-Type': 'application/json' },

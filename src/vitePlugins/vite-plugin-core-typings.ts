@@ -28,7 +28,8 @@ function findCoreAndGetUseFnClassNameAndImportPath(filePath: string): {
     if ( coreDeclarationMatch ) {
       const coreVariableName = coreDeclarationMatch[1]
       // 构建匹配 core.use(new Logger()) 的正则表达式
-      const loggerUsageRegex = new RegExp(`${coreVariableName}\\.use\\(new (\\w+)\\(\\)\\)`, 'g')
+      // const loggerUsageRegex = new RegExp(`${coreVariableName}\\.use\\(new (\\w+)\\(\\)\\)`, 'g')
+      const loggerUsageRegex = new RegExp(`${coreVariableName}\\.use\\(new\\s+(\\w+)`, 'g')
       const loggerClassNames: string[] = []
       const r = data.match(loggerUsageRegex)
       if ( r?.length ) {
@@ -87,7 +88,7 @@ function generateCoreTypings(root: string, coreInitFilePath: string) {
   importPaths.forEach((importPath, index) => {
     // 绝对路径转相对路径
     importExtensions.push(`import ${loggerClassNames[index]} from "${'./'+path.relative(coreInitFileDir,importPath).replace(/\\/g, '/')}"`)
-    coreExtensions.push(`${ pascalToCamelCase(loggerClassNames[index]) }: ${ loggerClassNames[index] };`)
+    coreExtensions.push(`${ pascalToCamelCase(loggerClassNames[index]) }?: ${ loggerClassNames[index] };`)
   })
 
   // 生成 corePlugin.d.ts 文件的内容

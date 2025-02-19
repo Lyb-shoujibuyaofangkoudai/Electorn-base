@@ -59,7 +59,7 @@ export class Manager {
     try {
       const core = new Core()
       // 一个一个添加插件，可以被自定义vite插件识别自动添加类型到corePlugin.d.ts文件中，注意：实现的插件内部需要将类名挂载到Core上，且类名小写
-      core.use(new Logger(core))
+      core.use(new Logger(core)) // 提前传入core，让日志文件在插件执行注册之前提前挂载到Core的上
       core.use(new Bridge())
       core.use(new EventManager())
       core.use(new League())

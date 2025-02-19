@@ -94,7 +94,7 @@ async function test() {
     'TENCENT_NJ100',
     '58612941-2c0a-5cef-8b9a-e500718ea6e9',
     0,
-    10,
+    40,
   )
   console.log("sgp测试：",res)
 }

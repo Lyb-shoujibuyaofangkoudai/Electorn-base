@@ -38,12 +38,6 @@ export class Db implements IPlugin {
     return this._dbSource
   }
 
-  hooks = {
-    loggerRegistered: (logger) => {
-      this._logger = logger
-    }
-  }
-
 
   async init(core: Core): Promise<void> {
     await this._initDataBase()

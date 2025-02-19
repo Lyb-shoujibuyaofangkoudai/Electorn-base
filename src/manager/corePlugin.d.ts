@@ -1,4 +1,5 @@
 
+import Logger from "./plugins/logger/Logger"
 import Bridge from "./plugins/Bridge/Bridge"
 import EventManager from "./plugins/EventBus"
 import League from "./plugins/League"
@@ -11,13 +12,14 @@ import { Core } from './Core';
 
 declare module './Core' {
   interface Core {
-    bridge: Bridge;
-		eventManager: EventManager;
-		league: League;
-		config: Config;
-		schemes: Schemes;
-		db: Db;
-		leagueMainHelper: LeagueMainHelper;
-		sgpMainHelper: SgpMainHelper;
+    logger?: Logger;
+		bridge?: Bridge;
+		eventManager?: EventManager;
+		league?: League;
+		config?: Config;
+		schemes?: Schemes;
+		db?: Db;
+		leagueMainHelper?: LeagueMainHelper;
+		sgpMainHelper?: SgpMainHelper;
   }
 }

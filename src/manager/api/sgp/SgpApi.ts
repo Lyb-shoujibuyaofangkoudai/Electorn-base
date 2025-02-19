@@ -130,11 +130,12 @@ export class SgpApi {
   }
 
   /**
+   * todo: 待优化，这个写法不好
    * 渲染进程发起的请求 被yyy://sgp拦截代理后使用的总方法
    * 用于请求SGP API的总方法
    * @param params
    */
-  async requestSgp(params) {
+  async requestSgp(params:any) {
     try {
       let res
       switch ( params['methodsName'] ) {
@@ -194,13 +195,17 @@ export class SgpApi {
       const resHeaders: any = Object.fromEntries(
         Object.entries(res.headers).filter(([ _, value ]) => typeof value === 'string')
       )
-      return new Response(res.status === 204 || res.status === 304 ? null : res.data, {
+      return new Response(res.status === 204 || res.status === 304 ? null : JSON.stringify(res.data), {
         statusText: res.statusText,
         headers: resHeaders,
         status: res.status
       })
     } catch ( e ) {
-      Core.getInstance().logger.error(`请求SGP API接口失败：${ e }`)
+      Core.getInstance()?.logger.error(`请求SGP API接口失败：${ e }`)
+      return new Response(null, {
+        statusText: 'requestSgp内部错误',
+        status: 500
+      })
     }
   }
 
@@ -214,9 +219,7 @@ export class SgpApi {
     if ( !this._entitlementToken ) {
       throw new Error('jwt token is not set')
     }
-    console.log("获取历史战绩",sgpServerId)
     const sgpServer = this._getSgpServer(sgpServerId)
-    console.log("查看服务器：",sgpServer)
     return this._http.get<SgpMatchHistoryLol>(
       `/match-history-query/v1/products/lol/player/${ playerPuuid }/SUMMARY`,
       {

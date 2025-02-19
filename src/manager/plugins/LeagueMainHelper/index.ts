@@ -77,7 +77,7 @@ export class LeagueMainHelper implements IPlugin {
           password: auth.authToken,
         },
       })
-      this._eventManager.emit(EVENT_BUS_TYPE.LOL_CONN_SUCCESS)
+      this._eventManager!.emit(EVENT_BUS_TYPE.LOL_CONN_SUCCESS)
       this.loopCheckLCUApiCanUse()
     },
     schemesRegistered: (core:Core) => {
@@ -194,7 +194,7 @@ export class LeagueMainHelper implements IPlugin {
   loopCheckLCUApiCanUse() {
     const timer = setInterval(async() => {
       try {
-        if ( !this._league._cmdParsedInfo ) return
+        if ( !this._league?.cmdParsedInfo ) return
         const res = await LeagueClientHttpApi.getInstance(this._request!.http).summoner.getCurrentSummoner()
         if(res.status === 200) {
           this._logger?.info(`LCU API接口检测完毕,可用`)
