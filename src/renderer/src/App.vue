@@ -76,6 +76,7 @@ async function getLeagueInfo() {
     EVENT_TYPE.SET_LOL_DETAILS
   )
   leagueStore.setLeagueInfo(res.data)
+  await getSummonerInfo()
 }
 
 

@@ -1,6 +1,10 @@
 <template>
   <div>
-    <img @dragstart.prevent v-if="url" :src="url" class="lcu-image" @error="handleError" />
+    <n-image @dragstart.prevent
+         v-if="url"
+         :src="url"
+         class="lcu-image"
+         @error="handleError" />
     <div v-else class="lcu-image-placeholder"></div>
   </div>
 </template>

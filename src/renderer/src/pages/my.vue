@@ -19,7 +19,7 @@ const t = ref<any>(null)
 test()
 async function test() {
   t.value = await api.lcuApi.summoner.getCurrentSummoner()
-  console.log(t.value)
+  console.log(222,t.value)
 }
 </script>
 
