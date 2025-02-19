@@ -7,6 +7,7 @@ import Config from "./plugins/config"
 import Schemes from "./plugins/Schemes"
 import Db from "./plugins/db/Db"
 import LeagueMainHelper from "./plugins/LeagueMainHelper"
+import LeagueWs from "./plugins/LeagueWs/LeagueWs"
 import SgpMainHelper from "./plugins/SgpMainHelper"
 import { Core } from './Core';
 
@@ -20,6 +21,7 @@ declare module './Core' {
 		schemes?: Schemes;
 		db?: Db;
 		leagueMainHelper?: LeagueMainHelper;
+		leagueWs?: LeagueWs;
 		sgpMainHelper?: SgpMainHelper;
   }
 }

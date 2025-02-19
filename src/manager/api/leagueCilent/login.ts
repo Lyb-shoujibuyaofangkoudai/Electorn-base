@@ -23,4 +23,9 @@ export class LoginHttpApi {
   getLoginQueueState() {
     return this._http.get<LoginQueueState>('/lol-login/v1/login-queue-state')
   }
+
+  getLoginSession() {
+    return this._http.get('/lol-login/v1/session')
+  }
+
 }

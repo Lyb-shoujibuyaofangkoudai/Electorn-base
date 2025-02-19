@@ -16,6 +16,7 @@ import { LeagueMainHelper } from './plugins/LeagueMainHelper'
 import { Db } from './plugins/db/Db'
 import { EventManager } from './plugins/EventBus'
 import { SgpMainHelper } from './plugins/SgpMainHelper'
+import { LeagueWs } from './plugins/LeagueWs/LeagueWs'
 
 export class Manager {
   _logger: Logger | null = null
@@ -67,6 +68,7 @@ export class Manager {
       core.use(new Schemes())
       core.use(new Db())
       core.use(new LeagueMainHelper())
+      // core.use(new LeagueWs())
       core.use(new SgpMainHelper())
       core.run()
       this._logger = Core.getInstance().logger

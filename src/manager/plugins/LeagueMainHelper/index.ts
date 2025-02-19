@@ -44,6 +44,7 @@ export class LeagueMainHelper implements IPlugin {
     try {
       core[this.name] = core.getPlugin(this.name)
     } catch ( e ) {
+      throw e
       // this._logger?.error(`初始化LeagueMainHelper插件失败：${e}`, )
     }
   }

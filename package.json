@@ -34,12 +34,14 @@
     "sqlite3": "5.1.6",
     "typeorm": "^0.3.20",
     "vue-router": "4",
-    "winston": "^3.17.0"
+    "winston": "^3.17.0",
+    "ws": "^8.18.0"
   },
   "devDependencies": {
     "@electron-toolkit/tsconfig": "^1.0.1",
     "@swc/core": "^1.10.16",
     "@types/node": "^22.10.5",
+    "@types/ws": "^8.5.14",
     "@unocss/preset-wind": "^0.65.3",
     "@unocss/transformer-directives": "^0.65.3",
     "@unocss/transformer-variant-group": "^0.65.3",
