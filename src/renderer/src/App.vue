@@ -8,6 +8,7 @@
     <!--    <n-theme-editor>-->
     <NScrollbar :class="`bg-c_wc-top ${!windowInfoStore.isMaxWindow ? 'rounded-xl' : ''}`">
       <HomeLayout>
+        <button @click="test">测试那妞</button>
         <RouterView v-slot="{ Component, route  }">
           <transition :name="'fade'">
             <component
@@ -88,7 +89,7 @@ async function getSummonerInfo() {
   }
 }
 
-test()
+
 async function test() {
   const res = await api.sgpApi.getMatchHistory(
     'TENCENT_NJ100',
@@ -96,7 +97,9 @@ async function test() {
     0,
     40,
   )
-  console.log("sgp测试：",res)
+  console.log("sgp接口测试：",res)
+  // const res2 = await api.lcuApi.matchHistory.getCurrentSummonerMatchHistory()
+  // console.log("lcu接口测试：",res2)
 }
 
 

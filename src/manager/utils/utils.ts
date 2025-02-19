@@ -1,4 +1,3 @@
-
 /**
  * 召唤师头像的图片 URL
  * @param iconId
@@ -48,3 +47,6 @@ export function parseUrlParams(url: string): Record<string, string> {
 
   return params;
 }
+
+
+

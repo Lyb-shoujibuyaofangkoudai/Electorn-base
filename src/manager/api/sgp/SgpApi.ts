@@ -18,6 +18,7 @@ import { AsyncQueue } from '../../utils/AsyncQueue'
 const axiosRetry = require('axios-retry').default as AxiosRetry
 
 export class SgpApi {
+
   static USER_AGENT = 'LeagueOfLegendsClient/14.13.596.7996 (rcp-be-lol-match-history)'
 
   private _availableSgpServers: AvailableServersMap = {
@@ -43,6 +44,14 @@ export class SgpApi {
    */
   private _entitlementToken: string | null = null
   private _lolLeagueSessionToken: string | null = null
+
+  get entitlementToken(): string | null {
+    return this._entitlementToken
+  }
+
+  get lolLeagueSessionToken(): string | null {
+    return this._lolLeagueSessionToken
+  }
 
   private _http: AxiosInstance = new Request({
     headers: {
@@ -87,13 +96,6 @@ export class SgpApi {
     return this._availableSgpServers
   }
 
-  hasEntitlementsToken() {
-    return this._entitlementToken !== null
-  }
-
-  hasLolLeagueSessionToken() {
-    return this._lolLeagueSessionToken !== null
-  }
 
   setEntitlementsToken(token: string | null) {
     this._entitlementToken = token
@@ -190,7 +192,7 @@ export class SgpApi {
           break
         }
         default:
-          break
+          throw new Error('Unsupported method');
       }
       const resHeaders: any = Object.fromEntries(
         Object.entries(res.headers).filter(([ _, value ]) => typeof value === 'string')
@@ -202,10 +204,7 @@ export class SgpApi {
       })
     } catch ( e ) {
       Core.getInstance()?.logger.error(`请求SGP API接口失败：${ e }`)
-      return new Response(null, {
-        statusText: 'requestSgp内部错误',
-        status: 500
-      })
+      throw e
     }
   }
 
