@@ -1,37 +1,50 @@
 <template>
   <div>
-    <n-image @dragstart.prevent
-         v-if="url"
-         :src="url"
-         class="lcu-image"
-         @error="handleError" />
-    <div v-else class="lcu-image-placeholder"></div>
+    <n-image
+      @dragstart.prevent
+      :preview-disabled="previewDisabled"
+      :src="url"
+      :style="cusStyle"
+      :class="cusClass"
+      @error="handleError" />
   </div>
 </template>
 
-<script setup lang="ts">
+<script
+  setup
+  lang="ts">
 import { useLeague } from '../store/league'
 import { addLeadingSlash } from '../utils/uri'
 
-const props = defineProps<{
-  src?: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    src: string
+    cusStyle?: string
+    cusClass?: string
+    previewDisabled?: boolean
+  }>(),
+  {
+    previewDisabled: true
+  }
+)
 const leagueStore = useLeague()
 
-const url = ref<string | null>(null)
+const url = ref<string | undefined>(void 0)
 watchEffect(() => {
-  if (leagueStore.leagueInfo?.port && typeof props.src !== 'undefined') {
-    url.value = `${import.meta.env.VITE_CUS_SCHEME_LCU_URL}${addLeadingSlash(props.src)}`
+  if ( leagueStore.leagueInfo?.port && typeof props.src !== 'undefined' ) {
+    url.value = `${ import.meta.env.VITE_CUS_SCHEME_LCU_URL }${ addLeadingSlash(props.src) }`
   } else {
-    url.value = null
+    url.value = void 0
   }
 })
 
 const handleError = () => {
-  url.value = null
+  url.value = ""
 }
 </script>
 
-<style lang="scss" scoped>
+<style
+  lang="scss"
+  scoped>
 
 </style>

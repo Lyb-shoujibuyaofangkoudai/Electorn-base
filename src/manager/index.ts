@@ -53,7 +53,6 @@ export class Manager {
       // 尝试关闭所有窗口
       app.quit();
     });
-
   }
 
   initPluginSys() {

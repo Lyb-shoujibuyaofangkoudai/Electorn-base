@@ -25,6 +25,7 @@ declare module 'vue' {
     NIcon: typeof import('naive-ui')['NIcon']
     NImage: typeof import('naive-ui')['NImage']
     NPopconfirm: typeof import('naive-ui')['NPopconfirm']
+    NProgress: typeof import('naive-ui')['NProgress']
     NRow: typeof import('naive-ui')['NRow']
     NScrollbar: typeof import('naive-ui')['NScrollbar']
     NTabPane: typeof import('naive-ui')['NTabPane']

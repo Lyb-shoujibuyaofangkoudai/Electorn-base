@@ -7,6 +7,7 @@ import lolTools from 'lol-tools.node'
 import { openFolder } from './util'
 import { Settings } from '../../manager/plugins/db/entities/Settings'
 import { EventManager } from '../../manager/plugins/EventBus'
+import { AvailableServersMap } from '../../manager/api/sgp/types'
 
 
 /**
@@ -221,6 +222,22 @@ export class MainIpcHandle {
       if ( !filePath ) return
       openFolder(filePath)
     })
+  }
+
+  /**
+   * riot服务器的一些本地信息 handle
+   */
+  serverHandle(data:AvailableServersMap) {
+    this.bridge.addCall(
+      EVENT_TYPE.LOCAL_SERVER_DETAILS,
+      (): BridgeDataType<any> => {
+        return {
+          namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
+          eventName: EVENT_TYPE.LOCAL_SERVER_DETAILS,
+          data: data
+        }
+      }
+    )
   }
 
   debugHandle(info: any) {

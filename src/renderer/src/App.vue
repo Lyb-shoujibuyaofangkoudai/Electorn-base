@@ -8,7 +8,6 @@
     <!--    <n-theme-editor>-->
     <NScrollbar :class="`bg-c_wc-top ${!windowInfoStore.isMaxWindow ? 'rounded-xl' : ''}`">
       <HomeLayout>
-        <button @click="test">测试那妞</button>
         <RouterView v-slot="{ Component, route  }">
           <transition :name="'fade'">
             <component
@@ -69,31 +68,43 @@ async function getLeagueInfo() {
       if(data?.data && !leagueStore.leagueInfo) {
         leagueStore.setLeagueInfo(data.data)
       }
-      getSummonerInfo()
+      getSomeInfo()
     },
   )
   const res = await ipc.call(
     EVENT_TYPE.SET_LOL_DETAILS
   )
   leagueStore.setLeagueInfo(res.data)
-  await getSummonerInfo()
+  await getSomeInfo()
 }
 
 
-async function getSummonerInfo() {
+async function getSomeInfo() {
   try {
     if ( requestDataStore.getRequestData('summoner') ) return
     await requestDataStore.fetchData('summoner', async () => await api.lcuApi.summoner.getCurrentSummoner())
+    if ( requestDataStore.getRequestData('chat') ) return
+    await requestDataStore.fetchData('chat', async () => await api.lcuApi.chat.getMe())
+    if ( requestDataStore.getRequestData('ranked') ) return
+    await requestDataStore.fetchData('ranked', async () => await api.lcuApi.ranked.getCurrentRankedStats())
   } catch ( e ) {
     //这里打开软件之后再开启Lol客户端时马上去请求会报错，因为LOL客户端并没有立即启动，所以这里需要做一下处理
     console.log(e)
   }
 }
 
+getLocalRiotSgpServerInfo()
+async function getLocalRiotSgpServerInfo() {
+  const res = await ipc.call(
+    EVENT_TYPE.LOCAL_SERVER_DETAILS,
+  )
+  configStore.addConfig(res.data)
+}
+
 
 async function test() {
   const res = await api.sgpApi.getMatchHistory(
-    'TENCENT_NJ100',
+    'NJ100',
     '58612941-2c0a-5cef-8b9a-e500718ea6e9',
     0,
     40,

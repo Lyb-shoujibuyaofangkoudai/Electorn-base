@@ -32,3 +32,5 @@ $ pnpm build:mac
 # For Linux
 $ pnpm build:linux
 ```
+
+LCU参考文档：https://github.com/KebsCS/lcu-and-riotclient-api

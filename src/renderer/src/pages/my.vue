@@ -1,7 +1,8 @@
 <template>
   <ConnLOLClient>
     <div>
-      <LcuImg :src="profileIconUri(requestData['summoner']?.profileIconId)"/>
+      <LcuImg cus-class="rounded-full"
+              :src="profileIconUri(requestData['summoner']?.profileIconId)"/>
     </div>
   </ConnLOLClient>
 </template>

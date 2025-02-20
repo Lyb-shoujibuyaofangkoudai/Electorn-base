@@ -36,6 +36,8 @@ export enum EVENT_TYPE {
   OPEN_FOLDER = 'open-folder',
   // LCU API是否可用
   API_CAN_USE = 'api-can-use',
+  // riot 服务器本地文件信息
+  LOCAL_SERVER_DETAILS = 'local-server-details',
 
 }
 

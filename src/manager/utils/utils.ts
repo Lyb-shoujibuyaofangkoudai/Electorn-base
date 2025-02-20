@@ -3,7 +3,7 @@
  * @param iconId
  */
 export function profileIconUri(iconId: number) {
-  if (!iconId) return;
+  if (!iconId) return "";
   return `/lol-game-data/assets/v1/profile-icons/${iconId}.jpg`;
 }
 
@@ -12,7 +12,7 @@ export function profileIconUri(iconId: number) {
  * @param champId
  */
 export function championIconUri(champId: number) {
-  if (!champId) return;
+  if (!champId) return "";
   return `/lol-game-data/assets/v1/champion-icons/${champId}.png`;
 }
 
@@ -22,7 +22,7 @@ export function championIconUri(champId: number) {
  * @param perkId 具体符文的 ID。
  */
 export function getStylesIconUri(styleId: number, perkId: number) {
-  if (!styleId) return;
+  if (!styleId) return "";
   return `/lol-game-data/assets/v1/perk-images/styles/${styleId}/${perkId}.png`;
 }
 

@@ -102,8 +102,6 @@ export class SgpMainHelper implements IPlugin {
 
       this._logger!.info(`更新 Entitlements Token: ${ JSON.stringify(copiedToken) }`)
       this._sgpApi.setEntitlementsToken(token.accessToken)
-      // todo：测试过期的token
-      // this._sgpApi.setEntitlementsToken(`eyJraWQiOiJvbmNVIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiI1ODYxMjk0MS0yYzBhLTVjZWYtOGI5YS1lNTAwNzE4ZWE2ZTkiLCJzY3AiOlsib3BlbmlkIiwib2ZmbGluZV9hY2Nlc3MiLCJsb2wiLCJiYW4iLCJwcm9maWxlIiwiZW1haWwiLCJwaG9uZSJdLCJjbG0iOlsic3ViIiwiem9uZWluZm8iLCJiaXJ0aGRhdGUiLCJnZW5kZXIiLCJwdyIsImxvbCIsInByZWZlcnJlZF91c2VybmFtZSIsImxvY2FsZSIsImJhbiIsInVwZGF0ZWRfYXQiLCJyZ25fbmoxMDAiLCJuaWNrbmFtZSIsInN1bW1vbmVyIiwiYWNjdF9nbnQiLCJlbWFpbCIsIndlYnNpdGUiLCJlbWFpbF92ZXJpZmllZCIsIm9wZW5pZCIsInByb2ZpbGUiLCJwaG9uZV9udW1iZXJfdmVyaWZpZWQiLCJnaXZlbl9uYW1lIiwibWlkZGxlX25hbWUiLCJwaWN0dXJlIiwibmFtZSIsInBob25lX251bWJlciIsImZhbWlseV9uYW1lIiwiYWNjdCIsInVzZXJuYW1lIl0sImRhdCI6eyJwIjoiMTEwMzc4MjcxNSIsInIiOiJOSjEwMCIsImMiOiJneiIsInUiOjE3MjAyODI4ODM1fSwiaXNzIjoiaHR0cHM6Ly9sb2wucXEuY29tIiwicGx0Ijp7ImRldiI6InVua25vd24iLCJpZCI6InVua25vd24ifSwiZXhwIjoxNzM5OTM3OTUyLCJpYXQiOjE3Mzk5MzczNTIsImp0aSI6InQ0S2VBaVJGMW9ZIiwiY2lkIjoibG9sIn0.C55NxQg6uxYsXD8FoakbTuYCk3JfvyHygKtZdFyJWag6_U9PNk45yMlPWEqOp_9Q_rhfEL2X9P9is6-j8bK9bFqaP-yjmBTpouHNGjUr4W2IJcaoGAgTNe0hh4zujrYEVJJVsZs612iGpBqMGg8bvSokrljY-9mhkl7T8ayfljFk9W9vtUA94rD6KxsKGaYgca4m8SlPPwpR26BGI2fgzWSv5-hK7uX-a154BJxs_hXWrYjprX1IxUjXvUQlFoJmjYkZPvPRWWHQhnMncD06ylBJNhjCtZ4i5NGAJWGagRMfhN8kPVG79PJ3BlbIdvt793MFwhd124bgPkQo2r_8fg`)
     }
 
     if ( leagueSessionTokenRes.value.status === 200 ) {
@@ -153,8 +151,6 @@ export class SgpMainHelper implements IPlugin {
           })
         }
         if(isAxiosError(e) && e.status === 401) {
-          // todo；这里还需要处理请求重发
-        //   此时需要重新获取Entitlements Token 和 League Session Token
           await this._saveEntTokenAndLeagueSession()
         }
 

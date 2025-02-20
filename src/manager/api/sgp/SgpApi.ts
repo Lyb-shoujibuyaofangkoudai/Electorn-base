@@ -14,9 +14,14 @@ import {
 import { AxiosRetry } from 'axios-retry'
 import Request from '../../utils/request'
 import { AsyncQueue } from '../../utils/AsyncQueue'
+import { MainIpcHandle } from '../../../main/utils/MainIpcHandle'
 
 const axiosRetry = require('axios-retry').default as AxiosRetry
 
+/**
+ * SgpApi 类提供了与 SGP API 进行交互的方法。
+ * 包括获取比赛历史、游戏摘要、游戏详情、排名统计、召唤师信息、观战游戏流等。
+ */
 export class SgpApi {
 
   static USER_AGENT = 'LeagueOfLegendsClient/14.13.596.7996 (rcp-be-lol-match-history)'
@@ -36,8 +41,6 @@ export class SgpApi {
     concurrency: 10, // 最大并发数
     autoStart: false // 自动启动
   })
-
-
 
   /**
    * SGP API 需要用户登录的 Session
@@ -72,10 +75,20 @@ export class SgpApi {
     })
   }
 
+  /**
+   * 设置可用的 SGP 服务器。
+   * @param servers - 可用服务器的映射。
+   */
   setAvailableSgpServers(servers: AvailableServersMap) {
     this._availableSgpServers = servers
+    MainIpcHandle.getInstance().serverHandle(servers)
   }
 
+  /**
+   * 检查是否支持指定的 SGP 服务器。
+   * @param sgpServerId - SGP 服务器 ID。
+   * @returns 包含 matchHistory 和 common 支持状态的对象。
+   */
   supportsSgpServer(sgpServerId: string) {
     const server = this._availableSgpServers.servers[sgpServerId.toUpperCase()]
 
@@ -92,11 +105,18 @@ export class SgpApi {
     }
   }
 
+  /**
+   * 获取可用的 SGP 服务器列表。
+   * @returns 可用服务器的映射。
+   */
   sgpServers() {
     return this._availableSgpServers
   }
 
-
+  /**
+   * 设置 entitlement token。
+   * @param token - entitlement token 字符串。
+   */
   setEntitlementsToken(token: string | null) {
     this._entitlementToken = token
     if(token) {
@@ -104,11 +124,21 @@ export class SgpApi {
     }
   }
 
+  /**
+   * 设置 lol league session token。
+   * @param token - lol league session token 字符串。
+   */
   setLolLeagueSessionToken(token: string) {
     this._lolLeagueSessionToken = token
     this._asyncLeagueSessionQueue.start()
   }
 
+  /**
+   * 获取指定 SGP 服务器的信息。
+   * @param sgpServerId - SGP 服务器 ID。
+   * @returns SGP 服务器对象。
+   * @throws 如果 SGP 服务器 ID 未知，则抛出错误。
+   */
   private _getSgpServer(sgpServerId: string) {
     const sgpServer = this._availableSgpServers.servers[sgpServerId.toUpperCase()]
     if ( !sgpServer ) {
@@ -119,8 +149,9 @@ export class SgpApi {
   }
 
   /**
-   * 对于腾讯系, 仅保留其 rsoPlatformId
-   * @param sgpServerId
+   * 对于腾讯系服务器，仅保留其 rsoPlatformId。
+   * @param sgpServerId - SGP 服务器 ID。
+   * @returns 处理后的子 ID。
    */
   private _getSubId(sgpServerId: string) {
     if ( sgpServerId.startsWith('TENCENT') ) {
@@ -132,14 +163,18 @@ export class SgpApi {
   }
 
   /**
-   * todo: 待优化，这个写法不好
-   * 渲染进程发起的请求 被yyy://sgp拦截代理后使用的总方法
-   * 用于请求SGP API的总方法
-   * @param params
+   * 渲染进程发起的请求被拦截代理后使用的总方法。
+   * 用于请求 SGP API 的总方法。
+   * @param params - 请求参数对象。
+   * @returns 响应对象。
+   * @throws 如果请求失败，则抛出错误。
    */
-  async requestSgp(params:any) {
+  async requestSgp(params: any) {
     try {
       let res
+      if(Core.getInstance().league.cmdParsedInfo.region === 'TENCENT') {
+        params['sgpServerId'] = `${Core.getInstance().league.cmdParsedInfo.region}_${params['sgpServerId']}`
+      }
       switch ( params['methodsName'] ) {
         case 'getMatchHistory' : {
           if ( !this._entitlementToken )
@@ -158,9 +193,9 @@ export class SgpApi {
         }
         case 'getRankedStats' : {
           if ( !this._lolLeagueSessionToken )
-            res = await this._asyncLeagueSessionQueue.add(() => this.getRankedStats(params['platformId'], params['playerPuuid']))
+            res = await this._asyncLeagueSessionQueue.add(() => this.getRankedStats(params['sgpServerId'], params['playerPuuid']))
           else
-            res = await this.getRankedStats(params['platformId'], params['playerPuuid'])
+            res = await this.getRankedStats(params['sgpServerId'], params['playerPuuid'])
           break
         }
         case 'getSummonerByPuuid' : {
@@ -208,6 +243,16 @@ export class SgpApi {
     }
   }
 
+  /**
+   * 获取指定玩家的比赛历史。
+   * @param sgpServerId - SGP 服务器 ID。
+   * @param playerPuuid - 玩家的 PUUID。
+   * @param start - 开始索引。
+   * @param count - 获取的数量。
+   * @param tag - 可选的标签。
+   * @returns 比赛历史数据。
+   * @throws 如果 entitlement token 未设置，则抛出错误。
+   */
   async getMatchHistory(
     sgpServerId: string,
     playerPuuid: string,
@@ -235,6 +280,13 @@ export class SgpApi {
     )
   }
 
+  /**
+   * 获取指定游戏的游戏摘要。
+   * @param sgpServerId - SGP 服务器 ID。
+   * @param gameId - 游戏 ID。
+   * @returns 游戏摘要数据。
+   * @throws 如果 entitlement token 未设置，则抛出错误。
+   */
   getGameSummary(sgpServerId: string, gameId: number) {
     if ( !this._entitlementToken ) {
       throw new Error('jwt token is not set')
@@ -255,6 +307,13 @@ export class SgpApi {
     )
   }
 
+  /**
+   * 获取指定游戏的游戏详情。
+   * @param sgpServerId - SGP 服务器 ID。
+   * @param gameId - 游戏 ID。
+   * @returns 游戏详情数据。
+   * @throws 如果 entitlement token 未设置，则抛出错误。
+   */
   getGameDetails(sgpServerId: string, gameId: number) {
     if ( !this._entitlementToken ) {
       throw new Error('jwt token is not set')
@@ -275,6 +334,13 @@ export class SgpApi {
     )
   }
 
+  /**
+   * 获取指定玩家的排名统计。
+   * @param platformId - 平台 ID。
+   * @param puuid - 玩家的 PUUID。
+   * @returns 排名统计数据。
+   * @throws 如果 lol league session token 未设置，则抛出错误。
+   */
   getRankedStats(platformId: string, puuid: string) {
     if ( !this._lolLeagueSessionToken ) {
       throw new Error('jwt token is not set')
@@ -290,11 +356,17 @@ export class SgpApi {
     })
   }
 
+  /**
+   * 获取指定玩家的召唤师信息。
+   * @param sgpServerId - SGP 服务器 ID。
+   * @param puuid - 玩家的 PUUID。
+   * @returns 召唤师信息数据。
+   * @throws 如果 lol league session token 未设置，则抛出错误。
+   */
   getSummonerByPuuid(sgpServerId: string, puuid: string) {
     if ( !this._lolLeagueSessionToken ) {
       throw new Error('jwt token is not set')
     }
-
     const sgpServer = this._getSgpServer(sgpServerId)
 
     const subId = this._getSubId(sgpServerId)
@@ -311,6 +383,13 @@ export class SgpApi {
     )
   }
 
+  /**
+   * 获取指定玩家的观战游戏流。
+   * @param sgpServerId - SGP 服务器 ID。
+   * @param puuid - 玩家的 PUUID。
+   * @returns 观战游戏流数据。
+   * @throws 如果 lol league session token 未设置，则抛出错误。
+   */
   getSpectatorGameflowByPuuid(sgpServerId: string, puuid: string) {
     if ( !this._lolLeagueSessionToken ) {
       throw new Error('jwt token is not set')
@@ -328,6 +407,13 @@ export class SgpApi {
     })
   }
 
+  /**
+   * 获取指定游戏的回放流。
+   * @param sgpServerId - SGP 服务器 ID。
+   * @param gameId - 游戏 ID。
+   * @returns 回放流数据。
+   * @throws 如果 lol league session token 未设置，则抛出错误。
+   */
   getMatchHistoryReplayStream(sgpServerId: string, gameId: number) {
     if ( !this._lolLeagueSessionToken ) {
       throw new Error('jwt token is not set')

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/src/manager/api/leagueCilent/entitlements.ts" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/manager/api/leagueCilent/summoner.ts" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/manager/api/sgp/SgpApi.ts" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/manager/plugins/SgpMainHelper/index.ts" charset="UTF-8" />
