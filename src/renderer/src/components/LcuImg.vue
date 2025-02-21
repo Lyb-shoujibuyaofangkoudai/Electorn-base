@@ -6,6 +6,8 @@
       :src="url"
       :style="cusStyle"
       :class="cusClass"
+      :width="width"
+      :height="height"
       @error="handleError" />
   </div>
 </template>
@@ -22,6 +24,8 @@ const props = withDefaults(
     cusStyle?: string
     cusClass?: string
     previewDisabled?: boolean
+    width?: number
+    height?: number
   }>(),
   {
     previewDisabled: true

@@ -3,9 +3,9 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 export const useRequestDataStore = defineStore('requestData', () => {
-  const requestData = ref({})
-  const loadingStates = ref({})
-  const errorMessages = ref({})
+  const requestData = ref<any>({})
+  const loadingStates = ref<any>({})
+  const errorMessages = ref<any>({})
 
   const setRequestData = (key, data) => {
     requestData.value[key] = data
