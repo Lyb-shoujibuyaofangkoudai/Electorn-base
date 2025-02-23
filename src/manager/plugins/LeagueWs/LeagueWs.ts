@@ -40,6 +40,7 @@ export class LeagueWs implements IPlugin {
         try {
           const res = JSON.parse(msg.toString())
           // console.log("ws接收数据：",res)
+          this._logger.info(`ws 接收到数据：${JSON.stringify(res)}`)
           const {
             uri,
             data
