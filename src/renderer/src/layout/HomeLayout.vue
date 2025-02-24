@@ -23,6 +23,9 @@ import Slider from './Slider.vue'
 <style
   lang="scss"
   scoped>
+:deep(.n-scrollbar-content) {
+  @apply h-full;
+}
 .layout-container {
   // 布局默认字体颜色
   @apply text-c_tc-stress;

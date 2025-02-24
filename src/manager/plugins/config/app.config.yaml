@@ -7,7 +7,7 @@ debug:
   openDevTools: 1
   recordRequest: 0
 themeConfig:
-  primary: '#FF33BE'
+  primary: '#1854D6'
   info: '#722ed1'
   success: '#52c41a'
   warning: '#faad14'
