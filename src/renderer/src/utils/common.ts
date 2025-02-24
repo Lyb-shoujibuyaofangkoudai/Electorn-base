@@ -66,3 +66,29 @@ export const MODES = {
   RANKED_TFT_TURBO: "云顶之弈 狂暴模式",
   RANKED_TFT_DOUBLE_UP: "云顶之弈 双人作战",
 }
+
+export enum TAGS_ENUM  {
+  all = 'all',
+  current = 'current',
+  q_420 = 'q_420',
+  q_430 = 'q_430',
+  q_440 = 'q_440',
+  q_450 = 'q_450',
+  q_490 = 'q_490',
+  q_900 = 'q_900',
+  q_1700 = 'q_1700',
+  q_1900 = 'q_1900',
+}
+
+export const TAGS = {
+  [TAGS_ENUM.all]: '所有模式',
+  [TAGS_ENUM.current]: '当前模式',
+  [TAGS_ENUM.q_420]: '单双排位',
+  [TAGS_ENUM.q_430]: '匹配模式',
+  [TAGS_ENUM.q_440]: '灵活排位',
+  [TAGS_ENUM.q_450]: '极地大乱斗',
+  [TAGS_ENUM.q_490]: '快速匹配',
+  [TAGS_ENUM.q_900]: '无限乱斗',
+  [TAGS_ENUM.q_1700]: '斗魂竞技场',
+  [TAGS_ENUM.q_1900]: '无限火力',
+}

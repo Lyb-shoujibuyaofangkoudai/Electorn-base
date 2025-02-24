@@ -3,7 +3,6 @@ import lolTools from 'lol-tools.node'
 import { Core } from '../../Core'
 import { exec } from "child_process"
 
-
 /**
  * 来自 Riot 的证书文件
  */
@@ -33,7 +32,6 @@ EcGfKZ+g024k/J32XP4hdho7WYAS2xMiV83CfLR/MNi8oSMaVQTdKD8cpgiWJk3L
 XWehWA==
 -----END CERTIFICATE-----`
 
-
 export type CmdParsedType = {
   port: number
   pid: number
@@ -44,6 +42,7 @@ export type CmdParsedType = {
   riotClientPort: number
   riotClientAuthToken: string
 }
+
 
 export class League implements IPlugin {
 

@@ -25,6 +25,7 @@ export class Manager {
     this.init()
   }
 
+
   init() {
     this.initPluginSys()
     app.whenReady().then(() => {
