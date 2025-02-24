@@ -67,7 +67,7 @@ export class Manager {
       core.use(new Schemes())
       core.use(new Db())
       core.use(new LeagueMainHelper())
-      // core.use(new LeagueWs())
+      core.use(new LeagueWs())
       core.use(new SgpMainHelper())
       core.run()
       this._logger = Core.getInstance().logger
