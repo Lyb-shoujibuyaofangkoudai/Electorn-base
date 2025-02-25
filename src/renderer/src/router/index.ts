@@ -14,7 +14,7 @@ const routes = [
   },
   {
     path: '/my',
-    component: () => import('../pages/my.vue'),
+    component: () => import('../pages/my/my.vue'),
      meta: { transition: 'slide-left' },
   },
   {
