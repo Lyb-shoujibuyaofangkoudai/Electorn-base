@@ -14,9 +14,9 @@
 
 <script setup lang="ts">
 defineProps<{
-  color: string
-  value: string | number
-  label: string
-  subLabel?: string
-}>()
-</script> 
+  color: string;
+  value: string | number;
+  label: string;
+  subLabel?: string;
+}>();
+</script>
