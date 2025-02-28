@@ -13,6 +13,7 @@
         class="relative w-full backdrop-blur-xl bg-[#2D325F]/40 dark:bg-[#1F2245]/40"
       >
         <PlayerInfoBar
+          :loading="isLoading"
           :summoner="summonerInfo"
           :theme-color="themeVars?.primaryColor ?? '#18A058'"
           :stats="gameStats"
@@ -20,6 +21,7 @@
           :type-select-disabled="gameTypeSelectDisabled"
           :initial-game-type="selectedGameType"
           :initial-game-count="selectedGameCount"
+          :games="recentGames"
           @copy="copy"
           @update-game-type="handleGameTypeChange"
           @update-game-count="handleGameCountChange"
@@ -27,10 +29,9 @@
 
         <!-- 详细数据区域 -->
         <GameModeCards
+          :loading="isLoading"
           :selected-game-count="selectedGameCount"
-          :games="recentGames"
-          :ranked-stats="rankedStats"
-          :mode-game-stats="modeGameStats"
+          :games="filteredGamesByMode"
         />
       </n-card>
     </div>
@@ -70,6 +71,43 @@ interface RankedStats {
     RANKED_FLEX_SR?: RankInfo;
   };
 }
+
+interface SgpMatchHistory {
+  games: Array<{
+    json: {
+      queueId: number;
+      gameMode: string;
+      gameDuration: number;
+      participants: Array<{
+        puuid: string;
+        championId: number;
+        championName: string;
+        win: boolean;
+        kills: number;
+        deaths: number;
+        assists: number;
+        visionScore: number;
+        teamPosition?: string;
+        lane?: string;
+      }>;
+    };
+  }>;
+}
+
+interface GameRecord {
+  gameMode: string;
+  queueId: number;
+  championId: number;
+  championName: string;
+  win: boolean;
+  kills: number;
+  deaths: number;
+  assists: number;
+  visionScore: number;
+  gameLength: number;
+  position?: string;
+}
+
 const configStore = useConfig();
 const leagueStore = useLeague();
 const themeVars = useThemeVars();
@@ -107,38 +145,13 @@ function getWinRate(stats?: { wins?: number; losses?: number }): number {
   return total > 0 ? Math.round((stats.wins / total) * 100) : 0;
 }
 
-// 修改数据统计范围的常量定义
-// 删除以下常量定义
-// const GAME_COUNTS = [
-//   { label: "近20场", value: 20 },
-//   { label: "近40场", value: 40 },
-//   { label: "近60场", value: 60 },
-//   { label: "近80场", value: 80 },
-//   { label: "近100场", value: 100 },
-//   { label: "近150场", value: 150 },
-//   { label: "近200场", value: 200 },
-// ] as const;
-
-// 修改 selectedGameCount 的类型
 const selectedGameCount = ref<number>(20);
-
-// 定义游戏记录的接口
-interface GameRecord {
-  kills: number;
-  deaths: number;
-  assists: number;
-  visionScore: number;
-  gameLength: number;
-  win: boolean;
-  position: string;
-}
 
 // 修改数据存储
 const recentGames = ref<GameRecord[]>([]);
 
 // 计算KDA
-function getKDA(): string {
-  const games = recentGames.value.slice(0, selectedGameCount.value);
+function getKDA(games: GameRecord[]): string {
   if (games.length === 0) return "0.0";
 
   const totalKills = games.reduce((sum, game) => sum + game.kills, 0);
@@ -153,8 +166,7 @@ function getKDA(): string {
 }
 
 // 计算场均击杀
-function getAverageKills(): string {
-  const games = recentGames.value.slice(0, selectedGameCount.value);
+function getAverageKills(games: GameRecord[]): string {
   if (games.length === 0) return "0.0";
 
   const totalKills = games.reduce((sum, game) => sum + game.kills, 0);
@@ -162,8 +174,7 @@ function getAverageKills(): string {
 }
 
 // 计算场均死亡
-function getAverageDeaths(): string {
-  const games = recentGames.value.slice(0, selectedGameCount.value);
+function getAverageDeaths(games: GameRecord[]): string {
   if (games.length === 0) return "0.0";
 
   const totalDeaths = games.reduce((sum, game) => sum + game.deaths, 0);
@@ -171,8 +182,7 @@ function getAverageDeaths(): string {
 }
 
 // 计算场均助攻
-function getAverageAssists(): string {
-  const games = recentGames.value.slice(0, selectedGameCount.value);
+function getAverageAssists(games: GameRecord[]): string {
   if (games.length === 0) return "0.0";
 
   const totalAssists = games.reduce((sum, game) => sum + game.assists, 0);
@@ -180,8 +190,7 @@ function getAverageAssists(): string {
 }
 
 // 计算游戏时长
-function getTotalGameTime(): string {
-  const games = recentGames.value.slice(0, selectedGameCount.value);
+function getTotalGameTime(games: GameRecord[]): string {
   const totalMinutes = games.reduce((sum, game) => sum + game.gameLength, 0);
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
@@ -203,12 +212,11 @@ const positionMap: Record<string, string> = {
 };
 
 // 修改获取常用位置的函数
-function getMainPosition(): string {
-  const games = recentGames.value.slice(0, selectedGameCount.value);
+function getMainPosition(games: GameRecord[]): string {
   if (games.length === 0) return "-";
 
   const positions = games.reduce((acc, game) => {
-    acc[game.position] = (acc[game.position] || 0) + 1;
+    acc[game!.position] = (acc[game?.position] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
@@ -221,8 +229,7 @@ function getMainPosition(): string {
 }
 
 // 计算胜场数
-function getTotalGames(): string {
-  const games = recentGames.value.slice(0, selectedGameCount.value);
+function getTotalGames(games: GameRecord[]): string {
   const wins = games.filter((game) => game.win).length;
   return `${wins}/${games.length}`;
 }
@@ -248,8 +255,7 @@ const selectedRangeInfo = computed(() => {
 });
 
 // 计算场均视野得分
-function getAverageVision(): string {
-  const games = recentGames.value.slice(0, selectedGameCount.value);
+function getAverageVision(games: GameRecord[]): string {
   if (games.length === 0) return "0.0";
 
   const totalVision = games.reduce(
@@ -262,11 +268,12 @@ function getAverageVision(): string {
 // 修改选中的比赛类型的默认值，默认显示单双排
 const selectedGameType = ref<TAGS_ENUM>(TAGS_ENUM.q_420);
 
-// 修改 fetchGameData 函数
+// 添加 loading 状态
+const isLoading = ref(false);
+
 async function fetchGameData(tag: TAGS_ENUM = selectedGameType.value) {
-  console.log("获取数据:", tag);
+  isLoading.value = true;
   try {
-    // 先尝试使用 sgpApi
     const sgpResponse = await api.sgpApi.getMatchHistory(
       leagueStore.leagueInfo?.rsoPlatformId || "",
       requestData.value?.summoner?.puuid || "",
@@ -275,78 +282,124 @@ async function fetchGameData(tag: TAGS_ENUM = selectedGameType.value) {
       tag === TAGS_ENUM.all ? undefined : tag
     );
 
-    console.log("查看SGP接口获取的数据:", sgpResponse);
-    if (sgpResponse?.games) {
-      leagueStore.setSgpApiAvailable(true); // 标记 SGP API 可用
-      // 处理 SGP API 返回的数据
-      const games = sgpResponse.games.map((game: SgpGameSummaryLol) => {
-        // 找到当前玩家的数据
+    console.log("查看SGP接口获取的数据:", tag, sgpResponse);
+    const sgpData = (sgpResponse as unknown) as SgpMatchHistory;
+
+    if (sgpData?.games) {
+      leagueStore.setSgpApiAvailable(true);
+
+      const processedGames: GameRecord[] = [];
+
+      for (const game of sgpData.games) {
         const participant = game.json.participants.find(
-          (p: SgpParticipantLol) => p.puuid === requestData.value?.summoner?.puuid
+          (p) => p.puuid === requestData.value?.summoner?.puuid
         );
 
-        return {
-          kills: participant?.kills || 0,
-          deaths: participant?.deaths || 0,
-          assists: participant?.assists || 0,
-          visionScore: participant?.visionScore || 0,
+        if (!participant) continue;
+
+        processedGames.push({
+          gameMode: game.json.queueId === 420 ? "RANKED" : game.json.gameMode,
+          queueId: game.json.queueId,
+          championId: participant.championId,
+          championName: participant.championName || "",
+          win: participant.win,
+          kills: participant.kills || 0,
+          deaths: participant.deaths || 0,
+          assists: participant.assists || 0,
+          visionScore: participant.visionScore || 0,
           gameLength: Math.floor(game.json.gameDuration / 60),
-          win: participant?.win || false,
-          position: participant?.teamPosition || participant?.lane || "NONE",
-        } as GameRecord;
-      });
-      console.log("处理的结果:", games);
-      recentGames.value = games;
+          position: participant.teamPosition || participant.lane || "NONE",
+        });
+      }
+
+      return processedGames;
     }
+    return [];
   } catch (error) {
     console.warn("SGP API 获取失败，尝试使用 LCU API", error);
-    leagueStore.setSgpApiAvailable(false); // 标记 SGP API 不可用
+    leagueStore.setSgpApiAvailable(false);
 
-    // 如果 SGP API 不可用，强制设置为所有类型
     if (selectedGameType.value !== TAGS_ENUM.all) {
       selectedGameType.value = TAGS_ENUM.all;
     }
 
     try {
-      // 回退到使用 lcuApi
       const matchHistory = await api.lcuApi.matchHistory.getMatchHistory(
         requestData.value?.summoner?.puuid || "",
         0,
         selectedGameCount.value
       );
-      console.log("查看LCU接口获取的数据:", matchHistory);
 
-      if (matchHistory?.games?.games) {
-        const games = matchHistory.games.games.games.map((game: Game) => {
-          const participant = game.participants[0]; // 当前玩家总是第一个参与者
-          return {
+      console.log("查看LCU接口获取的数据:", matchHistory);
+      const lcuData = (matchHistory as unknown) as {
+        games: {
+          games: Array<{
+            queueId: number;
+            gameMode: string;
+            gameDuration: number;
+            participants: Array<{
+              championId: number;
+              stats: {
+                win: boolean;
+                kills: number;
+                deaths: number;
+                assists: number;
+                visionScore: number;
+              };
+              timeline?: {
+                lane?: string;
+              };
+            }>;
+          }>;
+        };
+      };
+
+      if (lcuData?.games?.games) {
+        const processedGames: GameRecord[] = [];
+
+        for (const game of lcuData.games.games) {
+          const participant = game.participants[0];
+          if (!participant) continue;
+
+          processedGames.push({
+            gameMode: game.queueId === 420 ? "RANKED" : game.gameMode,
+            queueId: game.queueId,
+            championId: participant.championId,
+            championName: String(participant.championId), // 暂时使用championId作为名称
+            win: participant.stats.win,
             kills: participant.stats.kills || 0,
             deaths: participant.stats.deaths || 0,
             assists: participant.stats.assists || 0,
             visionScore: participant.stats.visionScore || 0,
             gameLength: Math.floor(game.gameDuration / 60),
-            win: participant.stats.win || false,
-            position: participant.timeline.lane || "NONE",
-          } as GameRecord;
-        });
-        recentGames.value = games;
+            position: participant.timeline?.lane || "NONE",
+          });
+        }
+
+        return processedGames;
       }
+      return [];
     } catch (lcuError) {
       console.error("获取比赛数据失败", lcuError);
+      return [];
     }
+  } finally {
+    isLoading.value = false;
   }
 }
 
 // 修改初始化逻辑
 onMounted(async () => {
   try {
-    // 先尝试获取单双排数据
-    await fetchGameData(TAGS_ENUM.q_420);
+    // 先尝试获取单双排数据 这里主要用于顶部信息栏
+    const games = await fetchGameData(TAGS_ENUM.q_420);
+    recentGames.value = games;
 
     // 如果 SGP API 不可用，则切换到所有类型
     if (!leagueStore.isSgpApiAvailable) {
       selectedGameType.value = TAGS_ENUM.all;
-      await fetchGameData(TAGS_ENUM.all);
+      const allGames = await fetchGameData(TAGS_ENUM.all);
+      recentGames.value = allGames;
     }
   } catch (error) {
     console.error("获取数据失败:", error);
@@ -355,16 +408,6 @@ onMounted(async () => {
 
 // 修改比赛类型选择器的禁用状态
 const gameTypeSelectDisabled = computed(() => !leagueStore.isSgpApiAvailable);
-
-// 修改监听器的类型
-watch(selectedGameType, async (newType: TAGS_ENUM) => {
-  console.log("selectedGameType", newType);
-  await fetchGameData(newType);
-});
-
-watch(selectedGameCount, async (newCount: number) => {
-  await fetchGameData();
-});
 
 // 整合召唤师信息
 const summonerInfo = computed(() => ({
@@ -385,24 +428,133 @@ const gameStats = computed(() => ({
   winRate: selectedRangeWinRate.value,
   wins: selectedRangeInfo.value.wins,
   losses: selectedRangeInfo.value.losses,
-  avgKills: getAverageKills(),
-  avgDeaths: getAverageDeaths(),
-  avgAssists: getAverageAssists(),
-  totalGameTime: getTotalGameTime(),
-  mainPosition: getMainPosition(),
-  kda: getKDA(),
-  avgVision: getAverageVision(),
+  avgKills: getAverageKills(recentGames.value),
+  avgDeaths: getAverageDeaths(recentGames.value),
+  avgAssists: getAverageAssists(recentGames.value),
+  totalGameTime: getTotalGameTime(recentGames.value),
+  mainPosition: getMainPosition(recentGames.value),
+  kda: getKDA(recentGames.value),
+  avgVision: getAverageVision(recentGames.value),
 }));
 
-const handleGameTypeChange = (type: TAGS_ENUM) => {
+const handleGameTypeChange = async (type: TAGS_ENUM) => {
   selectedGameType.value = type;
-  fetchGameData(type as TAGS_ENUM);
+  recentGames.value = await fetchGameData(type as TAGS_ENUM);
 };
 
-const handleGameCountChange = (count: number) => {
+const handleGameCountChange = async (count: number) => {
   selectedGameCount.value = count;
-  fetchGameData();
+  recentGames.value = await fetchGameData();
+  getGameModeData();
 };
+
+const gameModeData = ref<
+  {
+    key: TAGS_ENUM;
+    data: GameRecord[];
+    kda?: string;
+    leaguePoints?: string;
+  }[]
+>([]);
+getGameModeData();
+
+async function getGameModeData() {
+  isLoading.value = true;
+  try {
+    if (gameModeData.value.length > 0) {
+      gameModeData.value = [];
+    }
+    const needDataParams = [
+      TAGS_ENUM.q_420, // 单双排
+      TAGS_ENUM.q_430, // 匹配模式
+      TAGS_ENUM.q_440, // 灵活排位
+      TAGS_ENUM.q_450, // 极地大乱斗
+    ];
+    const fetchGameModeDataPromiseArr = needDataParams.map((tag) => fetchGameData(tag));
+    const resArr = await Promise.allSettled(fetchGameModeDataPromiseArr);
+    resArr.map((item: any, index: number) => {
+      if (item.status === "fulfilled") {
+        if (
+          needDataParams[index] === TAGS_ENUM.q_420 ||
+          needDataParams[index] === TAGS_ENUM.q_440
+        ) {
+          gameModeData.value.push({
+            key: needDataParams[index],
+            data: item.value,
+            leaguePoints: getMainPosition(item.value),
+            kda: getKDA(item.value),
+          });
+        } else {
+          gameModeData.value.push({
+            key: needDataParams[index],
+            data: item.value,
+            kda: getKDA(item.value),
+          });
+        }
+      } else {
+        gameModeData.value.push({
+          key: needDataParams[index],
+          data: [],
+        });
+      }
+    });
+    console.log("获取多个比赛模式数据：", gameModeData.value);
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+// 添加段位数据的计算属性
+const tiers = computed(() => ({
+  RANKED_SOLO_5x5: {
+    division:
+      requestData.value?.ranked?.queueMap?.RANKED_SOLO_5x5?.division !== "NA"
+        ? requestData.value?.ranked?.queueMap?.RANKED_SOLO_5x5?.division
+        : "",
+    tier: requestData.value?.ranked?.queueMap?.RANKED_SOLO_5x5?.tier || "",
+    leaguePoints: requestData.value?.ranked?.queueMap?.RANKED_SOLO_5x5?.leaguePoints || 0,
+  },
+  RANKED_FLEX_SR: {
+    division: requestData.value?.ranked?.queueMap?.RANKED_FLEX_SR?.division || "",
+    tier: requestData.value?.ranked?.queueMap?.RANKED_FLEX_SR?.tier || "",
+    leaguePoints: requestData.value?.ranked?.queueMap?.RANKED_FLEX_SR?.leaguePoints || 0,
+  },
+}));
+
+// 修改 filteredGamesByMode 的实现
+const filteredGamesByMode = computed(() => {
+  // 转换数据格式
+  const games = [
+    {
+      key: "RANKED_SOLO_5x5",
+      data: gameModeData.value.find((g) => g.key === TAGS_ENUM.q_420)?.data || [],
+      kda: gameModeData.value.find((g) => g.key === TAGS_ENUM.q_420)?.kda,
+      tier: tiers.value.RANKED_SOLO_5x5.tier,
+      division: tiers.value.RANKED_SOLO_5x5.division,
+      leaguePoints: tiers.value.RANKED_SOLO_5x5.leaguePoints,
+    },
+    {
+      key: "RANKED_FLEX_SR",
+      data: gameModeData.value.find((g) => g.key === TAGS_ENUM.q_440)?.data || [],
+      kda: gameModeData.value.find((g) => g.key === TAGS_ENUM.q_440)?.kda,
+      tier: tiers.value.RANKED_FLEX_SR.tier,
+      division: tiers.value.RANKED_FLEX_SR.division,
+      leaguePoints: tiers.value.RANKED_FLEX_SR.leaguePoints,
+    },
+    {
+      key: "NORMAL",
+      data: gameModeData.value.find((g) => g.key === TAGS_ENUM.q_430)?.data || [],
+      kda: gameModeData.value.find((g) => g.key === TAGS_ENUM.q_430)?.kda,
+    },
+    {
+      key: "ARAM",
+      data: gameModeData.value.find((g) => g.key === TAGS_ENUM.q_450)?.data || [],
+      kda: gameModeData.value.find((g) => g.key === TAGS_ENUM.q_450)?.kda,
+    },
+  ];
+
+  return { games };
+});
 </script>
 
 <style>
