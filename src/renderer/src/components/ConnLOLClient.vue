@@ -1,17 +1,16 @@
 <template>
   <div class="w-full h-full">
     <div
-      v-if="!leagueStore.leagueInfo?.port"
-      class="flex items-center justify-center w-full h-full">
+      v-if="!leagueStore.leagueInfo?.port && false"
+      class="flex items-center justify-center w-full h-full"
+    >
       <div class="flex flex-col justify-center items-center gap-4">
-        <n-image
-          :src="leagueIco"
-          width="50"
-        />
+        <n-image :src="leagueIco" width="50" />
         <div class="flex flex-col items-center justify-center gap-2">
           <n-gradient-text
             class="text-5 font-bold"
-            gradient="linear-gradient(90deg, #91DCFF 0%, #FF69B4 50%, #FFB6C1 100%)">
+            gradient="linear-gradient(90deg, #91DCFF 0%, #FF69B4 50%, #FFB6C1 100%)"
+          >
             YYY-LOL-TOOL
           </n-gradient-text>
           <p class="text-3">等待连接客户端</p>
@@ -29,27 +28,21 @@
         </div>
       </div>
     </div>
-    
+
     <div v-else>
       <slot />
     </div>
   </div>
-
 </template>
 
-<script
-  lang="ts"
-  setup>
-import leagueIco from '@renderer/assets/ico/league.ico'
-import { useLeague } from '../store/league'
+<script lang="ts" setup>
+import leagueIco from "@renderer/assets/ico/league.ico";
+import { useLeague } from "../store/league";
 
-const leagueStore = useLeague()
+const leagueStore = useLeague();
 </script>
 
-<style
-  lang="scss"
-  scoped>
-
+<style lang="scss" scoped>
 #colorfulPulse span {
   display: inline-block;
   width: 10px;
@@ -156,15 +149,18 @@ span.item-7 {
 }
 
 @-webkit-keyframes scale {
-  0%, 40%, 100% {
+  0%,
+  40%,
+  100% {
     -moz-transform: scaleY(0.2);
     -ms-transform: scaleY(0.2);
     -o-transform: scaleY(0.2);
     -webkit-transform: scaleY(0.2);
     transform: scaleY(0.2);
   }
-  
-  20%, 60% {
+
+  20%,
+  60% {
     -moz-transform: scaleY(1);
     -ms-transform: scaleY(1);
     -o-transform: scaleY(1);
@@ -174,15 +170,18 @@ span.item-7 {
 }
 
 @-moz-keyframes scale {
-  0%, 40%, 100% {
+  0%,
+  40%,
+  100% {
     -moz-transform: scaleY(0.2);
     -ms-transform: scaleY(0.2);
     -o-transform: scaleY(0.2);
     -webkit-transform: scaleY(0.2);
     transform: scaleY(0.2);
   }
-  
-  20%, 60% {
+
+  20%,
+  60% {
     -moz-transform: scaleY(1);
     -ms-transform: scaleY(1);
     -o-transform: scaleY(1);
@@ -192,15 +191,18 @@ span.item-7 {
 }
 
 @-ms-keyframes scale {
-  0%, 40%, 100% {
+  0%,
+  40%,
+  100% {
     -moz-transform: scaleY(0.2);
     -ms-transform: scaleY(0.2);
     -o-transform: scaleY(0.2);
     -webkit-transform: scaleY(0.2);
     transform: scaleY(0.2);
   }
-  
-  20%, 60% {
+
+  20%,
+  60% {
     -moz-transform: scaleY(1);
     -ms-transform: scaleY(1);
     -o-transform: scaleY(1);
@@ -210,15 +212,18 @@ span.item-7 {
 }
 
 @keyframes scale {
-  0%, 40%, 100% {
+  0%,
+  40%,
+  100% {
     -moz-transform: scaleY(0.2);
     -ms-transform: scaleY(0.2);
     -o-transform: scaleY(0.2);
     -webkit-transform: scaleY(0.2);
     transform: scaleY(0.2);
   }
-  
-  20%, 60% {
+
+  20%,
+  60% {
     -moz-transform: scaleY(1);
     -ms-transform: scaleY(1);
     -o-transform: scaleY(1);

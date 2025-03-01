@@ -141,26 +141,27 @@
         <!-- 第二行数据 -->
         <div class="grid grid-cols-4 gap-4">
           <StatItem
-            color="#3E5C8C"
+            color="#4B74B0"
             :value="stats.totalGameTime"
             label="总游戏时长"
             tooltip-text="所选游戏场次的总游戏时间&#10;包含所有已完成的对局时长"
           />
           <StatItem
-            color="#6B573F"
+            color="#8B714F"
             :value="stats.mainPosition"
             label="常用位置"
             tooltip-text="在所选游戏中出场次数最多的位置&#10;反映了玩家的位置偏好"
           />
           <StatItem
-            color="#8C7355"
+            color="#B08E68"
             :value="stats.kda"
             label="KDA"
             tooltip-text="KDA =
-          (击杀 + 助攻) / 死亡&#10;完美KDA（无死亡）显示为“Perfect”&#10;反映了玩家的综合战斗能力"
+          (击杀 + 助攻) /
+          死亡&#10;完美KDA（无死亡）显示为‘Perfect’&#10;反映了玩家的综合战斗能力"
           />
           <StatItem
-            color="#8C3E73"
+            color="#B04B8E"
             :value="stats.avgVision"
             label="场均视野得分"
             tooltip-text="场均视野得分 = 总视野得分 / 总场次&#10;反映了玩家对地图视野的控制能力"

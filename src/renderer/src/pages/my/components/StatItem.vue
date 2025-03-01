@@ -11,9 +11,11 @@
     <template #default>
       <n-tooltip trigger="hover" placement="top">
         <template #trigger>
-          <span class="cursor-help hover:opacity-80" :style="{ color: color }">{{
-            value
-          }}</span>
+          <span
+            class="cursor-help hover:opacity-80 font-bold"
+            :style="{ color: color + 'CC' }"
+            >{{ value }}</span
+          >
         </template>
         <div class="p-1">
           <div class="text-sm">{{ tooltipText }}</div>
