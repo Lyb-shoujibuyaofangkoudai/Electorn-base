@@ -1,6 +1,6 @@
 import { QueryRunner, MigrationInterface, Table } from "typeorm";
 
-export class V_1 implements MigrationInterface {
+export class V_2 implements MigrationInterface {
   down(queryRunner: QueryRunner): Promise<any> {
     return Promise.resolve(undefined);
   }
@@ -8,40 +8,36 @@ export class V_1 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<any> {
     await queryRunner.createTable(
       new Table({
-        name: "db_versions",
+        name: "search_history",
         columns: [
           {
-            name: "key",
-            type: "varchar",
+            name: "id",
+            type: "integer",
             isPrimary: true,
+            isGenerated: true,
+            generationStrategy: "increment",
           },
           {
-            name: "value",
-            type: "json",
-          },
-        ],
-      }),
-    );
-    await queryRunner.createTable(
-      new Table({
-        name: "settings",
-        columns: [
-          {
-            name: "key",
+            name: "summonerName",
             type: "varchar",
-            isPrimary: true,
           },
           {
-            name: "value",
-            type: "json",
+            name: "avatar",
+            type: "varchar",
+            isNullable: true,
+          },
+          {
+            name: "searchTime",
+            type: "datetime",
+            default: "CURRENT_TIMESTAMP",
           },
         ],
       }),
     );
 
-    // 插入数据版本信息
+    // 更新数据库版本
     await queryRunner.query(
-      `INSERT INTO db_versions (key, value) VALUES ('version', json('1'))`,
+      `UPDATE db_versions SET value = json('2') WHERE key = 'version'`,
     );
 
     return Promise.resolve(undefined);

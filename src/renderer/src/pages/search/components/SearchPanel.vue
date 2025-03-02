@@ -27,9 +27,8 @@
       </div>
     </div>
 
-    <!-- 最近搜索和热门召唤师 -->
-    <div class="w-full max-w-4xl grid grid-cols-2 gap-8">
-      <!-- 最近搜索 -->
+    <!-- 最近搜索 -->
+    <div class="w-full max-w-4xl">
       <n-card
         class="backdrop-blur-xl bg-[#2D325F]/60 dark:bg-[#1F2245]/60 transition-all duration-300 hover:shadow-lg hover:shadow-[#3498DB]/20"
         :bordered="false"
@@ -37,37 +36,20 @@
         <template #header>
           <div class="text-[var(--text-color-2)]">最近搜索</div>
         </template>
-        <div class="flex flex-wrap gap-2">
-          <n-tag
+        <div class="flex flex-wrap gap-4">
+          <div
             v-for="search in recentSearches"
             :key="search.name"
-            class="cursor-pointer transition-colors hover:bg-primary hover:text-white"
+            class="flex items-center gap-2 p-2 rounded cursor-pointer transition-all hover:bg-[#3498DB]/20"
             @click="quickSearch(search)"
           >
-            {{ search.name }}
-          </n-tag>
-        </div>
-      </n-card>
-
-      <!-- 热门召唤师 -->
-      <n-card
-        class="backdrop-blur-xl bg-[#2D325F]/60 dark:bg-[#1F2245]/60 transition-all duration-300 hover:shadow-lg hover:shadow-[#3498DB]/20"
-        :bordered="false"
-      >
-        <template #header>
-          <div class="text-[var(--text-color-2)]">热门召唤师</div>
-        </template>
-        <div class="grid grid-cols-2 gap-2">
-          <div
-            v-for="summoner in hotSummoners"
-            :key="summoner.name"
-            class="flex items-center gap-2 p-2 rounded cursor-pointer transition-all hover:bg-[#3498DB]/20"
-            @click="quickSearch(summoner)"
-          >
-            <div class="w-8 h-8 rounded-full overflow-hidden">
-              <img :src="summoner.avatar" class="w-full h-full object-cover" />
+            <div class="w-8 h-8 rounded-full overflow-hidden bg-gray-700">
+              <img
+                :src="search.avatar || 'https://picsum.photos/32'"
+                class="w-full h-full object-cover"
+              />
             </div>
-            <div class="font-bold">{{ summoner.name }}</div>
+            <div class="font-bold">{{ search.name }}</div>
           </div>
         </div>
       </n-card>
@@ -76,16 +58,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useMessage } from "naive-ui";
+import { EVENT_TYPE } from "../../../../../manager/plugins/Bridge/eventType";
 
 interface SearchRecord {
   name: string;
-}
-
-interface HotSummoner extends SearchRecord {
-  avatar: string;
+  avatar?: string;
 }
 
 const router = useRouter();
@@ -95,35 +75,19 @@ const summonerName = ref("");
 const isLoading = ref(false);
 
 // 最近搜索记录
-const recentSearches = ref<SearchRecord[]>([
-  { name: "Faker" },
-  { name: "Uzi" },
-  { name: "Doinb" },
-]);
+const recentSearches = ref<SearchRecord[]>([]);
 
-// 热门召唤师
-const hotSummoners = ref<HotSummoner[]>([
-  {
-    name: "TheShy",
-    avatar: "https://picsum.photos/32",
-  },
-  {
-    name: "Rookie",
-    avatar: "https://picsum.photos/32",
-  },
-  {
-    name: "JackeyLove",
-    avatar: "https://picsum.photos/32",
-  },
-  {
-    name: "Knight",
-    avatar: "https://picsum.photos/32",
-  },
-]);
+// 获取最近搜索记录
+const loadRecentSearches = async () => {};
+
+// 在组件挂载时加载搜索历史
+onMounted(() => {
+  loadRecentSearches();
+});
 
 // 定义 emit
 const emit = defineEmits<{
-  (e: 'search', summoner: { name: string; avatar?: string }): void
+  (e: "search", summoner: { name: string; avatar?: string }): void;
 }>();
 
 const handleSearch = async () => {
@@ -138,25 +102,21 @@ const handleSearch = async () => {
     // TODO: 实际的搜索逻辑
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // 添加到最近搜索
-    const newSearch = {
-      name: summonerName.value,
-    };
+    // 添加到数据库
+    const response = {};
 
-    if (!recentSearches.value.find((s) => s.name === newSearch.name)) {
-      recentSearches.value.unshift(newSearch);
-      if (recentSearches.value.length > 5) {
-        recentSearches.value.pop();
-      }
+    if (!response.success) {
+      console.error("Failed to add search history:", response.msg);
     }
 
-    // 触发搜索事件
-    emit('search', {
-      name: summonerName.value,
-      // TODO: 这里应该是实际的召唤师头像
-      avatar: 'https://picsum.photos/32'
-    });
+    // 重新加载搜索历史
+    await loadRecentSearches();
 
+    // 触发搜索事件
+    emit("search", {
+      name: summonerName.value,
+      avatar: "https://picsum.photos/32", // TODO: 这里应该是实际的召唤师头像
+    });
   } catch (error) {
     message.error("搜索失败，请稍后重试");
   } finally {

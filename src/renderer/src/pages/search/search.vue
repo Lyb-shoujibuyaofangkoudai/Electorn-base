@@ -13,16 +13,46 @@
         class="relative w-full backdrop-blur-xl bg-[#2D325F]/40 dark:bg-[#1F2245]/40"
       >
         <!-- 动态标签栏 -->
-        <div class="mb-4">
-          <n-dynamic-tags
-            v-model:value="tags"
-            :render-tag="renderTag"
-            :closable="false"
-            :input-props="{ disabled: true }"
-            :trigger-style="{ display: 'none' }"
-            :max="20"
-            :show-trigger="false"
-          />
+        <div class="mb-4 flex flex-wrap gap-2 p-2">
+          <n-tag
+            v-for="tag in tags"
+            :key="tag.key"
+            :style="{
+              cursor: 'pointer',
+              backgroundColor: getTagColor(
+                tag.key === 'search' ? -1 : tags.indexOf(tag) - 1,
+                activeTag === tag.key
+              ).bgColor,
+              color: getTagColor(
+                tag.key === 'search' ? -1 : tags.indexOf(tag) - 1,
+                activeTag === tag.key
+              ).textColor,
+              borderColor: getTagColor(
+                tag.key === 'search' ? -1 : tags.indexOf(tag) - 1,
+                activeTag === tag.key
+              ).borderColor,
+            }"
+            type="default"
+            :bordered="true"
+            round
+            :closable="tag.key !== 'search'"
+            @close="handleTagClose(tag.key)"
+            @click="handleTagClick(tag)"
+          >
+            <div
+              class="flex items-center gap-1 justify-center max-w-24 min-w-16 overflow-hidden"
+            >
+              <n-icon v-if="tag.key === 'search'" class="flex-shrink-0">
+                <SearchOutlined />
+              </n-icon>
+              <img
+                v-else
+                :src="tag.avatar || 'https://picsum.photos/32'"
+                class="w-4 h-4 rounded-full flex-shrink-0"
+              />
+              <span class="truncate">{{ tag.name }}</span>
+            </div>
+          </n-tag>
         </div>
 
         <!-- 内容区域 -->
@@ -39,8 +69,9 @@
 
 <script setup lang="ts">
 import { ref, h } from "vue";
-import { NEmpty, NDynamicTags, NTag } from "naive-ui";
+import { NEmpty, NTag } from "naive-ui";
 import SearchPanel from "./components/SearchPanel.vue";
+import { SearchOutlined } from "@vicons/material";
 
 interface SummonerTag {
   key: string;
@@ -73,9 +104,9 @@ const getTagColor = (
           borderColor: "#0958d9",
         }
       : {
-          bgColor: "#bae0ff", // 浅蓝色
-          textColor: "#0958d9",
-          borderColor: "#0958d9",
+          bgColor: "#1d1b20", // 深灰色背景
+          textColor: "#94a3b8",
+          borderColor: "#94a3b8",
         };
   }
   // 其他标签样式
@@ -88,67 +119,8 @@ const getTagColor = (
     : {
         bgColor: "#1d1b20", // 深灰色背景
         textColor: "#94a3b8",
-        borderColor: "#1d1b20",
+        borderColor: "#94a3b8",
       };
-};
-
-// 渲染标签
-const renderTag = (option: SummonerTag) => {
-  const index = tags.value.findIndex((tag) => tag.key === option.key);
-  const isActive = activeTag.value === option.key;
-  const { bgColor, textColor, borderColor } = getTagColor(
-    option.key === "search" ? -1 : index - 1,
-    isActive
-  );
-
-  return h(
-    NTag,
-    {
-      style: {
-        cursor: "pointer",
-        marginRight: "6px",
-        marginBottom: "6px",
-        backgroundColor: bgColor,
-        color: textColor,
-        borderStyle: "dashed",
-        borderColor: borderColor,
-      },
-      type: "default",
-      bordered: true,
-      round: true,
-      closable: option.key !== "search",
-      onClose: (e: MouseEvent) => {
-        e.stopPropagation();
-        handleTagClose(option.key);
-      },
-      onClick: () => handleTagClick(option),
-    },
-    {
-      default: () =>
-        h(
-          "div",
-          {
-            class: "flex items-center gap-1",
-          },
-          [
-            // 搜索图标或召唤师头像
-            option.key === "search"
-              ? h("i", {
-                  class: "i-material-symbols:search text-lg",
-                  style: {
-                    color: textColor,
-                  },
-                })
-              : h("img", {
-                  src: option.avatar || "https://picsum.photos/32",
-                  class: "w-4 h-4 rounded-full",
-                }),
-            // 标签文本
-            option.name,
-          ]
-        ),
-    }
-  );
 };
 
 // 处理标签点击
@@ -202,11 +174,6 @@ const handleSearch = (summoner: { name: string; avatar?: string }) => {
   background-size: 20px 20px;
 }
 
-:deep(.n-dynamic-tags) {
-  padding: 6px;
-  gap: 8px;
-}
-
 :deep(.n-tag) {
   transition: all 0.3s ease;
   border-radius: 4px !important;
@@ -223,10 +190,6 @@ const handleSearch = (summoner: { name: string; avatar?: string }) => {
 /* 移除原有的 primary 样式 */
 :deep(.n-tag--primary) {
   font-weight: 500 !important;
-}
-
-:deep(.n-dynamic-tags__input) {
-  display: none !important;
 }
 
 /* 关闭按钮样式 */
