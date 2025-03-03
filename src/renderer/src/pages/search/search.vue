@@ -77,6 +77,7 @@ interface SummonerTag {
   key: string;
   name: string;
   avatar?: string;
+  region?: string;
 }
 
 // 活动标签
@@ -141,10 +142,11 @@ const handleTagClose = (key: string) => {
 };
 
 // 处理搜索
-const handleSearch = (summoner: { name: string; avatar?: string }) => {
+const handleSearch = (summoner: { name: string; avatar?: string; region: string }) => {
   // 检查是否已存在该召唤师的标签
   const existingTag = tags.value.find(
-    (tag) => tag.name === summoner.name && tag.key !== "search"
+    (tag) =>
+      tag.name === summoner.name && tag.region === summoner.region && tag.key !== "search"
   );
 
   if (!existingTag) {
@@ -153,6 +155,7 @@ const handleSearch = (summoner: { name: string; avatar?: string }) => {
       key: `summoner-${Date.now()}`,
       name: summoner.name,
       avatar: summoner.avatar,
+      region: summoner.region,
     };
     tags.value.push(newTag);
     activeTag.value = newTag.key;

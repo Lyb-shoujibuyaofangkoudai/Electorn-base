@@ -93,7 +93,6 @@ export class LeagueMainHelper implements IPlugin {
 
     if (config.url && config.url.startsWith('lol-game-data/assets')) {
       return this._limitedRequest(config, this._assetLimiter)
-      // return this._request!.http.request<T>(config)
     } else {
       return this._request!.http.request<T>(config)
     }

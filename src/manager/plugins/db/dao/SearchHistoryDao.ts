@@ -54,11 +54,13 @@ export class SearchHistoryDao {
   async addSearchHistory(
     summonerName: string,
     avatar?: string,
+    region?: string,
+    regionDetail?: string,
   ): Promise<SearchHistory> {
     return this.executeInTransaction(
       "SearchHistoryDao.addSearchHistory",
       async (queryRunner) => {
-        const history = SearchHistory.create(summonerName, avatar);
+        const history = SearchHistory.create(summonerName, avatar, region, regionDetail);
         return queryRunner.manager.save(history);
       },
     );

@@ -39,6 +39,7 @@ export class V_1 implements MigrationInterface {
       }),
     );
 
+
     // 插入数据版本信息
     await queryRunner.query(
       `INSERT INTO db_versions (key, value) VALUES ('version', json('1'))`,

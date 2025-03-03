@@ -43,7 +43,8 @@ const keysMap = {
   rsoPlatformId: 'RSO平台ID',
   region: '区域',
   riotClientPort: '拳头客户端端口',
-  riotClientAuthToken: '拳头客户端认证令牌'
+  riotClientAuthToken: '拳头客户端认证令牌',
+  rsoOriginalPlatformId: '原平台ID',
 }
 const leagueStore = useLeague()
 const leagueInfo = computed(() => {

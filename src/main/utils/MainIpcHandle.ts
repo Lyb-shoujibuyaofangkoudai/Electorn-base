@@ -216,6 +216,8 @@ export class MainIpcHandle {
           const result = await searchHistoryDao.addSearchHistory(
             data.data.summonerName,
             data.data.avatar,
+            data.data.region,
+            data.data.regionDetail,
           );
 
           return {

@@ -31,6 +31,16 @@ export class V_2 implements MigrationInterface {
             type: "datetime",
             default: "CURRENT_TIMESTAMP",
           },
+          {
+            name: "region",
+            type: "varchar",
+            isNullable: true,
+          },
+          {
+            name: "regionDetail",
+            type: "varchar",
+            isNullable: true,
+          }
         ],
       }),
     );

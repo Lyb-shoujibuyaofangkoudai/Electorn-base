@@ -100,3 +100,48 @@ export const GAME_TYPES = [
   { label: TAGS[TAGS_ENUM.q_430], value: TAGS_ENUM.q_430 },
   { label: TAGS[TAGS_ENUM.q_450], value: TAGS_ENUM.q_450 },
 ] as const;
+
+
+export enum RegionEnum {
+  AIOUNIYA = "HN1",
+  NUOKESASI = "HN2",
+  BANDEERCHENG = "HN3",
+  PIERTEWOFO = "HN4",
+  DEMAXIYA = "HN5",
+  ZUAN = "HN6",
+  JUSHENFENG = "HN7",
+  BIERJIWOTE = "HN8",
+  CAIJUEZHIDI = "HN9",
+  HEISEMEIGUI = "HN10",
+  ANYINGDAO = "HN11",
+  GANGTIELIEYANG = "HN12",
+  SHUIJINGZHIEN = "HN13",
+  JUNHENGJIAOPAI = "HN14",
+  YINGLIU = "HN15",
+  SHOUWANGZHIHAI = "HN16",
+  ZHENGFUZHIHAI = "HN17",
+  KALAMANDA = "HN18",
+  PICHENGJINGBEI = "HN19"
+}
+
+export const RegionMap = {
+  [RegionEnum.AIOUNIYA]: "艾欧尼亚",
+  [RegionEnum.NUOKESASI]: "诺克萨斯",
+  [RegionEnum.BANDEERCHENG]: "班德尔城",
+  [RegionEnum.PIERTEWOFO]: "皮尔特沃夫",
+  [RegionEnum.DEMAXIYA]: "德玛西亚",
+  [RegionEnum.ZUAN]: "祖安",
+  [RegionEnum.JUSHENFENG]: "巨神峰",
+  [RegionEnum.BIERJIWOTE]: "比尔吉沃特",
+  [RegionEnum.CAIJUEZHIDI]: "裁决之地",
+  [RegionEnum.HEISEMEIGUI]: "黑色玫瑰",
+  [RegionEnum.ANYINGDAO]: "暗影岛",
+  [RegionEnum.GANGTIELIEYANG]: "钢铁烈阳",
+  [RegionEnum.SHUIJINGZHIEN]: "水晶之痕",
+  [RegionEnum.JUNHENGJIAOPAI]: "均衡教派",
+  [RegionEnum.YINGLIU]: "影流",
+  [RegionEnum.SHOUWANGZHIHAI]: "守望之海",
+  [RegionEnum.ZHENGFUZHIHAI]: "征服之海",
+  [RegionEnum.KALAMANDA]: "卡拉曼达",
+  [RegionEnum.PICHENGJINGBEI]: "皮城警备"
+}

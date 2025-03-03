@@ -33,14 +33,24 @@ XWehWA==
 -----END CERTIFICATE-----`
 
 export type CmdParsedType = {
+  /** 客户端服务端口号 */
   port: number
+  /** 客户端进程ID */
   pid: number
+  /** 远程连接认证令牌 */
   authToken: string
+  /** RSO认证平台标识（例如：EUW1、NA1） */
   rsoPlatformId: string
+  /** 服务器地区标识 */
   region: string
+  /** 可选证书配置（默认使用RIOT_CERTIFICATE） */
   certificate?: string
+  /** 英雄联盟客户端端口号 */
   riotClientPort: number
+  /** 英雄联盟客户端认证令牌 */
   riotClientAuthToken: string
+  /** 原始RSO平台标识（用于跨区匹配场景）就是对应的诺克萨斯那些小区 */
+  rsoOriginalPlatformId: string
 }
 
 
@@ -63,6 +73,7 @@ export class League implements IPlugin {
   private _regionRegex = /--region=([\w-_]+)/
   private _riotClientPortRegex = /--riotclient-app-port=([0-9]+)/
   private _riotClientAuthRegex = /--riotclient-auth-token=([\w-_]+)/
+  private _rso_original_platform_id = /--rso_original_platform_id=([\w-_]+)/
 
 
   get cmdParsedInfo(): CmdParsedType | null {
@@ -83,6 +94,7 @@ export class League implements IPlugin {
     const timer = setInterval(() => {
       const cmdLine = this.getLOLClientConnArgByNativeApi()
       if ( cmdLine ) {
+        console.log('获取到客户端信息', cmdLine)
         this.isLeagueClientRunning(this._PROCESS_NAME).then((res) => {
         }).catch((err) => {
           console.error('获取客户端信息失败:', err);
@@ -114,6 +126,7 @@ export class League implements IPlugin {
     const [ , region = '' ] = s.match(this._regionRegex) || []
     const [ , riotClientPort = '' ] = s.match(this._riotClientPortRegex) || []
     const [ , riotClientAuth = '' ] = s.match(this._riotClientAuthRegex) || []
+    const [ , rsoOriginalPlatformId = '' ] = s.match(this._rso_original_platform_id) || []
 
     if ( !port || !password || !pid ) {
       return null
@@ -126,7 +139,8 @@ export class League implements IPlugin {
       region,
       // certificate: RIOT_CERTIFICATE,
       riotClientPort: Number(riotClientPort),
-      riotClientAuthToken: riotClientAuth
+      riotClientAuthToken: riotClientAuth,
+      rsoOriginalPlatformId,
     }
   }
 

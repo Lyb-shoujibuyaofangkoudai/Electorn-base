@@ -12,3 +12,16 @@ export function copy(value:string,successMsg:string = '复制成功',errorMsg:st
     }
   }
 }
+
+
+export function proxyToObject(proxy) {
+  if (proxy === null || typeof proxy !== 'object') return proxy;
+
+  const obj = Array.isArray(proxy) ? [] : {};
+  for (const key in proxy) {
+    if (proxy.hasOwnProperty(key)) {
+      obj[key] = proxyToObject(proxy[key]);
+    }
+  }
+  return obj;
+}
