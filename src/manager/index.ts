@@ -17,6 +17,7 @@ import { Db } from './plugins/db/Db'
 import { EventManager } from './plugins/EventBus'
 import { SgpMainHelper } from './plugins/SgpMainHelper'
 import { LeagueWs } from './plugins/LeagueWs/LeagueWs'
+import { RiotMainHelper } from './plugins/RiotMainHelper'
 
 export class Manager {
   _logger: Logger | null = null
@@ -70,6 +71,7 @@ export class Manager {
       core.use(new LeagueMainHelper())
       core.use(new LeagueWs())
       core.use(new SgpMainHelper())
+      core.use(new RiotMainHelper())
       core.run()
       this._logger = Core.getInstance().logger
       Core.getInstance().logger?.info('插件系统初始化完成', LOGGER_NAMESPACE.APP)

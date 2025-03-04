@@ -48,7 +48,7 @@ import { useConfig } from "../../store/config";
 import { useLeague } from "../../store/league";
 import { copy } from "../../utils/utils";
 import { TimerRound } from "@vicons/material";
-import { TAGS, TAGS_ENUM, GAME_TYPES } from "../../utils/common";
+import { TAGS, TAGS_ENUM, GAME_TYPES, RegionMap } from '../../utils/common'
 import PlayerInfoBar from "./components/PlayerInfoBar.vue";
 import GameModeCards from "./components/GameModeCards.vue";
 
@@ -416,6 +416,7 @@ const summonerInfo = computed(() => ({
   level: requestData.value?.summoner?.summonerLevel ?? 0,
   iconUrl: profileIconUri(requestData.value?.summoner?.profileIconId),
   region: region.value,
+  regionDetail: RegionMap[leagueStore.leagueInfo?.rsoOriginalPlatformId] ?? '',
   levelProgress: requestData.value?.summoner?.percentCompleteForNextLevel ?? 0,
   expToNextLevel: requestData.value?.summoner?.xpUntilNextLevel ?? 0,
   totalExp:

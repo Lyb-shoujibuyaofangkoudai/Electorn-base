@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col items-center gap-8 py-12">
     <!-- 搜索框 -->
-    <div class="w-full max-w-xl relative">
+    <div class="w-[80%] relative">
       <div class="flex gap-2">
         <div class="relative flex-1">
           <n-input-group>
@@ -9,14 +9,14 @@
               v-model:value="selectedRegion"
               :options="regions"
               :consistent-menu-width="false"
-              class="w-30 region-select"
+              class="!w-30 region-select"
               size="large"
             />
             <n-input
               v-model:value="summonerName"
               type="text"
               placeholder="输入召唤师名称"
-              class="search-input"
+              class="search-input flex-1"
               @keydown.enter="handleSearch"
               @focus="handleFocus"
               @blur="handleBlur"
@@ -82,7 +82,6 @@
             </div>
           </div>
         </div>
-        
       </div>
     </div>
 
@@ -140,8 +139,9 @@ import { useMessage } from "naive-ui";
 import { EVENT_TYPE } from "../../../../../manager/plugins/Bridge/eventType";
 import { useIpc } from "../../../hooks/useIpc";
 import { BRIDGE_EVENT } from "../../../../../manager/plugins/Bridge/bridgeType";
-import { useConfig } from '../../../store/config'
-import { proxyToObject } from '../../../utils/utils'
+import { useConfig } from "../../../store/config";
+import { proxyToObject } from "../../../utils/utils";
+import { useLeague } from "../../../store/league";
 
 interface SearchRecord {
   name: string;
@@ -186,12 +186,18 @@ interface Summoner {
   name?: string;
 }
 
+interface ServerConfig {
+  name: string;
+  [key: string]: any;
+}
+
 const ipc = useIpc();
 const api = useApi();
-const configStore = useConfig()
+const configStore = useConfig();
 const message = useMessage();
+const leagueStore = useLeague();
 
-const summonerName = ref("");
+const summonerName = ref("58612941-2c0a-5cef-8b9a-e500718ea6e9");
 const isLoading = ref(false);
 const showRecentSearch = ref(false);
 
@@ -211,19 +217,25 @@ const searchResults = ref<Summoner[]>([]);
 
 // todo：大区选项
 const regions = computed(() => {
-  const result = [{
-    label: "全部",
-    value: "all",
-  }]
-  Object.entries(configStore.configInfo?.servers)?.forEach(([key, value]) => {
-    if(key.startsWith('TENCENT_'))
+  const result = [
+    {
+      label: "全部",
+      value: "all",
+      sgpServerId: ''
+    },
+  ];
+  Object.entries(
+    (configStore.configInfo?.servers as Record<string, ServerConfig>) || {}
+  )?.forEach(([key, value]) => {
+    if (key.startsWith("TENCENT_"))
       result.push({
         label: value.name,
         value: key,
-      })
-  })
-  return result
-})
+        sgpServerId: key.split("_")[1],
+      });
+  });
+  return result;
+});
 
 const selectedRegion = ref(regions.value[0].value);
 
@@ -268,7 +280,7 @@ const loadRecentSearches = async () => {
         name: "测试召唤师3",
         avatar: "https://picsum.photos/32",
       },
-    ]
+    ];
   } catch (error) {
     console.error("加载最近搜索记录失败:", error);
     message.error("加载搜索历史失败");
@@ -352,12 +364,37 @@ const handleSearch = async () => {
       searchType.value === "puuid"
         ? summonerName.value.trim()
         : replaceInvisibleChar(summonerName.value);
+
+    // 判断是否同区 是就采用lcu API直接潮朝查找，不是则采用sgp API查找
+    const isSameRegion =
+      selectedRegion.value !== "all" ||
+      `${leagueStore.leagueInfo?.region}_${leagueStore.leagueInfo?.rsoPlatformId}` ===
+        selectedRegion.value;
+
     switch (searchType.value) {
       case "puuid":
         // 处理PUUID搜索
         try {
-          // res = api.sgpApi.getSummonerByPuuid()
-        } catch (e) {}
+          if(isSameRegion) {
+            res = await api.lcuApi.summoner.getSummonerByPuuid(searchText);
+          } else {
+            if(selectedRegion.value === 'all') {
+              await getAllRegionsSummoners(searchText)
+            }
+            
+            const { namesets: nameSetArr } = await api.riotApi.playerAccount.getPlayerAccountNameset([searchText])
+            console.log("puuid查看搜索结果：",nameSetArr)
+            if(!nameSetArr || nameSetArr[0].error) {
+              isEmpty.value = true;
+              return
+            }
+            const { gnt } = nameSetArr[0]
+            const summonerName = `${gnt.gameName}#${gnt.tagLine}`
+            
+          }
+        } catch (e) {
+          console.log("错误",e)
+        }
 
         break;
       case "exact":
@@ -367,7 +404,7 @@ const handleSearch = async () => {
         // 处理模糊搜索
         break;
     }
-
+    return
     // todo: 搜索
     const response = await ipc.call(EVENT_TYPE.SET_DETAILS, {
       type: "search-summoner",
@@ -430,6 +467,35 @@ const handleSearch = async () => {
     isLoading.value = false;
   }
 };
+
+// todo: 待完善
+async function getAllRegionsSummoners(searchText) {
+  const promiseArr:any[] = []
+  const regionsItems = []
+  regions.value.forEach(item => {
+    if(item.value !== 'all') {
+      regionsItems.push(item)
+      promiseArr.push(
+        api.sgpApi.getSummonerByPuuid(item.sgpServerId,searchText)
+      )
+    }
+  })
+  let summonerArr = await Promise.allSettled(promiseArr)
+  summonerArr = summonerArr.filter((item,index) => {
+    if(item.status === "fulfilled" && item.value.length) {
+      item.value[0]['regionInfo'] = regionsItems[index]
+      return true
+    }
+  }).map(ite => ite.value[0])
+  console.log("sgp查看搜索结果：",summonerArr)
+  const promiseSummonerNames = summonerArr.map(item => {
+    return api.riotApi.playerAccount.getPlayerAccountNameset([item.puuid])
+  })
+  Promise.allSettled(promiseSummonerNames).then(res => {
+    console.log("查看搜索结果：",res)
+  })
+  return summonerArr
+}
 
 const quickSearch = (summoner: SearchRecord) => {
   summonerName.value =
@@ -541,7 +607,6 @@ const clearAllHistory = async () => {
 }
 
 :deep(.region-select .n-base-selection) {
-  
   background-color: transparent !important;
 }
 
@@ -578,10 +643,6 @@ const clearAllHistory = async () => {
   display: flex !important;
   align-items: center !important;
 }
-
-
-
-
 
 /* 下拉菜单样式 */
 :deep(.region-select .n-base-select-option) {

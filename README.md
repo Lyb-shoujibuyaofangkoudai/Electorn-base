@@ -33,4 +33,6 @@ $ pnpm build:mac
 $ pnpm build:linux
 ```
 
-LCU参考文档：https://github.com/KebsCS/lcu-and-riotclient-api
+LCU参考文档：https://github.com/KebsCS/lcu-and-riotclient-api <br/>
+riot参考文档：https://developer.riotgames.com/apis <br/>
+参考项目：https://github.com/Hanxven/LeagueAkari

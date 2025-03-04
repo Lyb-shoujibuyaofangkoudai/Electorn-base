@@ -120,7 +120,7 @@ import { useConfig } from '../store/config'
 import { profileIconUri } from '../../../manager/utils/utils'
 import { copy } from "../utils/utils"
 import { useLeague } from '../store/league'
-import { MODES, SHORT_TIERS, TIERS, TIERS_ICON } from '../utils/common'
+import { MODES, RegionMap, SHORT_TIERS, TIERS, TIERS_ICON } from '../utils/common'
 
 const requestDataStore = useRequestDataStore()
 const configStore = useConfig()
@@ -160,7 +160,11 @@ const leftBottomTools = [
 const activePath = computed(() => route.path)
 
 const summoner = computed(() => requestDataStore?.requestData?.summoner ?? null)
-const region = computed(() => configStore.configInfo?.servers[`${ leagueStore.leagueInfo?.region }_${ leagueStore.leagueInfo?.rsoPlatformId }`]?.name ?? '')
+const region = computed(() => {
+  const region = configStore.configInfo?.servers[`${ leagueStore.leagueInfo?.region }_${ leagueStore.leagueInfo?.rsoPlatformId }`]?.name ?? ''
+  const regionDetail = RegionMap[leagueStore.leagueInfo?.rsoOriginalPlatformId] ?? ''
+  return `${region}  ${regionDetail}`
+})
 const RANKED_SOLO_5x5 = computed(() => requestDataStore?.requestData?.ranked?.queueMap?.RANKED_SOLO_5x5 ?? {})
 const RANKED_FLEX_SR = computed(() => requestDataStore?.requestData?.ranked?.queueMap?.RANKED_FLEX_SR ?? {})
 const tiers = computed(() => [

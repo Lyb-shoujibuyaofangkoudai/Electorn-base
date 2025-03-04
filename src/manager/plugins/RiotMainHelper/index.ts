@@ -9,12 +9,11 @@ import { Logger } from '../logger/Logger'
 import { LOGGER_NAMESPACE } from '../Bridge/bridgeType'
 import { AxiosRequestConfig } from 'axios'
 import { Schemes } from '../Schemes'
-import { LeagueClientLcuUninitializedError } from '../LeagueMainHelper'
 
 
-export class SgpRendererApi implements IPlugin {
-  static id: string = 'sgpMainHelper'
-  name = SgpRendererApi.id
+export class RiotMainHelper implements IPlugin {
+  static id: string = 'riotMainHelper'
+  name = RiotMainHelper.id
   _league:League | null = null
   _request: Request | null = null
   _logger: Logger | null = null
@@ -51,7 +50,7 @@ export class SgpRendererApi implements IPlugin {
       })
     },
     schemesRegistered: (core:Core) => {
-      this.proxyYYYSgpClientFromRenderer(core)
+      this.proxyYYYRiotClientFromRenderer(core)
     },
   }
   async request<T = any, D = any>(config: AxiosRequestConfig<D>) {
@@ -61,12 +60,12 @@ export class SgpRendererApi implements IPlugin {
 
     return this._request!.http.request<T>(config)
   }
-  proxyYYYSgpClientFromRenderer(core: Core) {
+  proxyYYYRiotClientFromRenderer(core: Core) {
     if ( !core.schemes ) {
       if ( core?.logger ) {
-        core?.logger?.error('代理渲染进程通过axios发送过来的请求（yyy://lol-client）失败，未找到Schemes插件', LOGGER_NAMESPACE.APP)
+        core?.logger?.error(`代理渲染进程通过axios发送过来的请求（${import.meta.env.VITE_CUS_SCHEME_RIOT_URL}）失败，未找到Schemes插件`, LOGGER_NAMESPACE.APP)
       } else {
-        console.error('代理渲染进程通过axios发送过来的请求（yyy://lol-client）失败，未找到Schemes插件')
+        console.error(`代理渲染进程通过axios发送过来的请求（${import.meta.env.VITE_CUS_SCHEME_RIOT_URL}）失败，未找到Schemes插件`)
       }
       return
     }

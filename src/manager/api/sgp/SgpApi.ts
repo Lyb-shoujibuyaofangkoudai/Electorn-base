@@ -238,6 +238,7 @@ export class SgpApi {
         status: res.status
       })
     } catch ( e ) {
+      console.log(e.response?.data || e)
       Core.getInstance()?.logger.error(`请求SGP API接口失败：${ e }`)
       throw e
     }

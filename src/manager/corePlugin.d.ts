@@ -9,6 +9,7 @@ import Db from "./plugins/db/Db"
 import LeagueMainHelper from "./plugins/LeagueMainHelper"
 import LeagueWs from "./plugins/LeagueWs/LeagueWs"
 import SgpMainHelper from "./plugins/SgpMainHelper"
+import RiotMainHelper from "./plugins/RiotMainHelper"
 import { Core } from './Core';
 
 declare module './Core' {
@@ -23,5 +24,6 @@ declare module './Core' {
 		leagueMainHelper?: LeagueMainHelper;
 		leagueWs?: LeagueWs;
 		sgpMainHelper?: SgpMainHelper;
+		riotMainHelper?: RiotMainHelper;
   }
 }

@@ -38,9 +38,9 @@
             <span class="text-[var(--text-color-3)]">#{{ summoner.tag }}</span>
           </div>
           <div class="text-4.5 font-bold">
-            大区：<span class="cursor-pointer" @click="handleCopy(summoner.region)">{{
-              summoner.region
-            }}</span>
+            大区：<span class="cursor-pointer" @click="handleCopy(summoner.region)">
+            {{ summoner.region }}  {{ summoner.regionDetail }}
+          </span>
           </div>
           <div class="flex flex-col gap-2">
             <div class="text-sm text-[var(--text-color-2)]">
@@ -184,6 +184,7 @@ interface SummonerInfo {
   level: number;
   iconUrl: string;
   region: string;
+  regionDetail: string;
   levelProgress: number;
   expToNextLevel: number;
   totalExp: number;

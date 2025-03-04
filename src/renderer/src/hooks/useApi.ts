@@ -1,6 +1,7 @@
 import Request from '../../../manager/utils/request'
 import { LeagueClientHttpApi } from '../../../manager/api/leagueCilent'
 import { SgpRendererApi } from '../../../manager/api/sgp/SgpRendererApi'
+import { RiotClientHttpApi } from '../../../manager/api/riotClient/RiotClientHttpApi'
 
 const lcuRequest = new Request({
   baseURL: import.meta.env.VITE_CUS_SCHEME_LCU_URL,
@@ -17,9 +18,9 @@ const riotRequest = new Request({
 export const useApi = (): {
   lcuApi: LeagueClientHttpApi,
   sgpApi: SgpRendererApi
-  riotApi: LeagueClientHttpApi
+  riotApi: RiotClientHttpApi
 } => ({
   lcuApi: LeagueClientHttpApi.getInstance(lcuRequest.http),
   sgpApi: SgpRendererApi.getInstance(sgpRequest.http),
-  riotApi: LeagueClientHttpApi.getInstance(riotRequest.http),
+  riotApi: RiotClientHttpApi.getInstance(riotRequest.http),
 })
