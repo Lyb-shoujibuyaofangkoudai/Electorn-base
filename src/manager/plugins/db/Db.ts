@@ -120,6 +120,7 @@ export class Db implements IPlugin {
           await this._dao.dbVersions!.getDbVersion("version");
         if (versionResult) {
           currentVersion = parseInt(versionResult.value, 10);
+          console.log("currentVersion",currentVersion,import.meta.env.VITE_DB_VERSION)
           if (currentVersion > import.meta.env.VITE_DB_VERSION) {
             needToRecreateDatabase = true;
             needToPerformUpgrade = true;
