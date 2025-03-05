@@ -69,10 +69,13 @@ export default class Request {
         return response
       },
       (error) => {
+        // console.log("错误：",error)
         // 对响应错误做点什么
         if ( isRenderer() ) {
-          const { message } = useMsg()
-          message.error(error.message)
+          // const { message } = useMsg()
+          // if(error.status === 404) {
+            // message.info('暂无数据')
+          // } else message.error(error.message)
         }
         return Promise.reject(error)
       }

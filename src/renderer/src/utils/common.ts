@@ -99,49 +99,66 @@ export const GAME_TYPES = [
   { label: TAGS[TAGS_ENUM.q_440], value: TAGS_ENUM.q_440 },
   { label: TAGS[TAGS_ENUM.q_430], value: TAGS_ENUM.q_430 },
   { label: TAGS[TAGS_ENUM.q_450], value: TAGS_ENUM.q_450 },
-] as const;
+]
 
-
+// 大区可能有错误
 export enum RegionEnum {
-  AIOUNIYA = "HN1",
-  NUOKESASI = "HN2",
-  BANDEERCHENG = "HN3",
-  PIERTEWOFO = "HN4",
-  DEMAXIYA = "HN5",
-  ZUAN = "HN6",
-  JUSHENFENG = "HN7",
-  BIERJIWOTE = "HN8",
-  CAIJUEZHIDI = "HN9",
-  HEISEMEIGUI = "HN10",
-  ANYINGDAO = "HN11",
-  GANGTIELIEYANG = "HN12",
-  SHUIJINGZHIEN = "HN13",
-  JUNHENGJIAOPAI = "HN14",
-  YINGLIU = "HN15",
-  SHOUWANGZHIHAI = "HN16",
-  ZHENGFUZHIHAI = "HN17",
-  KALAMANDA = "HN18",
-  PICHENGJINGBEI = "HN19"
-}
+  // 电信大区
+  AIOUNIYA = "HN1",        // 电一：艾欧尼亚
+  ZUAN = "HN2",            // 电二：祖安
+  NUOKESASI = "HN3",       // 电三：诺克萨斯
+  BANDEERCHENG = "HN4",    // 电四：班德尔城
+  PIERTEWOFO = "HN5",      // 电五：皮尔特沃夫
+  ZHANZHENGXUEYUAN = "HN6",// 电六：战争学院
+  JUSHENFENG = "HN7",      // 电七：巨神峰
+  LEISIGENGBEI = "HN8",    // 电八：雷瑟守备
+  CAIJUEZHIDI = "HN9",     // 电九：裁决之地
+  HEISEMEIGUI = "HN10",    // 电十：黑色玫瑰
+  ANYINGDAO = "HN11",      // 电十一：暗影岛
+  GANGTIELIEYANG = "HN12", // 电十二：钢铁烈阳
+  JUNHENGJIAOPAI = "HN13", // 电十三：均衡教派
+  SHUIJINGZHIHEN = "HN14", // 电十四：水晶之痕
+  YINGLIU = "HN15",        // 电十五：影流
+  SHOUWANGZHIHAI = "HN16", // 电十六：守望之海
+  ZHENG_FUZHIHAI = "HN17", // 电十七：征服之海
+  KALAMANDA = "HN18",      // 电十八：卡拉曼达
+  PICHENGJINGBEI = "HN19", // 皮城警备
 
-export const RegionMap = {
+  // 网通大区
+  BIERJIWOTE = "WN1",      // 网一：比尔吉沃特
+  DEMAXIYA_WN = "WN2",     // 网二：德玛西亚（需与电信区分）
+  FULEIERZHUODE = "WN3",   // 网三：弗雷尔卓德
+  WUWEIXIANFENG = "WN4",   // 网四：无畏先锋
+  SHURUIEMA = "WN5",       // 网五：恕瑞玛
+  NIUQUJONGLIN = "WN6",    // 网六：扭曲丛林
+  JULONGZHIZHAO = "WN7"    // 网七：巨龙之巢
+}
+export const RegionMap =  {
   [RegionEnum.AIOUNIYA]: "艾欧尼亚",
+  [RegionEnum.ZUAN]: "祖安",
   [RegionEnum.NUOKESASI]: "诺克萨斯",
   [RegionEnum.BANDEERCHENG]: "班德尔城",
   [RegionEnum.PIERTEWOFO]: "皮尔特沃夫",
-  [RegionEnum.DEMAXIYA]: "德玛西亚",
-  [RegionEnum.ZUAN]: "祖安",
+  [RegionEnum.ZHANZHENGXUEYUAN]: "战争学院",
   [RegionEnum.JUSHENFENG]: "巨神峰",
-  [RegionEnum.BIERJIWOTE]: "比尔吉沃特",
+  [RegionEnum.LEISIGENGBEI]: "雷瑟守备",
   [RegionEnum.CAIJUEZHIDI]: "裁决之地",
   [RegionEnum.HEISEMEIGUI]: "黑色玫瑰",
   [RegionEnum.ANYINGDAO]: "暗影岛",
   [RegionEnum.GANGTIELIEYANG]: "钢铁烈阳",
-  [RegionEnum.SHUIJINGZHIEN]: "水晶之痕",
   [RegionEnum.JUNHENGJIAOPAI]: "均衡教派",
+  [RegionEnum.SHUIJINGZHIHEN]: "水晶之痕",
   [RegionEnum.YINGLIU]: "影流",
   [RegionEnum.SHOUWANGZHIHAI]: "守望之海",
-  [RegionEnum.ZHENGFUZHIHAI]: "征服之海",
+  [RegionEnum.ZHENG_FUZHIHAI]: "征服之海",
   [RegionEnum.KALAMANDA]: "卡拉曼达",
-  [RegionEnum.PICHENGJINGBEI]: "皮城警备"
-}
+  [RegionEnum.PICHENGJINGBEI]: "皮城警备",
+  // 网通大区映射
+  [RegionEnum.BIERJIWOTE]: "比尔吉沃特",
+  [RegionEnum.DEMAXIYA_WN]: "德玛西亚",
+  [RegionEnum.FULEIERZHUODE]: "弗雷尔卓德",
+  [RegionEnum.WUWEIXIANFENG]: "无畏先锋",
+  [RegionEnum.SHURUIEMA]: "恕瑞玛",
+  [RegionEnum.NIUQUJONGLIN]: "扭曲丛林",
+  [RegionEnum.JULONGZHIZHAO]: "巨龙之巢"
+};

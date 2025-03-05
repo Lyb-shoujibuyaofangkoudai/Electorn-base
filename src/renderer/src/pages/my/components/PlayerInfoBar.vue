@@ -246,6 +246,7 @@ const emit = defineEmits<{
 const selectedType = ref(props.initialGameType);
 const selectedCount = ref(props.initialGameCount);
 
+
 const handleCopy = (text: string) => {
   emit("copy", text);
 };
@@ -267,7 +268,7 @@ const GAME_COUNTS = [
   { label: "近100场", value: 100 },
   { label: "近150场", value: 150 },
   { label: "近200场", value: 200 },
-] as const;
+]
 
 // 添加一个计算属性来获取实际游戏场数
 const actualGameCount = computed(() => {

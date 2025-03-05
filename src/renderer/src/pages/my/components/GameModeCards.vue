@@ -254,7 +254,6 @@ interface Props {
   selectedGameCount: number;
   games: {
     games: GameData[];
-    // 后续可能还回加写东西...
   };
 }
 
@@ -568,12 +567,12 @@ watch(
         if (mode.isRanked) {
           // 更新段位信息
           if (modeData.tier) {
-            mode.rankInfo = {
+            mode!.rankInfo = {
               ...mode.rankInfo,
-              tier: modeData.tier,
+              tier: modeData.tier || '',
               division: modeData.division || "",
               leaguePoints: modeData.leaguePoints || 0,
-            };
+            } as RankInfo;
           }
           mode.rankIcon = modeData.tier
             ? TIERS_ICON[modeData.tier]

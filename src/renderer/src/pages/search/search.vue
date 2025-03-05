@@ -56,10 +56,10 @@
         </div>
 
         <!-- 内容区域 -->
-        <div v-if="activeTag === 'search'">
+        <div v-show="activeTag === 'search'">
           <SearchPanel @search="handleSearch" />
         </div>
-        <div v-else class="py-12">
+        <div v-show="activeTag !== 'search'" class="py-12">
           <n-empty description="召唤师战绩页面开发中..." />
         </div>
       </n-card>
@@ -68,7 +68,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, h } from "vue";
+import { ref } from "vue";
 import { NEmpty, NTag } from "naive-ui";
 import SearchPanel from "./components/SearchPanel.vue";
 import { SearchOutlined } from "@vicons/material";

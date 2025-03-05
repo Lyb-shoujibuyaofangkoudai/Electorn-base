@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col items-center gap-8 py-12">
     <!-- 搜索框 -->
-    <div class="w-[80%] relative">
+    <div class="w-[90%] relative">
       <div class="flex gap-2">
         <div class="relative flex-1">
           <n-input-group>
@@ -12,17 +12,17 @@
               class="!w-30 region-select"
               size="large"
             />
-            <n-input
-              v-model:value="summonerName"
-              type="text"
-              placeholder="输入召唤师名称"
+          <n-input
+            v-model:value="summonerName"
+            type="text"
+              placeholder="id搜索：ppuid、精确搜索：召唤师名称（xxx#123456）、模糊搜索：召唤师名称（xxx），注意：这里不会补全名字，因为官方接口不支持"
               class="search-input flex-1"
-              @keydown.enter="handleSearch"
-              @focus="handleFocus"
-              @blur="handleBlur"
+            @keydown.enter="handleSearch"
+            @focus="handleFocus"
+            @blur="handleBlur"
               size="large"
-            >
-            </n-input>
+          >
+          </n-input>
             <n-button
               type="primary"
               :loading="isLoading"
@@ -57,14 +57,14 @@
                   <div
                     class="flex-1 flex items-center gap-2 cursor-pointer"
                     @mousedown="quickSearch(search)"
-                  >
-                    <div class="w-6 h-6 rounded-full overflow-hidden bg-gray-700">
-                      <img
-                        :src="search.avatar || 'https://picsum.photos/32'"
-                        class="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div class="font-medium">{{ search.name }}</div>
+                >
+                  <div class="w-6 h-6 rounded-full overflow-hidden bg-gray-700">
+                    <img
+                      :src="search.avatar || 'https://picsum.photos/32'"
+                      class="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div class="font-medium">{{ search.name }}</div>
                   </div>
                   <n-button
                     text
@@ -110,6 +110,7 @@
                     class="w-full h-full object-cover rounded-full"
                   />
                   <div
+                    v-if="summoner.level"
                     class="absolute !left-1/2 -bottom-1.5 -translate-x-1/2 px-1 w-fit bg-[#3498DB]/50 rounded-full text-2 whitespace-nowrap"
                   >
                     LV: {{ summoner.level }}
@@ -119,7 +120,9 @@
 
               <!-- 右侧：名称和区服 -->
               <div class="flex flex-col justify-center flex-1">
-                <div class="font-bold text-lg line-clamp-1">{{ summoner.name }}</div>
+                <div class="font-bold text-lg line-clamp-1">
+                  {{ `${summoner.gameName}#${summoner.tagLine}` }}
+                </div>
                 <div class="text-sm text-[var(--text-color-3)]">
                   {{ summoner.region }}
                 </div>
@@ -159,6 +162,7 @@ interface SearchProgress {
   type: SearchType;
   total: number;
   finish: number;
+  desc: string;
 }
 
 interface SearchResult {
@@ -188,7 +192,51 @@ interface Summoner {
 
 interface ServerConfig {
   name: string;
+
   [key: string]: any;
+}
+
+type RegionsType = {
+  label: string;
+  value: string;
+  sgpServerId: string;
+};
+
+// API 响应类型定义
+interface SummonerResponse {
+  puuid: string;
+  gameName: string;
+  tagLine: string;
+  profileIconId: number;
+  privacy?: string;
+  summonerLevel: number;
+}
+
+interface SgpSummoner {
+  puuid: string;
+  profileIconId: number;
+  privacy?: string;
+  summonerLevel: number;
+  regionInfo?: RegionsType;
+}
+
+interface ApiResponse<T> {
+  data: T;
+  status: number;
+}
+
+interface PlayerNameset {
+  gnt: {
+    gameName: string;
+    tagLine: string;
+  };
+  error?: any;
+}
+
+interface PlayerAccountNamesetResponse {
+  data: {
+    namesets: PlayerNameset[];
+  };
 }
 
 const ipc = useIpc();
@@ -197,7 +245,11 @@ const configStore = useConfig();
 const message = useMessage();
 const leagueStore = useLeague();
 
-const summonerName = ref("58612941-2c0a-5cef-8b9a-e500718ea6e9");
+// 58612941-2c0a-5cef-8b9a-e500718ea6e9
+// 姑娘丶您还行吗#82723
+// e5e50875-46cd-5843-bcdf-361cdbbb0ab3
+// 广州泥大王#44449
+const summonerName = ref("");
 const isLoading = ref(false);
 const showRecentSearch = ref(false);
 
@@ -211,17 +263,18 @@ const searchProgress = ref<SearchProgress>({
   type: "invalid",
   total: 0,
   finish: 0,
+  desc: "", // 一些描述信息
 });
 const isEmpty = ref(false);
 const searchResults = ref<Summoner[]>([]);
 
 // todo：大区选项
-const regions = computed(() => {
+const regions = computed<RegionsType[]>(() => {
   const result = [
     {
       label: "全部",
       value: "all",
-      sgpServerId: ''
+      sgpServerId: "all",
     },
   ];
   Object.entries(
@@ -230,8 +283,8 @@ const regions = computed(() => {
     if (key.startsWith("TENCENT_"))
       result.push({
         label: value.name,
-        value: key,
-        sgpServerId: key.split("_")[1],
+        value: key.split("_")[1],
+        sgpServerId: key,
       });
   });
   return result;
@@ -325,7 +378,7 @@ const determineSearchType = (input: string): SearchType => {
   }
 
   // Riot ID 格式 (gameName#tagLine)
-  if (/^(?!\s+$)[^#]+(?:#[^#]+)?$/.test(input)) {
+  if (/^(?!\s+$)[^#]+(?:#[^#]+)?$/.test(input) && input.includes("#")) {
     return "exact";
   }
 
@@ -333,12 +386,166 @@ const determineSearchType = (input: string): SearchType => {
   return "fuzzy";
 };
 
+/**
+ * 精确搜索跨区查找
+ * @param alias 包含游戏名称和标签和puuid的对象
+ * @param selectedRegion 选择的大区
+ */
+async function getAllRegionsSummonersFromGameName(
+  alias,
+  selectedRegion: string
+): Promise<SearchResult[]> {
+  if (selectedRegion === "all") {
+    // 全部大区搜索
+    const summonerArr = await Promise.all(
+      regions.value
+        .filter((r) => r.value !== "all")
+        .map(async (r) => {
+          try {
+            const res = await api.sgpApi.getSummonerByPuuid(r.value, alias.puuid);
+            if ((res as any).length) {
+              return {
+                ...res[0],
+                regionInfo: r,
+              };
+            }
+          } catch (e) {
+            // console.error(`搜索大区 ${r.label} 失败:`, e);
+          }
+          return null;
+        })
+    );
+    searchProgress.value.desc = `跨区查找共找到用户${summonerArr.length}个用户`;
+    return summonerArr
+      .filter(
+        (summoner): summoner is SgpSummoner & { regionInfo: RegionsType } =>
+          summoner !== null && summoner.regionInfo !== undefined
+      )
+      .map((summoner) => ({
+        puuid: summoner.puuid,
+        gameName: alias.gameName,
+        tagLine: alias.tagLine,
+        profileIconId: summoner.profileIconId,
+        sgpServerId: summoner.regionInfo.sgpServerId,
+        privacy: summoner.privacy || "",
+        summonerLevel: summoner.summonerLevel,
+        region: summoner.regionInfo.label,
+      }));
+  } else {
+    // 指定大区搜索
+    const res = await api.sgpApi.getSummonerByPuuid(selectedRegion, alias.puuid);
+    if ((res as any).length) {
+      const summoner = res[0];
+      return [
+        {
+          puuid: summoner.puuid,
+          gameName: summoner.name,
+          tagLine: alias.tagLine,
+          profileIconId: summoner.profileIconId,
+          sgpServerId:
+            regions.value.find((r) => r.value === selectedRegion)?.sgpServerId || "",
+          privacy: summoner.privacy || "",
+          summonerLevel: summoner.summonerLevel,
+          region: regions.value.find((r) => r.value === selectedRegion)?.label || "未知",
+        },
+      ];
+    }
+  }
+  return [];
+}
+
+/**
+ * 模糊搜索跨区查找
+ * @param searchText 搜索文本
+ * @param selectedRegion 选择的大区
+ */
+async function getAllRegionsSummonersFromFuzzyName(
+  aliases: any[],
+  selectedRegion: string
+): Promise<SearchResult[]> {
+  if (selectedRegion === "all") {
+    const promiseArr = [];
+    const regionArr = regions.value.filter((r) => r.value !== "all");
+    for (const alias of aliases) {
+      const fnArr = regionArr.map(async (r) => {
+        try {
+          const res = (await api.sgpApi.getSummonerByPuuid(r.value, alias.puuid)) as any;
+          if (res?.length) {
+            return res.map((summoner) => ({
+              ...summoner,
+              regionInfo: r,
+            }));
+          } else return [];
+        } catch (e) {
+          // console.error(`搜索大区 ${r.label} 失败:`, e);
+          return [];
+        }
+        return null;
+      });
+      fnArr.length && promiseArr.push(...(fnArr as any));
+    }
+    const summonerArr = (await Promise.all(promiseArr)).filter((r) => r).flat();
+    return summonerArr.map((summoner:any, index) => {
+      return {
+        puuid: summoner.puuid,
+        gameName: aliases[index].alias.game_name,
+        tagLine: aliases[index].alias.tag_line,
+        profileIconId: summoner.profileIconId,
+        sgpServerId: summoner.regionInfo.sgpServerId,
+        privacy: summoner.privacy || "",
+        summonerLevel: summoner.summonerLevel,
+        region: summoner.regionInfo.label,
+      };
+    });
+  } else {
+    const promiseArr = aliases.map(async (alias) => {
+      try {
+        const res = (await api.sgpApi.getSummonerByPuuid(
+          selectedRegion,
+          alias.puuid
+        )) as any;
+        if (res?.length) {
+          return res.map((summoner) => ({
+            ...summoner,
+            regionInfo: regions.value.filter((item) => item.value === selectedRegion)[0],
+          }));
+        } else return [];
+      } catch (e) {
+        return [];
+      }
+    });
+    const summonerArr = (await Promise.all(promiseArr))
+      .map((summonerArr, index) => {
+        if (!summonerArr.length) return null;
+        return {
+          ...summonerArr[0],
+          gameName: aliases[index].alias.game_name,
+          tagLine: aliases[index].alias.tag_line,
+        };
+      })
+      .filter((r) => r);
+    return summonerArr.map((summoner, index) => {
+      return {
+        puuid: summoner.puuid,
+        gameName: summoner.gameName,
+        tagLine: summoner.tagLine,
+        profileIconId: summoner.profileIconId,
+        sgpServerId: summoner.regionInfo.sgpServerId,
+        privacy: summoner.privacy || "",
+        summonerLevel: summoner.summonerLevel,
+        region: summoner.regionInfo.label,
+      };
+    });
+  }
+  return [];
+}
+
 const handleSearch = async () => {
   try {
-    if (!summonerName.value) {
-      message.warning("请输入召唤师名称");
-      return;
-    }
+  if (!summonerName.value) {
+    message.warning("请输入召唤师名称");
+    return;
+  }
 
     // 确定搜索类型
     searchType.value = determineSearchType(summonerName.value);
@@ -355,146 +562,292 @@ const handleSearch = async () => {
     // 重置搜索状态
     searchProgress.value.total = 0;
     searchProgress.value.finish = 0;
+    searchProgress.value.desc = ``;
     isEmpty.value = false;
     searchResults.value = [];
-    isLoading.value = true;
+  isLoading.value = true;
 
-    let res;
     const searchText =
       searchType.value === "puuid"
         ? summonerName.value.trim()
         : replaceInvisibleChar(summonerName.value);
 
-    // 判断是否同区 是就采用lcu API直接潮朝查找，不是则采用sgp API查找
+    // 判断是否同区
     const isSameRegion =
-      selectedRegion.value !== "all" ||
-      `${leagueStore.leagueInfo?.region}_${leagueStore.leagueInfo?.rsoPlatformId}` ===
-        selectedRegion.value;
+      selectedRegion.value === "all"
+        ? false
+        : `${leagueStore.leagueInfo?.region}_${leagueStore.leagueInfo?.rsoPlatformId}` ===
+          `${leagueStore.leagueInfo?.region}_${selectedRegion.value}`;
+    console.log("是否同区：", isSameRegion);
+    console.log("搜索类型：", searchType.value);
+    let results: SearchResult[] = [];
 
-    switch (searchType.value) {
-      case "puuid":
-        // 处理PUUID搜索
-        try {
-          if(isSameRegion) {
-            res = await api.lcuApi.summoner.getSummonerByPuuid(searchText);
+    try {
+      switch (searchType.value) {
+        case "puuid": {
+          // 处理PUUID搜索
+          if (isSameRegion) {
+            // 同区使用LCU API
+            const summoner = await api.lcuApi.summoner.getSummonerByPuuid(searchText) as any;
+            console.log("LCU API 搜索结果：", summoner);
+            if (summoner) {
+              results = [
+                {
+                  puuid: summoner?.puuid,
+                  gameName: summoner?.gameName,
+                  tagLine: summoner?.tagLine,
+                  profileIconId: summoner?.profileIconId,
+                  sgpServerId: selectedRegion.value,
+                  privacy: summoner?.privacy || "",
+                  summonerLevel: summoner?.summonerLevel,
+                  region:
+                    regions.value.find((r) => r.value === selectedRegion.value)?.label ||
+                    "未知",
+                },
+              ];
+            }
           } else {
-            if(selectedRegion.value === 'all') {
-              await getAllRegionsSummoners(searchText)
+            // 跨区搜索
+            if (selectedRegion.value === "all") {
+              // 全部大区搜索
+              const summonerArr = await getAllRegionsSummonersFromPuuid(searchText);
+              results = summonerArr.map((summoner) => ({
+                puuid: summoner.puuid,
+                gameName: summoner.gameName,
+                tagLine: summoner.tagLine,
+                profileIconId: summoner.profileIconId,
+                sgpServerId: summoner.regionInfo.sgpServerId,
+                privacy: summoner.privacy || "",
+                summonerLevel: summoner.summonerLevel,
+                region: summoner.regionInfo.label,
+              }));
+            } else {
+              // 指定大区搜索
+              const sgpRes = await api.sgpApi.getSummonerByPuuid(
+                selectedRegion.value,
+                searchText
+              );
+              console.log("指定大区搜索结果：", sgpRes);
+              if (sgpRes?.length) {
+                const summoner = sgpRes[0];
+                const nameSetRes = await api.riotApi.playerAccount.getPlayerAccountNameset(
+                  [summoner.puuid]
+                );
+                console.log("获取召唤师名称结果：", nameSetRes);
+                if (nameSetRes?.namesets?.[0]?.gnt) {
+                  const { gameName, tagLine } = nameSetRes.namesets[0].gnt;
+                  results = [
+                    {
+                      puuid: summoner.puuid,
+                      gameName,
+                      tagLine,
+                      profileIconId: summoner.profileIconId,
+                      sgpServerId:
+                        regions.value.find((r) => r.value === selectedRegion.value)
+                          ?.sgpServerId || "",
+                      privacy: summoner.privacy || "",
+                      summonerLevel: summoner.summonerLevel,
+                      region:
+                        regions.value.find((r) => r.value === selectedRegion.value)
+                          ?.label || "未知",
+                    },
+                  ];
+                }
+              }
             }
-            
-            const { namesets: nameSetArr } = await api.riotApi.playerAccount.getPlayerAccountNameset([searchText])
-            console.log("puuid查看搜索结果：",nameSetArr)
-            if(!nameSetArr || nameSetArr[0].error) {
-              isEmpty.value = true;
-              return
-            }
-            const { gnt } = nameSetArr[0]
-            const summonerName = `${gnt.gameName}#${gnt.tagLine}`
-            
           }
-        } catch (e) {
-          console.log("错误",e)
+          break;
         }
 
-        break;
-      case "exact":
-        // 处理精确搜索
-        break;
-      default:
-        // 处理模糊搜索
-        break;
-    }
-    return
-    // todo: 搜索
-    const response = await ipc.call(EVENT_TYPE.SET_DETAILS, {
-      type: "search-summoner",
-      searchType: searchType.value,
-      searchText:
-        searchType.value === "puuid"
-          ? summonerName.value.trim()
-          : replaceInvisibleChar(summonerName.value),
-      isCrossRegion: false, // TODO: 添加跨区选择UI
-    });
+        case "exact": {
+          // 处理精确搜索 (Riot ID格式)
+          const [gameName, tagLine] = searchText.split("#");
+          const aliases = await api.riotApi.playerAccount.getPlayerAccountAlias(
+            gameName,
+            tagLine
+          );
+          console.log("查看aliases", aliases);
+          if (!aliases.length) {
+            isEmpty.value = true;
+            return;
+          }
+          const alias = aliases[0];
+          console.log("查看：", alias);
+          if (isSameRegion) {
+            // 同区使用LCU API
+            const summoner = await api.lcuApi.summoner.getSummonerByPuuid(alias.puuid);
+            if (summoner) {
+              results = [
+                {
+                  puuid: summoner.puuid,
+                  gameName: summoner.gameName,
+                  tagLine: summoner.tagLine,
+                  profileIconId: summoner.profileIconId,
+                  sgpServerId: selectedRegion.value,
+                  privacy: summoner.privacy || "",
+                  summonerLevel: summoner.summonerLevel,
+                  region:
+                    regions.value.find((r) => r.value === selectedRegion.value)?.label ||
+                    "未知",
+                },
+              ];
+            }
+          } else {
+            // 跨区搜索
+            results = await getAllRegionsSummonersFromGameName(
+              {
+                gameName: alias.alias.game_name,
+                tagLine: alias.alias.tag_line,
+                puuid: alias.puuid,
+              },
+              selectedRegion.value
+            );
+          }
+          break;
+        }
 
-    if (!response.success) {
-      throw new Error(response.msg || "搜索失败");
-    }
+        case "fuzzy":
+          {
+            // 处理模糊搜索
+            const aliases = (await api.riotApi.playerAccount.getPlayerAccountAlias(
+              searchText
+            )) as any[];
+            let findSummonerCount = aliases.length;
+            let validSummonerCount = 0;
+            console.log("查看aliases", aliases);
+            if (isSameRegion) {
+              for (const alias of aliases) {
+                // 同区使用LCU API
+                const summoner = await api.lcuApi.summoner.getSummonerByPuuid(
+                  alias.puuid
+                );
+                ++validSummonerCount;
+                console.log("LCU API 搜索结果：", summoner);
+                if (summoner) {
+                  results = [
+                    {
+                      puuid: summoner.puuid,
+                      gameName: summoner.gameName,
+                      tagLine: summoner.tagLine,
+                      profileIconId: summoner.profileIconId,
+                      sgpServerId: selectedRegion.value,
+                      privacy: summoner.privacy || "",
+                      summonerLevel: summoner.summonerLevel,
+                      region:
+                        regions.value.find((r) => r.value === selectedRegion.value)
+                          ?.label || "未知",
+                    },
+                  ];
+                }
+              }
+              searchProgress.value.desc = `共找到${findSummonerCount}个用户，其中有效用户共${validSummonerCount}个`;
 
-    // 确保 response.data 是数组
-    const results = Array.isArray(response.data) ? (response.data as SearchResult[]) : [];
+              if (!validSummonerCount) {
+                message.info("未找到符合条件的召唤师");
+                return;
+              }
+            } else {
+              results = await getAllRegionsSummonersFromFuzzyName(
+                aliases,
+                selectedRegion.value
+              );
+            }
+          }
 
-    if (results.length === 0) {
-      isEmpty.value = true;
+          break;
+      }
+
+      console.log("搜索显示结果：", results);
+
+      if (results.length === 0) {
+        isEmpty.value = true;
+        message.info("未找到符合条件的召唤师");
+        return;
+      }
+
+      // 更新搜索结果
+      searchResults.value = results.map((summoner: SearchResult) =>
+        markRaw({
+          id: summoner.puuid,
+          puuid: summoner.puuid,
+          gameName: summoner.gameName,
+          tagLine: summoner.tagLine,
+          avatar: `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/${summoner.profileIconId}.jpg`,
+          profileIconId: summoner.profileIconId,
+          region: summoner.region || "未知",
+          sgpServerId: summoner.sgpServerId,
+          privacy: summoner.privacy,
+          level: summoner.summonerLevel,
+          name: summoner.gameName,
+        })
+      );
+
+      // 添加到搜索历史
+      if (searchResults.value.length > 0) {
+        const firstResult = searchResults.value[0];
+        await ipc.call(EVENT_TYPE.DB_ADD_SEARCH_HISTORY, {
+          summonerName: `${firstResult.gameName}#${firstResult.tagLine}`,
+          avatar: firstResult.avatar,
+          region: firstResult.region,
+          regionDetail: firstResult.sgpServerId,
+        });
+
+        // 刷新搜索历史
+        await loadRecentSearches();
+      }
+  } catch (error) {
       message.info("未找到符合条件的召唤师");
-      return;
-    }
-
-    // 更新搜索结果
-    searchResults.value = results.map((summoner: SearchResult) =>
-      markRaw({
-        id: summoner.puuid,
-        puuid: summoner.puuid,
-        gameName: summoner.gameName,
-        tagLine: summoner.tagLine,
-        avatar: `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/${summoner.profileIconId}.jpg`,
-        profileIconId: summoner.profileIconId,
-        region: summoner.region || "未知",
-        sgpServerId: summoner.sgpServerId,
-        privacy: summoner.privacy,
-        level: summoner.summonerLevel,
-        name: summoner.gameName,
-      })
-    );
-
-    // 添加到搜索历史
-    if (searchResults.value.length > 0) {
-      const firstResult = searchResults.value[0];
-      await ipc.call(EVENT_TYPE.DB_ADD_SEARCH_HISTORY, {
-        summonerName: `${firstResult.gameName}#${firstResult.tagLine}`,
-        avatar: firstResult.avatar,
-        region: firstResult.region,
-      });
-
-      // 刷新搜索历史
-      await loadRecentSearches();
-    }
-  } catch (error: any) {
-    handleError(error, () => {
       isEmpty.value = true;
-    });
+    }
   } finally {
     searchProgress.value.isProcessing = false;
     isLoading.value = false;
   }
 };
 
-// todo: 待完善
-async function getAllRegionsSummoners(searchText) {
-  const promiseArr:any[] = []
-  const regionsItems = []
-  regions.value.forEach(item => {
-    if(item.value !== 'all') {
-      regionsItems.push(item)
-      promiseArr.push(
-        api.sgpApi.getSummonerByPuuid(item.sgpServerId,searchText)
-      )
+/**
+ * puuid 跨大区查找
+ * @param searchText puuid
+ */
+async function getAllRegionsSummonersFromPuuid(searchText: string) {
+  const promiseArr: any[] = [];
+  const regionsItems: RegionsType[] = [];
+  regions.value.forEach((item) => {
+    if (item.value !== "all") {
+      regionsItems.push(item as RegionsType);
+      promiseArr.push(api.sgpApi.getSummonerByPuuid(item.value, searchText));
     }
-  })
-  let summonerArr = await Promise.allSettled(promiseArr)
-  summonerArr = summonerArr.filter((item,index) => {
-    if(item.status === "fulfilled" && item.value.length) {
-      item.value[0]['regionInfo'] = regionsItems[index]
-      return true
+  });
+  let findSummonerCount = 0;
+  const summonerArr = (await Promise.allSettled(promiseArr))
+    .map((item, index) => {
+      findSummonerCount++;
+      if (item.status === "fulfilled" && item.value.length) {
+        item.value[0]["regionInfo"] = regionsItems[index];
+        return item.value[0];
+      }
+    })
+    .filter((item) => item);
+
+  const promiseSummonerNames = summonerArr.map((item) => {
+    return api.riotApi.playerAccount.getPlayerAccountNameset([item!.puuid]);
+  });
+  const nameSetItemResArr = await Promise.allSettled(promiseSummonerNames);
+  nameSetItemResArr.forEach((nameSetItemRes) => {
+    if (nameSetItemRes.status === "fulfilled") {
+      const { namesets } = nameSetItemRes.value;
+      namesets.forEach((nameSetItem, index) => {
+        if (nameSetItem.error) return;
+        const { gnt } = nameSetItem;
+        summonerArr[index]["gameName"] = gnt.gameName;
+        summonerArr[index]["tagLine"] = gnt.tagLine;
+        summonerArr[index]["summonerName"] = `${gnt.gameName}#${gnt.tagLine}`;
+      });
     }
-  }).map(ite => ite.value[0])
-  console.log("sgp查看搜索结果：",summonerArr)
-  const promiseSummonerNames = summonerArr.map(item => {
-    return api.riotApi.playerAccount.getPlayerAccountNameset([item.puuid])
-  })
-  Promise.allSettled(promiseSummonerNames).then(res => {
-    console.log("查看搜索结果：",res)
-  })
-  return summonerArr
+  });
+  console.log("sgp查看搜索结果：", summonerArr);
+  searchProgress.value.desc = `跨区查找共找到用户${findSummonerCount}个，有效用户${summonerArr.length}个`;
+  return summonerArr;
 }
 
 const quickSearch = (summoner: SearchRecord) => {
@@ -604,6 +957,11 @@ const clearAllHistory = async () => {
   --n-box-shadow-focus: none !important;
   --n-padding-single: 0 4px !important;
   --n-option-height: 34px !important;
+}
+
+/* 搜索框 placeholder 样式 */
+:deep(.search-input .n-input__placeholder) {
+  font-size: 12px !important;
 }
 
 :deep(.region-select .n-base-selection) {

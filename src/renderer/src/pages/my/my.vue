@@ -215,13 +215,13 @@ const positionMap: Record<string, string> = {
 function getMainPosition(games: GameRecord[]): string {
   if (games.length === 0) return "-";
 
-  const positions = games.reduce((acc, game) => {
-    acc[game!.position] = (acc[game?.position] || 0) + 1;
+  const positions = games.reduce((acc:any, game:any) => {
+    acc[game.position] = (acc[game.position] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
   const mostPlayedPosition = Object.entries(positions).sort(
-    ([, a], [, b]) => b - a
+    ([, a], [, b]) => (b as any) - (a as any)
   )[0][0];
 
   // 返回中文位置名称，如果没有对应的映射则返回原始值
@@ -411,7 +411,7 @@ const gameTypeSelectDisabled = computed(() => !leagueStore.isSgpApiAvailable);
 
 // 整合召唤师信息
 const summonerInfo = computed(() => ({
-  name: requestData.value?.summoner?.displayName ?? "",
+  name: requestData.value?.summoner?.gameName ?? "",
   tag: requestData.value?.summoner?.tagLine ?? "",
   level: requestData.value?.summoner?.summonerLevel ?? 0,
   iconUrl: profileIconUri(requestData.value?.summoner?.profileIconId),

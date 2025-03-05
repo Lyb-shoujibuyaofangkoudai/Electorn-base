@@ -78,7 +78,7 @@
                     <div class="font-bold">{{ item.tier ? `${ SHORT_TIERS[item.tier] } ${ item.division }` : TIERS['UNRANKED'] }}</div>
                   </div>
                 </div>
-                <div class="font-bold">昵称：<span @click="copy(`${ summoner.displayName }#${ summoner.tagLine }`)">{{ `${ summoner.displayName }#${ summoner.tagLine }` }}</span></div>
+                <div class="font-bold">昵称：<span @click="copy(`${ summoner.gameName }#${ summoner.tagLine }`)">{{ `${ summoner.gameName }#${ summoner.tagLine }` }}</span></div>
                 <div class="font-bold">大区：<span @click="copy(region)">{{ region }}</span></div>
               
               </div>
