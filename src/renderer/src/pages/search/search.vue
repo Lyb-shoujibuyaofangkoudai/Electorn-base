@@ -13,7 +13,7 @@
         class="relative w-full backdrop-blur-xl bg-[#2D325F]/40 dark:bg-[#1F2245]/40"
       >
         <!-- 动态标签栏 -->
-        <div class="mb-4 flex flex-wrap gap-2 p-2">
+        <div class="mb-4 flex flex-wrap items-center gap-2 p-2">
           <n-tag
             v-for="tag in tags"
             :key="tag.key"
@@ -45,22 +45,33 @@
               <n-icon v-if="tag.key === 'search'" class="flex-shrink-0">
                 <SearchOutlined />
               </n-icon>
-              <img
+              <LcuImg
                 v-else
-                :src="tag.avatar || 'https://picsum.photos/32'"
-                class="w-4 h-4 rounded-full flex-shrink-0"
-              />
+                cus-class="w-4 h-4 rounded-full flex-shrink-0"
+                :src="profileIconUri(tag.avatar)" />
+              
               <span class="truncate">{{ tag.name }}</span>
             </div>
           </n-tag>
+          <!-- 关闭所有按钮 -->
+          <n-button
+            v-if="tags.length > 1"
+            text
+            type="error"
+            size="tiny"
+            class="ml-2"
+            @click="closeAllTags"
+          >
+            关闭所有
+          </n-button>
         </div>
 
         <!-- 内容区域 -->
         <div v-show="activeTag === 'search'">
           <SearchPanel @search="handleSearch" />
         </div>
-        <div v-show="activeTag !== 'search'" class="py-12">
-          <n-empty description="召唤师战绩页面开发中..." />
+        <div v-show="activeTag !== 'search'">
+          <LOLMatchHistoryDashboard :summoner="summoner" />
         </div>
       </n-card>
     </div>
@@ -68,28 +79,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { NEmpty, NTag } from "naive-ui";
+import { computed } from "vue";
+import { NEmpty, NTag, NButton } from "naive-ui";
 import SearchPanel from "./components/SearchPanel.vue";
 import { SearchOutlined } from "@vicons/material";
+import { profileIconUri } from '../../../../manager/utils/utils'
+import LOLMatchHistoryDashboard from './components/LOLMatchHistoryDashboard.vue'
+import { useSearchStore } from '../../stores/searchStore';
 
-interface SummonerTag {
-  key: string;
-  name: string;
-  avatar?: string;
-  region?: string;
-}
+// 使用 store
+const searchStore = useSearchStore();
 
-// 活动标签
-const activeTag = ref<string>("search");
-
-// 标签列表
-const tags = ref<SummonerTag[]>([
-  {
-    key: "search",
-    name: "搜索",
-  },
-]);
+// 使用计算属性获取 store 中的状态
+const tags = computed(() => searchStore.tags);
+const activeTag = computed({
+  get: () => searchStore.activeTag,
+  set: (value) => searchStore.setActiveTag(value)
+});
 
 // 获取标签颜色
 const getTagColor = (
@@ -125,44 +131,23 @@ const getTagColor = (
 };
 
 // 处理标签点击
-const handleTagClick = (tag: SummonerTag) => {
-  activeTag.value = tag.key;
+const handleTagClick = (tag: any) => {
+  searchStore.setActiveTag(tag.key);
 };
 
 // 处理标签关闭
 const handleTagClose = (key: string) => {
-  const index = tags.value.findIndex((tag) => tag.key === key);
-  if (index !== -1) {
-    tags.value.splice(index, 1);
-    // 如果关闭的是当前标签，切换到搜索标签
-    if (activeTag.value === key) {
-      activeTag.value = "search";
-    }
-  }
+  searchStore.removeTag(key);
 };
 
 // 处理搜索
 const handleSearch = (summoner: { name: string; avatar?: string; region: string }) => {
-  // 检查是否已存在该召唤师的标签
-  const existingTag = tags.value.find(
-    (tag) =>
-      tag.name === summoner.name && tag.region === summoner.region && tag.key !== "search"
-  );
+  searchStore.addTag(summoner);
+};
 
-  if (!existingTag) {
-    // 添加新标签
-    const newTag: SummonerTag = {
-      key: `summoner-${Date.now()}`,
-      name: summoner.name,
-      avatar: summoner.avatar,
-      region: summoner.region,
-    };
-    tags.value.push(newTag);
-    activeTag.value = newTag.key;
-  } else {
-    // 切换到已存在的标签
-    activeTag.value = existingTag.key;
-  }
+// 关闭所有标签
+const closeAllTags = () => {
+  searchStore.removeAllTags();
 };
 </script>
 

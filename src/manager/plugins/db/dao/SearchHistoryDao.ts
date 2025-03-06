@@ -60,8 +60,36 @@ export class SearchHistoryDao {
     return this.executeInTransaction(
       "SearchHistoryDao.addSearchHistory",
       async (queryRunner) => {
-        const history = SearchHistory.create(summonerName, avatar, region, regionDetail);
-        return queryRunner.manager.save(history);
+        // 先检查是否存在相同的召唤师名称
+        const existingHistory = await queryRunner.manager.findOne(
+          SearchHistory,
+          {
+            where: { summonerName },
+          },
+        );
+
+        if (existingHistory) {
+          // 如果存在，返回已存在的记录
+          this._logger.info(
+            `召唤师 ${summonerName} 的搜索记录已存在`,
+            LOGGER_NAMESPACE.DB,
+          );
+          return existingHistory;
+        }
+
+        // 如果不存在，创建新记录
+        const history = SearchHistory.create(
+          summonerName,
+          avatar,
+          region,
+          regionDetail,
+        );
+        const result = await queryRunner.manager.save(history);
+        this._logger.info(
+          `添加召唤师 ${summonerName} 的搜索记录成功`,
+          LOGGER_NAMESPACE.DB,
+        );
+        return result;
       },
     );
   }

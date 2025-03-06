@@ -48,7 +48,7 @@
                   清空历史
                 </n-button>
               </div>
-              <div class="space-y-1">
+              <div class="space-y-1 flex items-center">
                 <div
                   v-for="search in recentSearches"
                   :key="search.name"
@@ -58,13 +58,16 @@
                     class="flex-1 flex items-center gap-2 cursor-pointer"
                     @mousedown="quickSearch(search)"
                 >
-                  <div class="w-6 h-6 rounded-full overflow-hidden bg-gray-700">
-                    <img
-                      :src="search.avatar || 'https://picsum.photos/32'"
-                      class="w-full h-full object-cover"
-                    />
+                  <div class="w-8 h-8 rounded-full overflow-hidden bg-gray-700">
+                    <LcuImg
+                      cus-class="w-8 h-8 object-contain"
+                      :src="profileIconUri(search?.avatar)" />
+                    
                   </div>
-                  <div class="font-medium">{{ search.name }}</div>
+                  <div class="font-medium">
+                    <div>{{ search.name }}</div>
+                    <div class="text-2.5">{{ search.region }}</div>
+                  </div>
                   </div>
                   <n-button
                     text
@@ -105,10 +108,9 @@
               <!-- 左侧：头像和等级 -->
               <div class="flex flex-col items-center gap-2">
                 <div class="relative w-10 h-10">
-                  <img
-                    :src="summoner.avatar || 'https://picsum.photos/80'"
-                    class="w-full h-full object-cover rounded-full"
-                  />
+                  <LcuImg
+                    cus-class="w-10 h-10 object-contain rounded-full"
+                    :src="profileIconUri(summoner?.avatar)" />
                   <div
                     v-if="summoner.level"
                     class="absolute !left-1/2 -bottom-1.5 -translate-x-1/2 px-1 w-fit bg-[#3498DB]/50 rounded-full text-2 whitespace-nowrap"
@@ -145,6 +147,7 @@ import { BRIDGE_EVENT } from "../../../../../manager/plugins/Bridge/bridgeType";
 import { useConfig } from "../../../store/config";
 import { proxyToObject } from "../../../utils/utils";
 import { useLeague } from "../../../store/league";
+import { profileIconUri } from '../../../../../manager/utils/utils'
 
 interface SearchRecord {
   name: string;
@@ -303,8 +306,6 @@ const handleBlur = () => {
 };
 
 const handleFocus = () => {
-  console.log("focus event triggered");
-  console.log("recent searches:", recentSearches.value);
   showRecentSearch.value = true;
 };
 
@@ -315,25 +316,11 @@ const loadRecentSearches = async () => {
     const response = await ipc.call(EVENT_TYPE.DB_GET_RECENT_SEARCHES);
     console.log("从数据库加载最近搜索记录:", response);
     const records = response.data || [];
-    // recentSearches.value = records.map((record: any) => ({
-    //   name: record.summonerName,
-    //   avatar: record.avatar,
-    //   region: record.region,
-    // }));
-    recentSearches.value = [
-      {
-        name: "测试召唤师1",
-        avatar: "https://picsum.photos/32",
-      },
-      {
-        name: "测试召唤师2",
-        avatar: "https://picsum.photos/32",
-      },
-      {
-        name: "测试召唤师3",
-        avatar: "https://picsum.photos/32",
-      },
-    ];
+    recentSearches.value = records.map((record: any) => ({
+      name: record.summonerName,
+      avatar: record.avatar,
+      region: record.region,
+    }));
   } catch (error) {
     console.error("加载最近搜索记录失败:", error);
     message.error("加载搜索历史失败");
@@ -772,7 +759,8 @@ const handleSearch = async () => {
           puuid: summoner.puuid,
           gameName: summoner.gameName,
           tagLine: summoner.tagLine,
-          avatar: `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/${summoner.profileIconId}.jpg`,
+          // avatar: `https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/${summoner.profileIconId}.jpg`,
+          avatar: summoner.profileIconId,
           profileIconId: summoner.profileIconId,
           region: summoner.region || "未知",
           sgpServerId: summoner.sgpServerId,
@@ -782,19 +770,7 @@ const handleSearch = async () => {
         })
       );
 
-      // 添加到搜索历史
-      if (searchResults.value.length > 0) {
-        const firstResult = searchResults.value[0];
-        await ipc.call(EVENT_TYPE.DB_ADD_SEARCH_HISTORY, {
-          summonerName: `${firstResult.gameName}#${firstResult.tagLine}`,
-          avatar: firstResult.avatar,
-          region: firstResult.region,
-          regionDetail: firstResult.sgpServerId,
-        });
-
-        // 刷新搜索历史
-        await loadRecentSearches();
-      }
+      
   } catch (error) {
       message.info("未找到符合条件的召唤师");
       isEmpty.value = true;
@@ -858,12 +834,23 @@ const quickSearch = (summoner: SearchRecord) => {
   handleSearch();
 };
 
-const selectSummoner = (summoner: Summoner) => {
+const selectSummoner = async (summoner: Summoner) => {
   emit("search", {
     name: `${summoner.gameName}#${summoner.tagLine}`,
     avatar: summoner.avatar,
     region: summoner.region,
   });
+  
+  await ipc.call(EVENT_TYPE.DB_ADD_SEARCH_HISTORY, {
+    summonerName: `${summoner.gameName}#${summoner.tagLine}`,
+    avatar: summoner.avatar,
+    region: summoner.region,
+    regionDetail: summoner.sgpServerId,
+  });
+  
+  // 刷新搜索历史
+  await loadRecentSearches();
+ 
 };
 
 const deleteHistory = async (summonerName: string) => {
