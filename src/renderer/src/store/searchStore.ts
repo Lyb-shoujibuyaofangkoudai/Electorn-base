@@ -32,9 +32,22 @@ interface Summoner {
 
 interface SummonerTag {
   key: string;
+
+}
+
+export type RegionsType = {
+  label: string;
+  value: string;
+  sgpServerId: string;
+};
+
+export type TagType = {
+  puuid: string;
   name: string;
   avatar?: string;
   region?: string;
+  regionValue?: string;
+  sgpServerId?: string;
 }
 
 export const useSearchStore = defineStore("search", () => {
@@ -106,35 +119,38 @@ export const useSearchStore = defineStore("search", () => {
   });
 
   // 标签相关状态
-  const tags = ref<SummonerTag[]>([
+  const tags = ref<Array<SummonerTag & TagType>>([
     {
       key: "search",
       name: "搜索",
+      puuid: "",
     },
   ]);
   const activeTag = ref<string>("search");
+  const selectRegionOption = ref<RegionsType>({
+    label: "全部",
+    value: "all",
+    sgpServerId: "all",
+  },); // 记录选择的区域
 
   // 标签相关方法
-  const addTag = (summoner: {
-    name: string;
-    avatar?: string;
-    region: string;
-  }) => {
+  const addTag = (summoner: TagType) => {
     // 检查是否已存在该召唤师的标签
     const existingTag = tags.value.find(
       (tag) =>
-        tag.name === summoner.name &&
-        tag.region === summoner.region &&
-        tag.key !== "search",
+        tag.puuid === summoner.puuid && tag.key !== "search",
     );
 
     if (!existingTag) {
       // 添加新标签
-      const newTag: SummonerTag = {
+      const newTag = {
         key: `summoner-${Date.now()}`,
+        puuid: summoner.puuid,
         name: summoner.name,
         avatar: summoner.avatar,
         region: summoner.region,
+        regionValue: summoner.regionValue,
+        sgpServerId: summoner.sgpServerId,
       };
       tags.value.push(newTag);
       activeTag.value = newTag.key;
@@ -196,6 +212,10 @@ export const useSearchStore = defineStore("search", () => {
   const updateActiveTab = (tab: string) => {
     activeTab.value = tab;
   };
+
+  const updateSelectRegionOption = (option: RegionsType) => {
+    selectRegionOption.value = option;
+  }
 
   // 重置状态
   const resetState = () => {
@@ -259,10 +279,16 @@ export const useSearchStore = defineStore("search", () => {
     };
   };
 
+  const getActiveTag = () => {
+    const activeTagArr = tags.value.filter((tag) => tag.key === activeTag.value)
+    return activeTagArr.length > 0 ? activeTagArr[0] : null;
+  };
+
   return {
     // 标签相关
     tags,
     activeTag,
+    selectRegionOption,
     addTag,
     removeTag,
     removeAllTags,
@@ -282,8 +308,10 @@ export const useSearchStore = defineStore("search", () => {
     updateSummoner,
     updateMatches,
     updateCurrentMatch,
+    updateSelectRegionOption,
     updateFilters,
     updateActiveTab,
     resetState,
+    getActiveTag
   };
 });

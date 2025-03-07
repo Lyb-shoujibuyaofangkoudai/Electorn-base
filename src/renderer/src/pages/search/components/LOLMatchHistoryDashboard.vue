@@ -403,12 +403,17 @@ import MatchOverview from "./tabs/MatchOverview.vue";
 import MatchDamage from "./tabs/MatchDamage.vue";
 import MatchVision from "./tabs/MatchVision.vue";
 import MatchItems from "./tabs/MatchItems.vue";
-import { useSearchStore } from "../../../stores/searchStore";
+import { useSearchStore } from "../../../store/searchStore";
+import { useApi } from '../../../hooks/useApi'
+import { useMsg } from '../../../hooks/useMsg'
 
 // 使用 store
 const searchStore = useSearchStore();
 const themeVars = useThemeVars();
+const api = useApi();
+const message = useMsg()
 
+const activeTag = computed(() => searchStore.activeTag)
 // 移除本地状态，改用 store 中的状态
 const summoner = computed(() => searchStore.summoner);
 const selectedQueue = computed({
@@ -419,105 +424,84 @@ const matches = computed(() => searchStore.matches);
 const currentMatch = computed(() => searchStore.currentMatch);
 const matchData = computed(() => searchStore.matchData);
 const selectedMatchIndex = computed(() => searchStore.selectedMatchIndex);
-const activeTab = computed({
-  get: () => searchStore.activeTab,
-  set: (value) => searchStore.updateActiveTab(value),
-});
 
-const queueOptions = [
-  { label: "单双排位", value: "ranked_solo" },
-  { label: "灵活组排", value: "ranked_flex" },
-  { label: "匹配模式", value: "normal" },
-];
-
-// 计算伤害百分比
-const getDamagePercentage = (damage: string, team: any[]) => {
-  const maxDamage = Math.max(...team.map((player) => parseInt(player.damage)));
-  return (parseInt(damage) / maxDamage) * 100;
-};
-
-// 计算经济百分比
-const getGoldPercentage = (gold: string, team: any[]) => {
-  const maxGold = Math.max(...team.map((player) => parseInt(player.gold)));
-  return (parseInt(gold) / maxGold) * 100;
-};
-
-// 格式化时间显示
-const formatTime = (seconds: number) => {
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = seconds % 60;
-  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-};
-
-// 格式化日期显示
-const formatDate = (timestamp: number) => {
-  const date = new Date(timestamp);
-  return `${date.getMonth() + 1}月${date.getDate()}日`;
-};
-
-// 计算KDA
-const calculateKDA = (data: any) => {
-  const kda = ((data.kills + data.assists) / Math.max(1, data.deaths)).toFixed(2);
-  return `${kda}:1`;
-};
-
-// 标签页切换处理
-const handleTabChange = (tabName: string) => {
-  activeTab.value = tabName;
-};
 
 // 修改选中对局的处理方法
 const handleMatchSelect = (index: number) => {
   searchStore.updateCurrentMatch(index);
 };
 
+
+const selectRegionOption = computed(() => searchStore.selectRegionOption)
+async function getSummonerInfo(puuid: string) {
+  try {
+  
+  
+  } catch ( e ) {
+  
+  }
+}
+async function getMatchHistory(puuid: string) {}
+
+watch(() => activeTag.value, async (tag) => {
+  if(tag === searchStore.tags[0].key) return
+  const activeTag = searchStore.getActiveTag()
+  console.log("activeTag",activeTag)
+  if(!activeTag || !activeTag.puuid) {
+    message.error('找不到当前召唤师信息')
+    return
+  }
+  console.log("开始获取相应数据：",activeTag.puuid)
+  await getSummonerInfo(activeTag.puuid)
+  await getMatchHistory(activeTag.puuid)
+})
+
 // 初始化时如果没有数据，则加载模拟数据
 onMounted(() => {
   if (matches.value.length === 0) {
     // 加载模拟数据
-    searchStore.updateSummoner({
-      name: "测试召唤师",
-      level: 100,
-      rank: "钻石 IV",
-      region: "艾欧尼亚",
-      profileIconId: 1,
-    });
+    // searchStore.updateSummoner({
+    //   name: "测试召唤师",
+    //   level: 100,
+    //   rank: "钻石 IV",
+    //   region: "艾欧尼亚",
+    //   profileIconId: 1,
+    // });
 
-    searchStore.updateMatches([
-      {
-        id: 1,
-        championId: 1,
-        win: true,
-        time: "3小时前",
-        kda: "10/2/8",
-        kdaRatio: "9.0",
-        blueTeam: [
-          {
-            summonerId: "1",
-            summonerName: "蓝色方玩家1",
-            championId: 1,
-            rank: "钻石 IV",
-            kda: "10/0/8 (完美)",
-            damage: "25431",
-            gold: "15200",
-          },
-          // ... 其他蓝队队员
-        ],
-        redTeam: [
-          {
-            summonerId: "6",
-            summonerName: "红色方玩家1",
-            championId: 6,
-            rank: "钻石 III",
-            kda: "2/8/5",
-            damage: "15432",
-            gold: "10200",
-          },
-          // ... 其他红队队员
-        ],
-      },
-      // ... 其他对局
-    ]);
+    // searchStore.updateMatches([
+    //   {
+    //     id: 1,
+    //     championId: 1,
+    //     win: true,
+    //     time: "3小时前",
+    //     kda: "10/2/8",
+    //     kdaRatio: "9.0",
+    //     blueTeam: [
+    //       {
+    //         summonerId: "1",
+    //         summonerName: "蓝色方玩家1",
+    //         championId: 1,
+    //         rank: "钻石 IV",
+    //         kda: "10/0/8 (完美)",
+    //         damage: "25431",
+    //         gold: "15200",
+    //       },
+    //       // ... 其他蓝队队员
+    //     ],
+    //     redTeam: [
+    //       {
+    //         summonerId: "6",
+    //         summonerName: "红色方玩家1",
+    //         championId: 6,
+    //         rank: "钻石 III",
+    //         kda: "2/8/5",
+    //         damage: "15432",
+    //         gold: "10200",
+    //       },
+    //       // ... 其他红队队员
+    //     ],
+    //   },
+    // ]);
 
     // 选中第一个对局
     if (matches.value.length > 0) {

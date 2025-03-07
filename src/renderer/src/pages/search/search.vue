@@ -85,7 +85,7 @@ import SearchPanel from "./components/SearchPanel.vue";
 import { SearchOutlined } from "@vicons/material";
 import { profileIconUri } from '../../../../manager/utils/utils'
 import LOLMatchHistoryDashboard from './components/LOLMatchHistoryDashboard.vue'
-import { useSearchStore } from '../../stores/searchStore';
+import { useSearchStore, type TagType } from '../../store/searchStore';
 
 // 使用 store
 const searchStore = useSearchStore();
@@ -141,7 +141,8 @@ const handleTagClose = (key: string) => {
 };
 
 // 处理搜索
-const handleSearch = (summoner: { name: string; avatar?: string; region: string }) => {
+const handleSearch = (summoner: TagType) => {
+  console.log("获取到了召唤师信息", summoner);
   searchStore.addTag(summoner);
 };
 

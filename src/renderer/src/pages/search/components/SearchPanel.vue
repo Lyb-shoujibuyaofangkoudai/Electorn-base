@@ -7,6 +7,7 @@
           <n-input-group>
             <n-select
               v-model:value="selectedRegion"
+              :on-update:value="handleSelectRegion"
               :options="regions"
               :consistent-menu-width="false"
               class="!w-30 region-select"
@@ -82,7 +83,7 @@
     </div>
 
     <!-- 搜索结果展示 -->
-    <div class="w-full max-w-6xl" v-if="searchResults.length > 0">
+    <div class="w-full max-w-6xl">
       <div class="flex gap-4">
         <!-- 左侧最近搜索列表 -->
         <div class="w-1/2">
@@ -99,14 +100,18 @@
               </div>
             </template>
             <n-scrollbar style="max-height: 600px">
-              <div class="grid grid-cols-2 gap-2">
+              <template v-if="!recentPlayers.length">
+                <n-empty description="暂无玩家历史记录"></n-empty>
+              </template>
+              
+              <div class="grid grid-cols-2 gap-2" v-else>
                 <div
                   v-for="player in recentPlayers"
                   :key="player.puuid"
                   class="relative p-3 rounded-lg hover:bg-[#3498DB]/20 group transition-all duration-300"
                 >
                   <div
-                    class="flex items-center cursor-pointer"
+                    class="flex items-center justify-between cursor-pointer"
                     @click="selectSummoner(player)"
                   >
                     <div class="flex items-center gap-2">
@@ -151,7 +156,7 @@
         </div>
 
         <!-- 右侧搜索结果 -->
-        <div class="w-1/2">
+        <div class="w-1/2" v-if="searchResults.length">
           <n-card
             class="backdrop-blur-xl bg-[#2D325F]/60 dark:bg-[#1F2245]/60 transition-all duration-300"
             :bordered="false"
@@ -207,18 +212,11 @@ import { EVENT_TYPE } from "../../../../../manager/plugins/Bridge/eventType";
 import { useIpc } from "../../../hooks/useIpc";
 import { BRIDGE_EVENT } from "../../../../../manager/plugins/Bridge/bridgeType";
 import { useConfig } from "../../../store/config";
-import { proxyToObject } from "../../../utils/utils";
 import { useLeague } from "../../../store/league";
 import { profileIconUri } from "../../../../../manager/utils/utils";
 import { CloseSharp } from "@vicons/material";
+import { type RegionsType, type TagType, useSearchStore } from '../../../store/searchStore'
 
-interface SearchRecord {
-  name: string;
-  gameName?: string;
-  tagLine?: string;
-  avatar?: string;
-  region?: string;
-}
 
 // 搜索类型定义
 type SearchType = "puuid" | "fuzzy" | "exact" | "invalid";
@@ -262,20 +260,15 @@ interface ServerConfig {
   [key: string]: any;
 }
 
-type RegionsType = {
-  label: string;
-  value: string;
-  sgpServerId: string;
-};
 
-// API 响应类型定义
-interface SummonerResponse {
+
+interface RecentPlayer {
   puuid: string;
-  gameName: string;
-  tagLine: string;
-  profileIconId: number;
-  privacy?: string;
-  summonerLevel: number;
+  summonerName: string;
+  avatar?: string;
+  region?: string;
+  regionDetail?: string;
+  searchTime: Date;
 }
 
 interface SgpSummoner {
@@ -286,28 +279,11 @@ interface SgpSummoner {
   regionInfo?: RegionsType;
 }
 
-interface ApiResponse<T> {
-  data: T;
-  status: number;
-}
-
-interface PlayerNameset {
-  gnt: {
-    gameName: string;
-    tagLine: string;
-  };
-  error?: any;
-}
-
-interface PlayerAccountNamesetResponse {
-  data: {
-    namesets: PlayerNameset[];
-  };
-}
 
 const ipc = useIpc();
 const api = useApi();
 const configStore = useConfig();
+const searchStore = useSearchStore();
 const message = useMessage();
 const leagueStore = useLeague();
 
@@ -319,14 +295,6 @@ const summonerName = ref("");
 const isLoading = ref(false);
 const showRecentSearch = ref(false);
 
-interface RecentPlayer {
-  puuid: string;
-  summonerName: string;
-  avatar?: string;
-  region?: string;
-  regionDetail?: string;
-  searchTime: Date;
-}
 
 // 最近搜索记录
 const recentPlayers = ref<RecentPlayer[]>([]);
@@ -349,7 +317,6 @@ const searchProgress = ref<SearchProgress>({
 const isEmpty = ref(false);
 const searchResults = ref<Summoner[]>([]);
 
-// todo：大区选项
 const regions = computed<RegionsType[]>(() => {
   const result = [
     {
@@ -372,6 +339,10 @@ const regions = computed<RegionsType[]>(() => {
 });
 
 const selectedRegion = ref(regions.value[0].value);
+function handleSelectRegion(region,option) {
+  searchStore.updateSelectRegionOption(option)
+  selectedRegion.value = region;
+}
 
 // 处理输入框失焦
 const handleBlur = () => {
@@ -421,7 +392,7 @@ onMounted(() => {
 
 // 定义 emit
 const emit = defineEmits<{
-  (e: "search", summoner: { name: string; avatar?: string; region: string }): void;
+  (e: "search", summoner: TagType): void;
 }>();
 
 // 处理错误的工具函数
@@ -924,6 +895,7 @@ const quickSearch = (text: string) => {
 
 const selectSummoner = async (summoner: Summoner | RecentPlayer) => {
   try {
+    console.log("查看召唤师信息：", summoner);
     // 添加到最近搜索
     await ipc.call(EVENT_TYPE.DB_ADD_RECENT_SEARCH, {
       puuid: summoner.puuid,
@@ -935,9 +907,12 @@ const selectSummoner = async (summoner: Summoner | RecentPlayer) => {
 
     // 触发搜索事件
     emit("search", {
+      puuid: summoner.puuid,
       name: summoner?.summonerName ? summoner.summonerName : `${summoner.gameName}#${summoner.tagLine}`,
       avatar: summoner.avatar,
       region: summoner.region,
+      regionValue: summoner.sgpServerId ? summoner.sgpServerId.split('_')[1] : '',
+      sgpServerId: summoner.sgpServerId
     });
     // 刷新最近搜索列表
     await loadRecentSearchPlayers();
