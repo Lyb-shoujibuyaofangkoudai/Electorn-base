@@ -38,14 +38,19 @@ export enum EVENT_TYPE {
   API_CAN_USE = "api-can-use",
   // riot 服务器本地文件信息
   LOCAL_SERVER_DETAILS = "local-server-details",
+  DB_GET_SEARCH_HISTORY = "db:getSearchHistory",
   // 添加搜索历史
   DB_ADD_SEARCH_HISTORY = "db:addSearchHistory",
-  // 获取最近搜索记录
-  DB_GET_RECENT_SEARCHES = "db:getRecentSearches",
   // 删除搜索记录
   DB_DELETE_SEARCH_HISTORY = "db:deleteSearchHistory",
   // 清空所有搜索记录
   DB_CLEAR_ALL_HISTORY = "db:clearAllHistory",
+  // 最近搜索相关
+  // 获取最近搜索记录
+  DB_GET_RECENT_SEARCHES = "db:getRecentSearches",
+  DB_ADD_RECENT_SEARCH = "db:addRecentSearch",
+  DB_REMOVE_RECENT_SEARCH = "db:removeRecentSearch",
+  DB_CLEAR_RECENT_SEARCHES = "db:clearRecentSearches",
 }
 
 export enum DATA_ACTION {

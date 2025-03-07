@@ -15,11 +15,14 @@ import { SettingsDao } from "./dao/SettingsDao";
 import { DbVersionsDao } from "./dao/DbVersionsDao";
 import { SearchHistoryDao } from "./dao/SearchHistoryDao";
 import { SearchHistory } from "./entities/SearchHistory";
+import { RecentSearch } from "./entities/RecentSearch";
+import { RecentSearchDao } from "./dao/RecentSearchDao";
 
 type DaoType = {
   settings: SettingsDao | null;
   dbVersions: DbVersionsDao | null;
   searchHistory: SearchHistoryDao | null;
+  recentSearch: RecentSearchDao | null;
 };
 
 // todo: 数据库插件
@@ -37,6 +40,7 @@ export class Db implements IPlugin {
     settings: null,
     dbVersions: null,
     searchHistory: null,
+    recentSearch: null,
   };
 
   get dbSource() {
@@ -62,7 +66,7 @@ export class Db implements IPlugin {
         type: "sqlite",
         database: this._dbPath,
         synchronize: false,
-        entities: [Settings, DbVersions, SearchHistory],
+        entities: [Settings, DbVersions, SearchHistory, RecentSearch],
       });
 
       this._logger?.info(
@@ -74,6 +78,7 @@ export class Db implements IPlugin {
       this._dao.settings = new SettingsDao(this._dbSource);
       this._dao.dbVersions = new DbVersionsDao(this._dbSource);
       this._dao.searchHistory = new SearchHistoryDao(this._dbSource);
+      this._dao.recentSearch = new RecentSearchDao(this._dbSource);
       const { needToRecreateDatabase, needToPerformUpgrade, currentVersion } =
         await this._checkDatabaseVersion(this._dbSource);
 
@@ -120,7 +125,11 @@ export class Db implements IPlugin {
           await this._dao.dbVersions!.getDbVersion("version");
         if (versionResult) {
           currentVersion = parseInt(versionResult.value, 10);
-          console.log("currentVersion",currentVersion,import.meta.env.VITE_DB_VERSION)
+          console.log(
+            "currentVersion",
+            currentVersion,
+            import.meta.env.VITE_DB_VERSION,
+          );
           if (currentVersion > import.meta.env.VITE_DB_VERSION) {
             needToRecreateDatabase = true;
             needToPerformUpgrade = true;

@@ -499,7 +499,7 @@
     </routine>
     <schema id="191" parent="1" name="main">
       <Current>1</Current>
-      <LastIntrospectionLocalTimestamp>2025-03-03.04:06:20</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2025-03-07.07:07:16</LastIntrospectionLocalTimestamp>
     </schema>
     <argument id="192" parent="16">
       <ArgumentDirection>R</ArgumentDirection>
@@ -1591,111 +1591,138 @@
       <Position>1</Position>
     </argument>
     <table id="555" parent="191" name="db_versions"/>
-    <table id="556" parent="191" name="search_history"/>
-    <table id="557" parent="191" name="settings"/>
-    <table id="558" parent="191" name="sqlite_master">
+    <table id="556" parent="191" name="recent_search"/>
+    <table id="557" parent="191" name="search_history"/>
+    <table id="558" parent="191" name="settings"/>
+    <table id="559" parent="191" name="sqlite_master">
       <System>1</System>
     </table>
-    <table id="559" parent="191" name="sqlite_sequence">
+    <table id="560" parent="191" name="sqlite_sequence">
       <System>1</System>
     </table>
-    <column id="560" parent="555" name="key">
+    <column id="561" parent="555" name="key">
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>varchar|0s</StoredType>
     </column>
-    <column id="561" parent="555" name="value">
+    <column id="562" parent="555" name="value">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>json|0s</StoredType>
     </column>
-    <index id="562" parent="555" name="sqlite_autoindex_db_versions_1">
+    <index id="563" parent="555" name="sqlite_autoindex_db_versions_1">
       <ColNames>key</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <Unique>1</Unique>
     </index>
-    <key id="563" parent="555">
+    <key id="564" parent="555">
       <ColNames>key</ColNames>
       <Primary>1</Primary>
       <UnderlyingIndexName>sqlite_autoindex_db_versions_1</UnderlyingIndexName>
     </key>
-    <column id="564" parent="556" name="id">
-      <AutoIncrement>1</AutoIncrement>
+    <column id="565" parent="556" name="puuid">
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <StoredType>integer|0s</StoredType>
+      <StoredType>varchar|0s</StoredType>
     </column>
-    <column id="565" parent="556" name="summonerName">
+    <column id="566" parent="556" name="summonerName">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>varchar|0s</StoredType>
     </column>
-    <column id="566" parent="556" name="avatar">
+    <column id="567" parent="556" name="avatar">
       <Position>3</Position>
       <StoredType>varchar|0s</StoredType>
     </column>
-    <column id="567" parent="556" name="searchTime">
+    <column id="568" parent="556" name="searchTime">
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StoredType>datetime|0s</StoredType>
     </column>
-    <column id="568" parent="556" name="region">
+    <column id="569" parent="556" name="region">
       <Position>5</Position>
       <StoredType>varchar|0s</StoredType>
     </column>
-    <column id="569" parent="556" name="regionDetail">
+    <column id="570" parent="556" name="regionDetail">
       <Position>6</Position>
       <StoredType>varchar|0s</StoredType>
     </column>
-    <key id="570" parent="556">
+    <index id="571" parent="556" name="sqlite_autoindex_recent_search_1">
+      <ColNames>puuid</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <Unique>1</Unique>
+    </index>
+    <key id="572" parent="556">
+      <ColNames>puuid</ColNames>
+      <Primary>1</Primary>
+      <UnderlyingIndexName>sqlite_autoindex_recent_search_1</UnderlyingIndexName>
+    </key>
+    <column id="573" parent="557" name="id">
+      <AutoIncrement>1</AutoIncrement>
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <StoredType>integer|0s</StoredType>
+    </column>
+    <column id="574" parent="557" name="text">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StoredType>varchar|0s</StoredType>
+    </column>
+    <column id="575" parent="557" name="searchTime">
+      <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StoredType>datetime|0s</StoredType>
+    </column>
+    <key id="576" parent="557">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="571" parent="557" name="key">
+    <column id="577" parent="558" name="key">
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>varchar|0s</StoredType>
     </column>
-    <column id="572" parent="557" name="value">
+    <column id="578" parent="558" name="value">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>json|0s</StoredType>
     </column>
-    <index id="573" parent="557" name="sqlite_autoindex_settings_1">
+    <index id="579" parent="558" name="sqlite_autoindex_settings_1">
       <ColNames>key</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <Unique>1</Unique>
     </index>
-    <key id="574" parent="557">
+    <key id="580" parent="558">
       <ColNames>key</ColNames>
       <Primary>1</Primary>
       <UnderlyingIndexName>sqlite_autoindex_settings_1</UnderlyingIndexName>
     </key>
-    <column id="575" parent="558" name="type">
+    <column id="581" parent="559" name="type">
       <Position>1</Position>
       <StoredType>TEXT|0s</StoredType>
     </column>
-    <column id="576" parent="558" name="name">
+    <column id="582" parent="559" name="name">
       <Position>2</Position>
       <StoredType>TEXT|0s</StoredType>
     </column>
-    <column id="577" parent="558" name="tbl_name">
+    <column id="583" parent="559" name="tbl_name">
       <Position>3</Position>
       <StoredType>TEXT|0s</StoredType>
     </column>
-    <column id="578" parent="558" name="rootpage">
+    <column id="584" parent="559" name="rootpage">
       <Position>4</Position>
       <StoredType>INT|0s</StoredType>
     </column>
-    <column id="579" parent="558" name="sql">
+    <column id="585" parent="559" name="sql">
       <Position>5</Position>
       <StoredType>TEXT|0s</StoredType>
     </column>
-    <column id="580" parent="559" name="name">
+    <column id="586" parent="560" name="name">
       <Position>1</Position>
     </column>
-    <column id="581" parent="559" name="seq">
+    <column id="587" parent="560" name="seq">
       <Position>2</Position>
     </column>
   </database-model>

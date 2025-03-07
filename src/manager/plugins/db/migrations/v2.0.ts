@@ -18,29 +18,14 @@ export class V_2 implements MigrationInterface {
             generationStrategy: "increment",
           },
           {
-            name: "summonerName",
+            name: "text",
             type: "varchar",
-          },
-          {
-            name: "avatar",
-            type: "varchar",
-            isNullable: true,
           },
           {
             name: "searchTime",
             type: "datetime",
             default: "CURRENT_TIMESTAMP",
           },
-          {
-            name: "region",
-            type: "varchar",
-            isNullable: true,
-          },
-          {
-            name: "regionDetail",
-            type: "varchar",
-            isNullable: true,
-          }
         ],
       }),
     );

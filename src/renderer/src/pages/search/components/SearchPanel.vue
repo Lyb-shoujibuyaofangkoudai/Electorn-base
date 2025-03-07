@@ -12,17 +12,17 @@
               class="!w-30 region-select"
               size="large"
             />
-          <n-input
-            v-model:value="summonerName"
-            type="text"
+            <n-input
+              v-model:value="summonerName"
+              type="text"
               placeholder="id搜索：ppuid、精确搜索：召唤师名称（xxx#123456）、模糊搜索：召唤师名称（xxx），注意：这里不会补全名字，因为官方接口不支持"
               class="search-input flex-1"
-            @keydown.enter="handleSearch"
-            @focus="handleFocus"
-            @blur="handleBlur"
+              @keydown.enter="handleSearch"
+              @focus="handleFocus"
+              @blur="handleBlur"
               size="large"
-          >
-          </n-input>
+            >
+            </n-input>
             <n-button
               type="primary"
               :loading="isLoading"
@@ -36,8 +36,8 @@
 
           <!-- 最近搜索下拉框 -->
           <div
-            v-show="showRecentSearch && recentSearches.length > 0"
-            class="absolute w-full mt-1 bg-[#2D325F]/90 dark:bg-[#1F2245]/90 rounded-lg shadow-lg backdrop-blur-xl z-50"
+            v-show="showRecentSearch && recentSearchHistory.length > 0"
+            class="absolute w-full mt-1 bg-[#1A1C3D]/90 dark:bg-[#181A35]/90 rounded-lg shadow-lg backdrop-blur-xl z-50"
           >
             <div class="p-2">
               <div
@@ -50,31 +50,24 @@
               </div>
               <div class="space-y-1 flex items-center">
                 <div
-                  v-for="search in recentSearches"
-                  :key="search.name"
+                  v-for="searchRecentItem in recentSearchHistory"
+                  :key="searchRecentItem.text"
                   class="flex items-center gap-2 p-2 rounded hover:bg-[#3498DB]/20 group"
                 >
                   <div
                     class="flex-1 flex items-center gap-2 cursor-pointer"
-                    @mousedown="quickSearch(search)"
-                >
-                  <div class="w-8 h-8 rounded-full overflow-hidden bg-gray-700">
-                    <LcuImg
-                      cus-class="w-8 h-8 object-contain"
-                      :src="profileIconUri(search?.avatar)" />
-                    
-                  </div>
-                  <div class="font-medium">
-                    <div>{{ search.name }}</div>
-                    <div class="text-2.5">{{ search.region }}</div>
-                  </div>
+                    @mousedown="quickSearch(searchRecentItem?.text ?? '')"
+                  >
+                    <div class="font-medium">
+                      {{ searchRecentItem.text }}
+                    </div>
                   </div>
                   <n-button
                     text
                     type="error"
                     size="tiny"
                     class="opacity-0 group-hover:opacity-100 transition-opacity"
-                    @mousedown.stop="deleteHistory(search.name)"
+                    @mousedown.stop="deleteHistory(player.name)"
                   >
                     <template #icon>
                       <i class="i-material-symbols:delete-outline text-base"></i>
@@ -90,49 +83,118 @@
 
     <!-- 搜索结果展示 -->
     <div class="w-full max-w-6xl" v-if="searchResults.length > 0">
-      <n-card
-        class="backdrop-blur-xl bg-[#2D325F]/60 dark:bg-[#1F2245]/60 transition-all duration-300 hover:shadow-lg hover:shadow-[#3498DB]/20"
-        :bordered="false"
-      >
-        <template #header>
-          <div class="text-[var(--text-color-2)]">搜索结果</div>
-        </template>
-        <div class="flex flex-wrap gap-4 justify-start">
-          <div
-            v-for="summoner in searchResults"
-            :key="summoner.id"
-            class="w-fit flex-shrink-0 w-72 bg-[#1F2245]/40 rounded-lg p-4 cursor-pointer transition-all hover:bg-[#3498DB]/20 hover:transform hover:scale-105"
-            @click="selectSummoner(summoner)"
+      <div class="flex gap-4">
+        <!-- 左侧最近搜索列表 -->
+        <div class="w-1/2">
+          <n-card
+            class="backdrop-blur-xl bg-[#2D325F]/60 dark:bg-[#1F2245]/60 transition-all duration-300"
+            :bordered="false"
           >
-            <div class="flex items-start gap-4">
-              <!-- 左侧：头像和等级 -->
-              <div class="flex flex-col items-center gap-2">
-                <div class="relative w-10 h-10">
-                  <LcuImg
-                    cus-class="w-10 h-10 object-contain rounded-full"
-                    :src="profileIconUri(summoner?.avatar)" />
+            <template #header>
+              <div class="flex items-center justify-between">
+                <span class="text-[var(--text-color-2)]">最近玩家</span>
+                <n-button text type="error" size="tiny" @click="clearRecentPlayers">
+                  清空历史
+                </n-button>
+              </div>
+            </template>
+            <n-scrollbar style="max-height: 600px">
+              <div class="grid grid-cols-2 gap-2">
+                <div
+                  v-for="player in recentPlayers"
+                  :key="player.puuid"
+                  class="relative p-3 rounded-lg hover:bg-[#3498DB]/20 group transition-all duration-300"
+                >
                   <div
-                    v-if="summoner.level"
-                    class="absolute !left-1/2 -bottom-1.5 -translate-x-1/2 px-1 w-fit bg-[#3498DB]/50 rounded-full text-2 whitespace-nowrap"
+                    class="flex items-center cursor-pointer"
+                    @click="selectSummoner(player)"
                   >
-                    LV: {{ summoner.level }}
+                    <div class="flex items-center gap-2">
+                      <div
+                        class="w-10 h-10 rounded-full overflow-hidden bg-gray-700 flex-shrink-0"
+                      >
+                        <LcuImg
+                          cus-class="w-10 h-10 object-contain"
+                          :src="profileIconUri(Number(player.avatar))"
+                        />
+                      </div>
+                      <div class="min-w-0 flex-1 pr-2">
+                        <div
+                          class="text-[var(--text-color-2)] truncate text-sm font-medium"
+                        >
+                          {{ player.summonerName }}
+                        </div>
+                        <div class="text-xs text-[var(--text-color-3)] truncate">
+                          {{ player.region }}
+                        </div>
+                      </div>
+                    </div>
+                    <n-button
+                      circle
+                      text
+                      type="error"
+                      size="tiny"
+                      class="opacity-0 group-hover:opacity-100 transition-opacity"
+                      @click.stop="removeRecentPlayer(player.puuid)"
+                    >
+                      <template #icon>
+                        <n-icon>
+                          <CloseSharp />
+                        </n-icon>
+                      </template>
+                    </n-button>
                   </div>
                 </div>
               </div>
+            </n-scrollbar>
+          </n-card>
+        </div>
 
-              <!-- 右侧：名称和区服 -->
-              <div class="flex flex-col justify-center flex-1">
-                <div class="font-bold text-lg line-clamp-1">
-                  {{ `${summoner.gameName}#${summoner.tagLine}` }}
-                </div>
-                <div class="text-sm text-[var(--text-color-3)]">
-                  {{ summoner.region }}
+        <!-- 右侧搜索结果 -->
+        <div class="w-1/2">
+          <n-card
+            class="backdrop-blur-xl bg-[#2D325F]/60 dark:bg-[#1F2245]/60 transition-all duration-300"
+            :bordered="false"
+          >
+            <template #header>
+              <div class="text-[var(--text-color-2)]">搜索结果</div>
+            </template>
+            <n-scrollbar style="max-height: 600px">
+              <div class="grid grid-cols-2 gap-2">
+                <div
+                  v-for="summoner in searchResults"
+                  :key="summoner.id"
+                  class="relative p-3 rounded-lg hover:bg-[#3498DB]/20 group transition-all duration-300 cursor-pointer"
+                  @click="selectSummoner(summoner)"
+                >
+                  <div class="flex items-center gap-2">
+                    <div class="relative w-10 h-10 flex-shrink-0">
+                      <LcuImg
+                        cus-class="w-10 h-10 object-contain rounded-full"
+                        :src="profileIconUri(Number(summoner.avatar))"
+                      />
+                      <div
+                        v-if="summoner.level"
+                        class="absolute !left-1/2 -bottom-1 -translate-x-1/2 px-1 bg-[#3498DB]/50 rounded-full text-xs whitespace-nowrap"
+                      >
+                        LV: {{ summoner.level }}
+                      </div>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                      <div class="text-sm font-medium truncate">
+                        {{ `${summoner.gameName}#${summoner.tagLine}` }}
+                      </div>
+                      <div class="text-xs text-[var(--text-color-3)] truncate">
+                        {{ summoner.region }}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </n-scrollbar>
+          </n-card>
         </div>
-      </n-card>
+      </div>
     </div>
   </div>
 </template>
@@ -147,7 +209,8 @@ import { BRIDGE_EVENT } from "../../../../../manager/plugins/Bridge/bridgeType";
 import { useConfig } from "../../../store/config";
 import { proxyToObject } from "../../../utils/utils";
 import { useLeague } from "../../../store/league";
-import { profileIconUri } from '../../../../../manager/utils/utils'
+import { profileIconUri } from "../../../../../manager/utils/utils";
+import { CloseSharp } from "@vicons/material";
 
 interface SearchRecord {
   name: string;
@@ -256,8 +319,23 @@ const summonerName = ref("");
 const isLoading = ref(false);
 const showRecentSearch = ref(false);
 
+interface RecentPlayer {
+  puuid: string;
+  summonerName: string;
+  avatar?: string;
+  region?: string;
+  regionDetail?: string;
+  searchTime: Date;
+}
+
 // 最近搜索记录
-const recentSearches = ref<SearchRecord[]>([]);
+const recentPlayers = ref<RecentPlayer[]>([]);
+const recentSearchHistory = ref<
+  {
+    text: string;
+    searchTime: Date;
+  }[]
+>([]);
 
 // 搜索相关状态
 const searchType = ref<SearchType>("invalid");
@@ -309,27 +387,36 @@ const handleFocus = () => {
   showRecentSearch.value = true;
 };
 
-// 获取最近搜索记录
-const loadRecentSearches = async () => {
+const loadRecentPlayers = async () => {
   try {
-    // 从数据库加载最近搜索记录
     const response = await ipc.call(EVENT_TYPE.DB_GET_RECENT_SEARCHES);
-    console.log("从数据库加载最近搜索记录:", response);
-    const records = response.data || [];
-    recentSearches.value = records.map((record: any) => ({
-      name: record.summonerName,
-      avatar: record.avatar,
-      region: record.region,
-    }));
+    if (response.success) {
+      recentPlayers.value = response.data;
+    }
   } catch (error) {
-    console.error("加载最近搜索记录失败:", error);
-    message.error("加载搜索历史失败");
+    console.error("加载最近玩家记录失败:", error);
+    message.error("加载玩家历史失败");
+  }
+};
+
+// 获取最近搜索记录
+const loadRecentSearchPlayers = async () => {
+  try {
+    const response = await ipc.call(EVENT_TYPE.DB_GET_SEARCH_HISTORY);
+    console.log("获取最近历史搜索记录：", response);
+    if (response.success) {
+      recentSearchHistory.value = response.data;
+    }
+  } catch (error) {
+    console.error("加载最近玩家记录失败:", error);
+    message.error("加载玩家历史失败");
   }
 };
 
 // 在组件挂载时加载搜索历史
 onMounted(() => {
-  loadRecentSearches();
+  loadRecentSearchPlayers();
+  loadRecentPlayers();
 });
 
 // 定义 emit
@@ -472,7 +559,7 @@ async function getAllRegionsSummonersFromFuzzyName(
       fnArr.length && promiseArr.push(...(fnArr as any));
     }
     const summonerArr = (await Promise.all(promiseArr)).filter((r) => r).flat();
-    return summonerArr.map((summoner:any, index) => {
+    return summonerArr.map((summoner: any, index) => {
       return {
         puuid: summoner.puuid,
         gameName: aliases[index].alias.game_name,
@@ -529,10 +616,10 @@ async function getAllRegionsSummonersFromFuzzyName(
 
 const handleSearch = async () => {
   try {
-  if (!summonerName.value) {
-    message.warning("请输入召唤师名称");
-    return;
-  }
+    if (!summonerName.value) {
+      message.warning("请输入召唤师名称");
+      return;
+    }
 
     // 确定搜索类型
     searchType.value = determineSearchType(summonerName.value);
@@ -552,12 +639,16 @@ const handleSearch = async () => {
     searchProgress.value.desc = ``;
     isEmpty.value = false;
     searchResults.value = [];
-  isLoading.value = true;
+    isLoading.value = true;
 
     const searchText =
       searchType.value === "puuid"
         ? summonerName.value.trim()
         : replaceInvisibleChar(summonerName.value);
+
+    ipc.call(EVENT_TYPE.DB_ADD_SEARCH_HISTORY, {
+      text: searchText,
+    });
 
     // 判断是否同区
     const isSameRegion =
@@ -575,7 +666,9 @@ const handleSearch = async () => {
           // 处理PUUID搜索
           if (isSameRegion) {
             // 同区使用LCU API
-            const summoner = await api.lcuApi.summoner.getSummonerByPuuid(searchText) as any;
+            const summoner = (await api.lcuApi.summoner.getSummonerByPuuid(
+              searchText
+            )) as any;
             console.log("LCU API 搜索结果：", summoner);
             if (summoner) {
               results = [
@@ -769,9 +862,7 @@ const handleSearch = async () => {
           name: summoner.gameName,
         })
       );
-
-      
-  } catch (error) {
+    } catch (error) {
       message.info("未找到符合条件的召唤师");
       isEmpty.value = true;
     }
@@ -826,40 +917,43 @@ async function getAllRegionsSummonersFromPuuid(searchText: string) {
   return summonerArr;
 }
 
-const quickSearch = (summoner: SearchRecord) => {
-  summonerName.value =
-    summoner.gameName && summoner.tagLine
-      ? `${summoner.gameName}#${summoner.tagLine}`
-      : summoner.name;
+const quickSearch = (text: string) => {
+  summonerName.value = text;
   handleSearch();
 };
 
-const selectSummoner = async (summoner: Summoner) => {
-  emit("search", {
-    name: `${summoner.gameName}#${summoner.tagLine}`,
-    avatar: summoner.avatar,
-    region: summoner.region,
-  });
-  
-  await ipc.call(EVENT_TYPE.DB_ADD_SEARCH_HISTORY, {
-    summonerName: `${summoner.gameName}#${summoner.tagLine}`,
-    avatar: summoner.avatar,
-    region: summoner.region,
-    regionDetail: summoner.sgpServerId,
-  });
-  
-  // 刷新搜索历史
-  await loadRecentSearches();
- 
+const selectSummoner = async (summoner: Summoner | RecentPlayer) => {
+  try {
+    // 添加到最近搜索
+    await ipc.call(EVENT_TYPE.DB_ADD_RECENT_SEARCH, {
+      puuid: summoner.puuid,
+      summonerName: summoner?.summonerName ? summoner.summonerName : `${summoner.gameName}#${summoner.tagLine}`,
+      avatar: summoner.avatar,
+      region: summoner.region,
+      regionDetail: summoner?.regionDetail ? summoner.regionDetail : summoner.sgpServerId,
+    });
+
+    // 触发搜索事件
+    emit("search", {
+      name: summoner?.summonerName ? summoner.summonerName : `${summoner.gameName}#${summoner.tagLine}`,
+      avatar: summoner.avatar,
+      region: summoner.region,
+    });
+    // 刷新最近搜索列表
+    await loadRecentSearchPlayers();
+    await loadRecentPlayers();
+  } catch (error) {
+    console.error("添加最近玩家记录失败:", error);
+  }
 };
 
 const deleteHistory = async (summonerName: string) => {
   try {
     // 调用后端删除单条历史记录
-    await ipc.call(EVENT_TYPE.DB_DELETE_SEARCH_HISTORY, summonerName);
+    await ipc.call(EVENT_TYPE.DB_REMOVE_RECENT_SEARCH, summonerName);
     // 更新本地数据
-    recentSearches.value = recentSearches.value.filter(
-      (item) => item.name !== summonerName
+    recentPlayers.value = recentPlayers.value.filter(
+      (item) => item.summonerName !== summonerName
     );
     message.success("删除成功");
   } catch (error) {
@@ -871,13 +965,41 @@ const deleteHistory = async (summonerName: string) => {
 const clearAllHistory = async () => {
   try {
     // 调用后端清空所有历史记录
-    await ipc.call(EVENT_TYPE.DB_CLEAR_ALL_HISTORY);
+    await ipc.call(EVENT_TYPE.DB_CLEAR_RECENT_SEARCHES);
     // 清空本地数据
-    recentSearches.value = [];
+    recentPlayers.value = [];
     message.success("清空成功");
   } catch (error) {
     message.error("清空失败");
     console.error("清空搜索历史失败:", error);
+  }
+};
+
+// 删除单条最近搜索记录
+const removeRecentPlayer = async (puuid: string) => {
+  try {
+    const response = await ipc.call(EVENT_TYPE.DB_REMOVE_RECENT_SEARCH, { puuid });
+    if (response.success) {
+      recentPlayers.value = recentPlayers.value.filter((item) => item.puuid !== puuid);
+      message.success("删除成功");
+    }
+  } catch (error) {
+    console.error("删除最近玩家记录失败:", error);
+    message.error("删除失败");
+  }
+};
+
+// 清空所有最近搜索记录
+const clearRecentPlayers = async () => {
+  try {
+    const response = await ipc.call(EVENT_TYPE.DB_CLEAR_RECENT_SEARCHES);
+    if (response.success) {
+      recentPlayers.value = [];
+      message.success("清空成功");
+    }
+  } catch (error) {
+    console.error("清空最近玩家记录失败:", error);
+    message.error("清空失败");
   }
 };
 </script>

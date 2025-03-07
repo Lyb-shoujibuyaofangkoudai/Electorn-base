@@ -1,7 +1,6 @@
 <!-- 英雄联盟对战历史面板 -->
 <template>
   <div class="match-history-dashboard relative">
-
     <!-- 头部区域 -->
     <header
       class="dashboard-header relative h-[120px] backdrop-blur-xl bg-[#2D325F]/40 dark:bg-[#1F2245]/40 p-4 shadow-lg"
@@ -66,7 +65,7 @@
             <div class="flex gap-4 p-2 rounded-lg bg-[#2D325F]/40">
               <div class="rank-card flex flex-col items-center gap-2">
                 <div class="text-sm text-[#94a3b8]">单双排</div>
-                
+
                 <LcuImg
                   cus-class="w-12 h-12"
                   :src="TIERS_ICON[summoner?.soloRank?.tier || 'UNRANKED']"
@@ -95,7 +94,7 @@
                 class="rank-card flex flex-col items-center gap-2 border-t border-[#4A5090]/10"
               >
                 <div class="text-sm text-[#94a3b8]">最高段</div>
-                
+
                 <LcuImg
                   cus-class="w-12 h-12"
                   :src="TIERS_ICON[summoner?.soloHighestRank?.tier || 'UNRANKED']"
@@ -105,7 +104,6 @@
                     {{ SHORT_TIERS[summoner?.soloHighestRank?.tier || "UNRANKED"] }}
                     {{ summoner?.soloHighestRank?.division || "" }}
                   </div>
-                  
                 </div>
               </div>
             </div>
@@ -114,7 +112,7 @@
             <div class="flex gap-4 p-2 rounded-lg bg-[#2D325F]/40">
               <div class="rank-card flex flex-col items-center gap-2">
                 <div class="text-sm text-[#94a3b8]">灵活排</div>
-                
+
                 <LcuImg
                   cus-class="w-12 h-12"
                   :src="TIERS_ICON[summoner?.flexRank?.tier || 'UNRANKED']"
@@ -143,7 +141,7 @@
                 class="rank-card flex flex-col items-center gap-2 border-t border-[#4A5090]/10"
               >
                 <div class="text-sm text-[#94a3b8]">最高段</div>
-                
+
                 <LcuImg
                   cus-class="w-12 h-12"
                   :src="TIERS_ICON[summoner?.flexHighestRank?.tier || 'UNRANKED']"
@@ -153,7 +151,6 @@
                     {{ SHORT_TIERS[summoner?.flexHighestRank?.tier || "UNRANKED"] }}
                     {{ summoner?.flexHighestRank?.division || "" }}
                   </div>
-                  
                 </div>
               </div>
             </div>

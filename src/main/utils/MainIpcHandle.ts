@@ -202,7 +202,36 @@ export class MainIpcHandle {
       };
     });
 
-    // 添加搜索历史
+    // 获取最近搜索历史记录
+    this.bridge.addCall(
+      EVENT_TYPE.DB_GET_SEARCH_HISTORY,
+      async (): Promise<BridgeDataType<any>> => {
+        try {
+          const searchHistoryDao = Core.getInstance().db?._dao.searchHistory;
+          if (!searchHistoryDao)
+            throw new Error("RecentSearchDao not initialized");
+
+          const result = await searchHistoryDao.getRecentSearches();
+
+          return {
+            namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
+            eventName: EVENT_TYPE.DB_GET_SEARCH_HISTORY,
+            success: true,
+            data: result,
+          };
+        } catch (error) {
+          console.error("Failed to get recent searches:", error);
+          return {
+            namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
+            eventName: EVENT_TYPE.DB_GET_SEARCH_HISTORY,
+            success: false,
+            msg: error instanceof Error ? error.message : "Unknown error",
+          };
+        }
+      },
+    );
+
+    // 添加搜索历史记录
     this.bridge.addCall(
       EVENT_TYPE.DB_ADD_SEARCH_HISTORY,
       async (data?: BridgeDataType<any>): Promise<BridgeDataType<any>> => {
@@ -210,21 +239,14 @@ export class MainIpcHandle {
           const searchHistoryDao = Core.getInstance().db?._dao.searchHistory;
           if (!searchHistoryDao)
             throw new Error("SearchHistoryDao not initialized");
-          if (!data?.data?.summonerName)
-            throw new Error("Summoner name is required");
+          if (!data?.data?.text) throw new Error("text name is required");
 
-          const result = await searchHistoryDao.addSearchHistory(
-            data.data.summonerName,
-            data.data.avatar,
-            data.data.region,
-            data.data.regionDetail,
-          );
+          await searchHistoryDao.addSearchHistory(data.data.text);
 
           return {
             namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
             eventName: EVENT_TYPE.DB_ADD_SEARCH_HISTORY,
             success: true,
-            data: result,
           };
         } catch (error) {
           console.error("Failed to add search history:", error);
@@ -238,36 +260,7 @@ export class MainIpcHandle {
       },
     );
 
-    // 获取最近搜索记录
-    this.bridge.addCall(
-      EVENT_TYPE.DB_GET_RECENT_SEARCHES,
-      async (): Promise<BridgeDataType<any>> => {
-        try {
-          const searchHistoryDao = Core.getInstance().db?._dao.searchHistory;
-          if (!searchHistoryDao)
-            throw new Error("SearchHistoryDao not initialized");
-
-          const result = await searchHistoryDao.getRecentSearches();
-
-          return {
-            namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
-            eventName: EVENT_TYPE.DB_GET_RECENT_SEARCHES,
-            success: true,
-            data: result,
-          };
-        } catch (error) {
-          console.error("Failed to get recent searches:", error);
-          return {
-            namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
-            eventName: EVENT_TYPE.DB_GET_RECENT_SEARCHES,
-            success: false,
-            msg: error instanceof Error ? error.message : "Unknown error",
-          };
-        }
-      },
-    );
-
-    // 删除搜索记录
+    // 删除单条搜索历史记录
     this.bridge.addCall(
       EVENT_TYPE.DB_DELETE_SEARCH_HISTORY,
       async (data?: BridgeDataType<any>): Promise<BridgeDataType<any>> => {
@@ -275,10 +268,9 @@ export class MainIpcHandle {
           const searchHistoryDao = Core.getInstance().db?._dao.searchHistory;
           if (!searchHistoryDao)
             throw new Error("SearchHistoryDao not initialized");
-          if (!data?.data?.summonerName)
-            throw new Error("Summoner name is required");
+          if (!data?.data?.id) throw new Error("History ID is required");
 
-          await searchHistoryDao.deleteSearchHistory(data.data.summonerName);
+          await searchHistoryDao.deleteSearchHistory(data.data.id);
 
           return {
             namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
@@ -297,7 +289,7 @@ export class MainIpcHandle {
       },
     );
 
-    // 清空所有搜索记录
+    // 清空所有搜索历史记录
     this.bridge.addCall(
       EVENT_TYPE.DB_CLEAR_ALL_HISTORY,
       async (): Promise<BridgeDataType<any>> => {
@@ -318,6 +310,130 @@ export class MainIpcHandle {
           return {
             namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
             eventName: EVENT_TYPE.DB_CLEAR_ALL_HISTORY,
+            success: false,
+            msg: error instanceof Error ? error.message : "Unknown error",
+          };
+        }
+      },
+    );
+
+    // 添加最近搜索记录
+    this.bridge.addCall(
+      EVENT_TYPE.DB_ADD_RECENT_SEARCH,
+      async (data?: BridgeDataType<any>): Promise<BridgeDataType<any>> => {
+        try {
+          const recentSearchDao = Core.getInstance().db?._dao.recentSearch;
+          if (!recentSearchDao)
+            throw new Error("RecentSearchDao not initialized");
+          if (!data?.data?.puuid) throw new Error("Puuid is required");
+          if (!data?.data?.summonerName)
+            throw new Error("Summoner name is required");
+
+          const result = await recentSearchDao.addRecentSearch(
+            data.data.puuid,
+            data.data.summonerName,
+            data.data.avatar,
+            data.data.region,
+            data.data.regionDetail,
+          );
+
+          return {
+            namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
+            eventName: EVENT_TYPE.DB_ADD_RECENT_SEARCH,
+            success: true,
+            data: result,
+          };
+        } catch (error) {
+          console.error("Failed to add recent search:", error);
+          return {
+            namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
+            eventName: EVENT_TYPE.DB_ADD_RECENT_SEARCH,
+            success: false,
+            msg: error instanceof Error ? error.message : "Unknown error",
+          };
+        }
+      },
+    );
+
+    // 获取最近搜索记录
+    this.bridge.addCall(
+      EVENT_TYPE.DB_GET_RECENT_SEARCHES,
+      async (): Promise<BridgeDataType<any>> => {
+        try {
+          const recentSearchDao = Core.getInstance().db?._dao.recentSearch;
+          if (!recentSearchDao)
+            throw new Error("RecentSearchDao not initialized");
+
+          const result = await recentSearchDao.getRecentSearches();
+
+          return {
+            namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
+            eventName: EVENT_TYPE.DB_GET_RECENT_SEARCHES,
+            success: true,
+            data: result,
+          };
+        } catch (error) {
+          console.error("Failed to get recent searches:", error);
+          return {
+            namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
+            eventName: EVENT_TYPE.DB_GET_RECENT_SEARCHES,
+            success: false,
+            msg: error instanceof Error ? error.message : "Unknown error",
+          };
+        }
+      },
+    );
+
+    // 删除单条最近搜索记录
+    this.bridge.addCall(
+      EVENT_TYPE.DB_REMOVE_RECENT_SEARCH,
+      async (data?: BridgeDataType<any>): Promise<BridgeDataType<any>> => {
+        try {
+          const recentSearchDao = Core.getInstance().db?._dao.recentSearch;
+          if (!recentSearchDao)
+            throw new Error("RecentSearchDao not initialized");
+          if (!data?.data?.puuid) throw new Error("Puuid is required");
+
+          await recentSearchDao.removeRecentSearch(data.data.puuid);
+
+          return {
+            namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
+            eventName: EVENT_TYPE.DB_REMOVE_RECENT_SEARCH,
+            success: true,
+          };
+        } catch (error) {
+          console.error("Failed to remove recent search:", error);
+          return {
+            namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
+            eventName: EVENT_TYPE.DB_REMOVE_RECENT_SEARCH,
+            success: false,
+            msg: error instanceof Error ? error.message : "Unknown error",
+          };
+        }
+      },
+    );
+
+    // 清空所有最近搜索记录
+    this.bridge.addCall(
+      EVENT_TYPE.DB_CLEAR_RECENT_SEARCHES,
+      async (): Promise<BridgeDataType<any>> => {
+        try {
+          const recentSearchDao = Core.getInstance().db?._dao.recentSearch;
+          if (!recentSearchDao)
+            throw new Error("RecentSearchDao not initialized");
+
+          await recentSearchDao.clearAllRecentSearches();
+
+          return {
+            namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
+            eventName: EVENT_TYPE.DB_CLEAR_RECENT_SEARCHES,
+            success: true,
+          };
+        } catch (error) {
+          console.error("Failed to clear recent searches:", error);
+          return {
+            namespace: BRIDGE_EVENT.MAIN_COMMUNICATION_RENDERER,
+            eventName: EVENT_TYPE.DB_CLEAR_RECENT_SEARCHES,
             success: false,
             msg: error instanceof Error ? error.message : "Unknown error",
           };

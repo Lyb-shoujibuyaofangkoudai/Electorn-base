@@ -52,41 +52,32 @@ export class SearchHistoryDao {
 
   // 添加搜索记录
   async addSearchHistory(
-    summonerName: string,
-    avatar?: string,
-    region?: string,
-    regionDetail?: string,
+    text: string,
   ): Promise<SearchHistory> {
     return this.executeInTransaction(
       "SearchHistoryDao.addSearchHistory",
       async (queryRunner) => {
-        // 先检查是否存在相同的召唤师名称
         const existingHistory = await queryRunner.manager.findOne(
           SearchHistory,
           {
-            where: { summonerName },
+            where: { text },
           },
         );
 
         if (existingHistory) {
           // 如果存在，返回已存在的记录
           this._logger.info(
-            `召唤师 ${summonerName} 的搜索记录已存在`,
+            ` ${text} 的搜索记录已存在`,
             LOGGER_NAMESPACE.DB,
           );
           return existingHistory;
         }
 
         // 如果不存在，创建新记录
-        const history = SearchHistory.create(
-          summonerName,
-          avatar,
-          region,
-          regionDetail,
-        );
+        const history = SearchHistory.create(text);
         const result = await queryRunner.manager.save(history);
         this._logger.info(
-          `添加召唤师 ${summonerName} 的搜索记录成功`,
+          `添加召唤师 ${text} 的搜索记录成功`,
           LOGGER_NAMESPACE.DB,
         );
         return result;
@@ -95,7 +86,7 @@ export class SearchHistoryDao {
   }
 
   // 获取最近的搜索记录
-  async getRecentSearches(limit: number = 5): Promise<SearchHistory[]> {
+  async getRecentSearches(limit: number = 10): Promise<SearchHistory[]> {
     return this.searchHistoryRepository.find({
       order: {
         searchTime: "DESC",
@@ -104,12 +95,12 @@ export class SearchHistoryDao {
     });
   }
 
-  // 删除指定召唤师的搜索记录
-  async deleteSearchHistory(summonerName: string): Promise<void> {
+  // 删除指定搜索记录
+  async deleteSearchHistory(text: string): Promise<void> {
     return this.executeInTransaction(
       "SearchHistoryDao.deleteSearchHistory",
       async (queryRunner) => {
-        await queryRunner.manager.delete(SearchHistory, { summonerName });
+        await queryRunner.manager.delete(SearchHistory, { text });
       },
     );
   }

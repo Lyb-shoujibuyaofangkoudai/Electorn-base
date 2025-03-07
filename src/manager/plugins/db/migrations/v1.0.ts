@@ -38,7 +38,42 @@ export class V_1 implements MigrationInterface {
         ],
       }),
     );
-
+    await queryRunner.createTable(
+      new Table({
+        name: "recent_search",
+        columns: [
+          {
+            name: "puuid",
+            type: "varchar",
+            isPrimary: true,
+          },
+          {
+            name: "summonerName",
+            type: "varchar",
+          },
+          {
+            name: "avatar",
+            type: "varchar",
+            isNullable: true,
+          },
+          {
+            name: "searchTime",
+            type: "datetime",
+            default: "CURRENT_TIMESTAMP",
+          },
+          {
+            name: "region",
+            type: "varchar",
+            isNullable: true,
+          },
+          {
+            name: "regionDetail",
+            type: "varchar",
+            isNullable: true,
+          }
+        ],
+      }),
+    );
 
     // 插入数据版本信息
     await queryRunner.query(
