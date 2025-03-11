@@ -11,13 +11,13 @@ export interface AchievedTier {
 
 export interface RankedStats {
   earnedRegaliaRewardIds: any[]
-  highestCurrentSeasonReachedTierSR: string
-  highestPreviousSeasonAchievedDivision: string
-  highestPreviousSeasonAchievedTier: string
-  highestPreviousSeasonEndDivision: string
-  highestPreviousSeasonEndTier: string
-  highestRankedEntry: RankedEntry
-  highestRankedEntrySR: RankedEntry
+  highestCurrentSeasonReachedTierSR?: string
+  highestPreviousSeasonAchievedDivision?: string
+  highestPreviousSeasonAchievedTier?: string
+  highestPreviousSeasonEndDivision?: string
+  highestPreviousSeasonEndTier?: string
+  highestRankedEntry?: RankedEntry
+  highestRankedEntrySR?: RankedEntry
   queueMap: QueueMap
   queues: RankedEntry[]
   rankedRegaliaLevel: number

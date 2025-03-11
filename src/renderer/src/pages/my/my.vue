@@ -283,7 +283,7 @@ async function fetchGameData(tag: TAGS_ENUM = selectedGameType.value) {
     );
 
     console.log("查看SGP接口获取的数据:", tag, sgpResponse);
-    const sgpData = (sgpResponse as unknown) as SgpMatchHistory;
+    const sgpData = sgpResponse.data;
 
     if (sgpData?.games) {
       leagueStore.setSgpApiAvailable(true);
@@ -331,7 +331,7 @@ async function fetchGameData(tag: TAGS_ENUM = selectedGameType.value) {
       );
 
       console.log("查看LCU接口获取的数据:", matchHistory);
-      const lcuData = (matchHistory as unknown) as {
+      const lcuData = matchHistory.data as {
         games: {
           games: Array<{
             queueId: number;

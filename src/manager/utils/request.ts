@@ -63,9 +63,9 @@ export default class Request {
     this._http.interceptors.response.use(
       (response: AxiosResponse) => {
         // 对响应数据做点什么
-        if ( isRenderer() ) {
-          return response.data
-        }
+        // if ( isRenderer() ) {
+        //   return response.data
+        // }
         return response
       },
       (error) => {

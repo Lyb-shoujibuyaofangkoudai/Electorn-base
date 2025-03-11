@@ -63,13 +63,13 @@
           <div class="flex items-center gap-6">
             <!-- 单双排位区域 -->
             <div class="flex gap-4 p-2 rounded-lg bg-[#2D325F]/40">
-              <div class="rank-card flex flex-col items-center gap-2">
+              <div class="rank-card flex flex-col items-center">
                 <div class="text-sm text-[#94a3b8]">单双排</div>
-
-                <LcuImg
-                  cus-class="w-12 h-12"
-                  :src="TIERS_ICON[summoner?.soloRank?.tier || 'UNRANKED']"
-                />
+                <n-image
+                preview-disabled
+                      height="50px"
+                      width="50px"
+                      :src="TIERS_ICON[summoner?.soloRank?.tier || 'UNRANKED']" />
                 <div class="flex flex-col">
                   <div class="text-white text-center">
                     {{ SHORT_TIERS[summoner?.soloRank?.tier || "UNRANKED"] }}
@@ -91,14 +91,14 @@
               </div>
               <!-- 单双排最高段位 -->
               <div
-                class="rank-card flex flex-col items-center gap-2 border-t border-[#4A5090]/10"
+                class="rank-card flex flex-col items-center border-t border-[#4A5090]/10"
               >
                 <div class="text-sm text-[#94a3b8]">最高段</div>
-
-                <LcuImg
-                  cus-class="w-12 h-12"
-                  :src="TIERS_ICON[summoner?.soloHighestRank?.tier || 'UNRANKED']"
-                />
+                <n-image
+                preview-disabled
+                      height="50px"
+                      width="50px"
+                      :src="TIERS_ICON[summoner?.soloRank?.tier || 'UNRANKED']" />
                 <div class="flex flex-col">
                   <div class="text-white text-sm text-center">
                     {{ SHORT_TIERS[summoner?.soloHighestRank?.tier || "UNRANKED"] }}
@@ -110,13 +110,14 @@
 
             <!-- 灵活排位区域 -->
             <div class="flex gap-4 p-2 rounded-lg bg-[#2D325F]/40">
-              <div class="rank-card flex flex-col items-center gap-2">
+              <div class="rank-card flex flex-col items-center">
                 <div class="text-sm text-[#94a3b8]">灵活排</div>
 
-                <LcuImg
-                  cus-class="w-12 h-12"
-                  :src="TIERS_ICON[summoner?.flexRank?.tier || 'UNRANKED']"
-                />
+                <n-image
+                preview-disabled
+                      height="50px"
+                      width="50px"
+                      :src="TIERS_ICON[summoner?.soloRank?.tier || 'UNRANKED']" />
                 <div class="flex flex-col">
                   <div class="text-white text-center">
                     {{ SHORT_TIERS[summoner?.flexRank?.tier || "UNRANKED"] }}
@@ -138,14 +139,15 @@
               </div>
               <!-- 灵活排最高段位 -->
               <div
-                class="rank-card flex flex-col items-center gap-2 border-t border-[#4A5090]/10"
+                class="rank-card flex flex-col items-center border-t border-[#4A5090]/10"
               >
                 <div class="text-sm text-[#94a3b8]">最高段</div>
 
-                <LcuImg
-                  cus-class="w-12 h-12"
-                  :src="TIERS_ICON[summoner?.flexHighestRank?.tier || 'UNRANKED']"
-                />
+                <n-image
+                preview-disabled
+                      height="50px"
+                      width="50px"
+                      :src="TIERS_ICON[summoner?.soloRank?.tier || 'UNRANKED']" />
                 <div class="flex flex-col">
                   <div class="text-white text-sm text-center">
                     {{ SHORT_TIERS[summoner?.flexHighestRank?.tier || "UNRANKED"] }}
@@ -172,57 +174,7 @@
     <!-- 主体内容区域 -->
     <div class="dashboard-content flex gap-4 p-4" :style="{ height: mainContentHeight }">
       <!-- 左侧边栏 - 对局列表 -->
-      <div class="sidebar-left w-full lg:w-1/4 min-w-[300px] bg-[#2C2F33]/80 rounded-lg">
-        <n-scrollbar class="h-full">
-          <div class="p-4">
-            <!-- 对局卡片列表 -->
-            <div
-              v-for="(match, index) in matches"
-              :key="match.id"
-              @click="handleMatchSelect(index)"
-              class="match-card relative mb-4 p-4 rounded-lg cursor-pointer transition-all duration-300"
-              :class="[
-                selectedMatchIndex === index
-                  ? 'bg-[#3498DB]/20 shadow-lg border-2'
-                  : 'bg-[#23272A] hover:bg-[#3498DB]/10 border',
-                match.win
-                  ? 'border-[#2ECC71] hover:border-[#2ECC71]'
-                  : 'border-[#E74C3C] hover:border-[#E74C3C]',
-              ]"
-            >
-              <div class="flex items-center gap-4">
-                <LcuImg
-                  cus-class="w-12 h-12 rounded-full"
-                  :src="championIconUri(match.championId)"
-                />
-                <div class="flex-1">
-                  <div class="flex items-center justify-between">
-                    <span
-                      class="text-sm font-medium"
-                      :class="match.win ? 'text-[#2ECC71]' : 'text-[#E74C3C]'"
-                    >
-                      {{ match.win ? "胜利" : "失败" }}
-                    </span>
-                    <span class="text-[#94a3b8] text-xs">{{ match.time }}</span>
-                  </div>
-                  <div class="mt-1">
-                    <span class="text-white">{{ match.kda }}</span>
-                    <span class="text-[#94a3b8] text-sm ml-2"
-                      >KDA: {{ match.kdaRatio }}</span
-                    >
-                  </div>
-                </div>
-              </div>
-              <!-- 选中状态指示器 -->
-              <div
-                v-if="selectedMatchIndex === index"
-                class="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-12 rounded-l"
-                :class="match.win ? 'bg-[#2ECC71]' : 'bg-[#E74C3C]'"
-              ></div>
-            </div>
-          </div>
-        </n-scrollbar>
-      </div>
+      <match-list />
 
       <!-- 中间主要内容区 -->
       <div class="main-content w-full lg:w-[75%] min-w-[400px]">
@@ -403,9 +355,11 @@ import MatchOverview from "./tabs/MatchOverview.vue";
 import MatchDamage from "./tabs/MatchDamage.vue";
 import MatchVision from "./tabs/MatchVision.vue";
 import MatchItems from "./tabs/MatchItems.vue";
+import MatchList from "./MatchList.vue";
 import { useSearchStore } from "../../../store/searchStore";
 import { useApi } from '../../../hooks/useApi'
 import { useMsg } from '../../../hooks/useMsg'
+import { getSummonerInfoAndRankedInfoByPuuid } from "../../../api/api"
 
 // 使用 store
 const searchStore = useSearchStore();
@@ -413,29 +367,41 @@ const themeVars = useThemeVars();
 const api = useApi();
 const message = useMsg()
 
-const activeTag = computed(() => searchStore.activeTag)
-// 移除本地状态，改用 store 中的状态
-const summoner = computed(() => searchStore.summoner);
+const {
+  tagSelectInfo,
+  activeTag,
+  summoner,
+  matches,
+  currentMatch,
+  matchData,
+  selectedMatchIndex
+} = storeToRefs(searchStore)
+// const activeTag = computed(() => searchStore.activeTag)
+// // 移除本地状态，改用 store 中的状态
+// const summoner = computed(() => searchStore.summoner);
 const selectedQueue = computed({
   get: () => searchStore.selectedQueue,
   set: (value) => searchStore.updateFilters(value, searchStore.selectedSeason),
 });
-const matches = computed(() => searchStore.matches);
-const currentMatch = computed(() => searchStore.currentMatch);
-const matchData = computed(() => searchStore.matchData);
-const selectedMatchIndex = computed(() => searchStore.selectedMatchIndex);
-
+// const matches = computed(() => searchStore.matches);
+// const currentMatch = computed(() => searchStore.currentMatch);
+// const matchData = computed(() => searchStore.matchData);
+// const selectedMatchIndex = computed(() => searchStore.selectedMatchIndex);
 
 // 修改选中对局的处理方法
 const handleMatchSelect = (index: number) => {
   searchStore.updateCurrentMatch(index);
 };
 
-
 const selectRegionOption = computed(() => searchStore.selectRegionOption)
+/**
+ * 获取召唤师信息
+ * @param puuid
+ */
 async function getSummonerInfo(puuid: string) {
   try {
-  
+    const res = await getSummonerInfoAndRankedInfoByPuuid(puuid,tagSelectInfo.value!.regionValue)
+    console.log("根据puuid获取召唤师信息：",res)
   
   } catch ( e ) {
   

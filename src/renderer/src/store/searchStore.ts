@@ -1,5 +1,7 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
+import { RegionMap } from "../utils/common";
+import { useLeague } from "./league";
 
 interface RankInfo {
   tier: string;
@@ -89,7 +91,7 @@ export const useSearchStore = defineStore("search", () => {
 
   const selectedQueue = ref(null);
   const selectedSeason = ref(null);
-  const selectedMatchIndex = ref(0);
+  const selectedMatchIndex = ref(0); // 当前选中的对局索引
   const activeTab = ref("players");
 
   // 对局列表
@@ -132,6 +134,7 @@ export const useSearchStore = defineStore("search", () => {
     value: "all",
     sgpServerId: "all",
   },); // 记录选择的区域
+  const tagSelectInfo = computed(() => tags.value[selectedMatchIndex.value]);
 
   // 标签相关方法
   const addTag = (summoner: TagType) => {
@@ -154,9 +157,13 @@ export const useSearchStore = defineStore("search", () => {
       };
       tags.value.push(newTag);
       activeTag.value = newTag.key;
+      updateSelectedMatchIndex(newTag.key);
+      setSummonerRegionAndGameName(newTag);
     } else {
       // 切换到已存在的标签
       activeTag.value = existingTag.key;
+      updateSelectedMatchIndex(existingTag.key);
+      setSummonerRegionAndGameName(existingTag);
     }
   };
 
@@ -167,6 +174,7 @@ export const useSearchStore = defineStore("search", () => {
       // 如果关闭的是当前标签，切换到搜索标签
       if (activeTag.value === key) {
         activeTag.value = "search";
+        selectedMatchIndex.value = 0
       }
     }
   };
@@ -176,10 +184,12 @@ export const useSearchStore = defineStore("search", () => {
     tags.value = tags.value.filter((tag) => tag.key === "search");
     // 切换到搜索标签
     activeTag.value = "search";
+    selectedMatchIndex.value = 0
   };
 
   const setActiveTag = (key: string) => {
     activeTag.value = key;
+    updateSelectedMatchIndex(key)
   };
 
   // 更新召唤师信息
@@ -284,6 +294,21 @@ export const useSearchStore = defineStore("search", () => {
     return activeTagArr.length > 0 ? activeTagArr[0] : null;
   };
 
+  function updateSelectedMatchIndex(key) {
+    const i = tags.value.findIndex((item) => item.key === key);
+    if (i !== -1) {
+      selectedMatchIndex.value = i;
+     setSummonerRegionAndGameName(tags.value[i]);
+    }
+    else selectedMatchIndex.value = 0;
+  }
+
+  function setSummonerRegionAndGameName(tagInfo) {
+    const { region, name } = tagInfo;
+    summoner.value['name'] = name;
+    summoner.value["region"] = `${region}`;
+  }
+
   return {
     // 标签相关
     tags,
@@ -293,6 +318,7 @@ export const useSearchStore = defineStore("search", () => {
     removeTag,
     removeAllTags,
     setActiveTag,
+    tagSelectInfo,
 
     // 状态
     summoner,

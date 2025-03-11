@@ -6,6 +6,7 @@
         <n-image
           :src="logo"
           object-fit="contain"
+          preview-disabled
           width="45"
         />
       </li>
@@ -72,6 +73,7 @@
                     :key="item.name">
                     <div>{{ MODES[item.name] }}</div>
                     <n-image
+                    preview-disabled
                       height="50px"
                       width="50px"
                       :src="item.tier ? TIERS_ICON[item.tier] : TIERS_ICON['UNRANKED']" />

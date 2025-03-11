@@ -55,7 +55,7 @@ export const useRequestDataStore = defineStore('requestData', () => {
       setErrorMessage(key, null)
 
       const data = await fetchFunction()
-      setRequestData(key, data)
+      setRequestData(key, data.data)
     } catch ( error: any ) {
       setErrorMessage(key, error?.message || 'An unknown error occurred')
     } finally {

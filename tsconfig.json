@@ -15,7 +15,7 @@
     "paths": {
       "lol-tools.node": ["./resources/addons/lol-tools.node"]
     },
-    "types": ["electron-vite/node"]
+    "types": ["electron-vite/node","vue"]
   },
   "files": [],
   "include": [
@@ -24,6 +24,7 @@
     "src/*.d.ts",
     "src/**/*.d.ts",
     "src/global.d.ts",
+    "*.d.ts",
   ],
   "references": [
     {

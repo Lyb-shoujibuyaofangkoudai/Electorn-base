@@ -8,7 +8,8 @@
     "src/*.d.ts",
     "src/**/*.d.ts",
     "src/global.d.ts",
-    "src/manager/corePlugin.d.ts"
+    "src/manager/corePlugin.d.ts",
+    "*.d.ts",
   ],
   "compilerOptions": {
     "experimentalDecorators": true,
@@ -19,7 +20,8 @@
     "esModuleInterop": true, // 解决模块导入问题
     "skipLibCheck": true, // 忽略第三方库的类型检查
     "types": [
-      "electron-vite/node"
+      "electron-vite/node",
+      "vue"
     ],
   }
 }

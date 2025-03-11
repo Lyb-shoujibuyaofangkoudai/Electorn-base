@@ -8,6 +8,14 @@
       "problemMatcher": [],
       "label": "npm: dev",
       "detail": "chcp 65001 & electron-vite dev --inspect=5858 --watch --mode development"
+    },
+    {
+      "type": "npm",
+      "script": "dev",
+      "group": "rebuild",
+      "problemMatcher": [],
+      "label": "npm: dev",
+      "detail": "chcp 65001 & electron-vite dev --inspect=5858 --watch --mode development"
     }
   ]
 }

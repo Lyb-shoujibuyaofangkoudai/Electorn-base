@@ -5,7 +5,7 @@
       class="flex items-center justify-center w-full h-full"
     >
       <div class="flex flex-col justify-center items-center gap-4">
-        <n-image :src="leagueIco" width="50" />
+        <n-image :src="leagueIco" width="50" preview-disabled/>
         <div class="flex flex-col items-center justify-center gap-2">
           <n-gradient-text
             class="text-5 font-bold"

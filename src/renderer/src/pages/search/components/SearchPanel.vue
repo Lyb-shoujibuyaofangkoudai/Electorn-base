@@ -49,7 +49,7 @@
                   清空历史
                 </n-button>
               </div>
-              <div class="space-y-1 flex items-center">
+              <div class="space-y-1 flex items-center flex-wrap">
                 <div
                   v-for="searchRecentItem in recentSearchHistory"
                   :key="searchRecentItem.text"
@@ -93,7 +93,7 @@
           >
             <template #header>
               <div class="flex items-center justify-between">
-                <span class="text-[var(--text-color-2)]">最近玩家</span>
+                <span class="text-[var(--text-color-2)]">最近搜索玩家</span>
                 <n-button text type="error" size="tiny" @click="clearRecentPlayers">
                   清空历史
                 </n-button>
@@ -101,9 +101,9 @@
             </template>
             <n-scrollbar style="max-height: 600px">
               <template v-if="!recentPlayers.length">
-                <n-empty description="暂无玩家历史记录"></n-empty>
+                <n-empty description="暂无记录"></n-empty>
               </template>
-              
+
               <div class="grid grid-cols-2 gap-2" v-else>
                 <div
                   v-for="player in recentPlayers"
@@ -180,9 +180,9 @@
                       />
                       <div
                         v-if="summoner.level"
-                        class="absolute !left-1/2 -bottom-1 -translate-x-1/2 px-1 bg-[#3498DB]/50 rounded-full text-xs whitespace-nowrap"
+                        class="absolute !left-1/2 -bottom-1 -translate-x-1/2 text-center bg-[#3498DB]/50 rounded-sm text-2 whitespace-nowrap"
                       >
-                        LV: {{ summoner.level }}
+                        {{ summoner.level }}
                       </div>
                     </div>
                     <div class="min-w-0 flex-1">
@@ -448,9 +448,9 @@ async function getAllRegionsSummonersFromGameName(
         .map(async (r) => {
           try {
             const res = await api.sgpApi.getSummonerByPuuid(r.value, alias.puuid);
-            if ((res as any).length) {
+            if (res.data.length) {
               return {
-                ...res[0],
+                ...res.data[0],
                 regionInfo: r,
               };
             }
@@ -479,8 +479,8 @@ async function getAllRegionsSummonersFromGameName(
   } else {
     // 指定大区搜索
     const res = await api.sgpApi.getSummonerByPuuid(selectedRegion, alias.puuid);
-    if ((res as any).length) {
-      const summoner = res[0];
+    if (res.data.length) {
+      const summoner = res.data[0];
       return [
         {
           puuid: summoner.puuid,
@@ -490,7 +490,7 @@ async function getAllRegionsSummonersFromGameName(
           sgpServerId:
             regions.value.find((r) => r.value === selectedRegion)?.sgpServerId || "",
           privacy: summoner.privacy || "",
-          summonerLevel: summoner.summonerLevel,
+          summonerLevel: summoner?.summonerLevel,
           region: regions.value.find((r) => r.value === selectedRegion)?.label || "未知",
         },
       ];
@@ -515,8 +515,8 @@ async function getAllRegionsSummonersFromFuzzyName(
       const fnArr = regionArr.map(async (r) => {
         try {
           const res = (await api.sgpApi.getSummonerByPuuid(r.value, alias.puuid)) as any;
-          if (res?.length) {
-            return res.map((summoner) => ({
+          if (res.data.length) {
+            return res.data.map((summoner) => ({
               ...summoner,
               regionInfo: r,
             }));
@@ -545,12 +545,12 @@ async function getAllRegionsSummonersFromFuzzyName(
   } else {
     const promiseArr = aliases.map(async (alias) => {
       try {
-        const res = (await api.sgpApi.getSummonerByPuuid(
+        const res = await api.sgpApi.getSummonerByPuuid(
           selectedRegion,
           alias.puuid
-        )) as any;
-        if (res?.length) {
-          return res.map((summoner) => ({
+        )
+        if (res.data.length) {
+          return res.data.map((summoner) => ({
             ...summoner,
             regionInfo: regions.value.filter((item) => item.value === selectedRegion)[0],
           }));
@@ -637,9 +637,10 @@ const handleSearch = async () => {
           // 处理PUUID搜索
           if (isSameRegion) {
             // 同区使用LCU API
-            const summoner = (await api.lcuApi.summoner.getSummonerByPuuid(
+            const res = await api.lcuApi.summoner.getSummonerByPuuid(
               searchText
-            )) as any;
+            );
+            const summoner = res.data
             console.log("LCU API 搜索结果：", summoner);
             if (summoner) {
               results = [
@@ -679,14 +680,14 @@ const handleSearch = async () => {
                 searchText
               );
               console.log("指定大区搜索结果：", sgpRes);
-              if (sgpRes?.length) {
-                const summoner = sgpRes[0];
+              if (sgpRes.data.length) {
+                const summoner = sgpRes.data[0];
                 const nameSetRes = await api.riotApi.playerAccount.getPlayerAccountNameset(
                   [summoner.puuid]
                 );
                 console.log("获取召唤师名称结果：", nameSetRes);
-                if (nameSetRes?.namesets?.[0]?.gnt) {
-                  const { gameName, tagLine } = nameSetRes.namesets[0].gnt;
+                if (nameSetRes.data.namesets?.[0]?.gnt) {
+                  const { gameName, tagLine } = nameSetRes.data.namesets[0].gnt;
                   results = [
                     {
                       puuid: summoner.puuid,
@@ -717,16 +718,17 @@ const handleSearch = async () => {
             gameName,
             tagLine
           );
-          console.log("查看aliases", aliases);
-          if (!aliases.length) {
+          console.log("查看aliases", aliases.data);
+          if (!aliases.data.length) {
             isEmpty.value = true;
             return;
           }
-          const alias = aliases[0];
+          const alias = aliases.data[0];
           console.log("查看：", alias);
           if (isSameRegion) {
             // 同区使用LCU API
-            const summoner = await api.lcuApi.summoner.getSummonerByPuuid(alias.puuid);
+            const res = await api.lcuApi.summoner.getSummonerByPuuid(alias.puuid);
+            const summoner = res.data;
             if (summoner) {
               results = [
                 {
@@ -760,18 +762,19 @@ const handleSearch = async () => {
         case "fuzzy":
           {
             // 处理模糊搜索
-            const aliases = (await api.riotApi.playerAccount.getPlayerAccountAlias(
+            const aliases = await api.riotApi.playerAccount.getPlayerAccountAlias(
               searchText
-            )) as any[];
-            let findSummonerCount = aliases.length;
+            )
+            let findSummonerCount = aliases.data.length;
             let validSummonerCount = 0;
-            console.log("查看aliases", aliases);
+            console.log("查看aliases", aliases.data);
             if (isSameRegion) {
-              for (const alias of aliases) {
+              for (const alias of aliases.data) {
                 // 同区使用LCU API
-                const summoner = await api.lcuApi.summoner.getSummonerByPuuid(
+                const res = await api.lcuApi.summoner.getSummonerByPuuid(
                   alias.puuid
                 );
+                const summoner = res.data
                 ++validSummonerCount;
                 console.log("LCU API 搜索结果：", summoner);
                 if (summoner) {
@@ -799,7 +802,7 @@ const handleSearch = async () => {
               }
             } else {
               results = await getAllRegionsSummonersFromFuzzyName(
-                aliases,
+                aliases.data,
                 selectedRegion.value
               );
             }
@@ -860,20 +863,19 @@ async function getAllRegionsSummonersFromPuuid(searchText: string) {
   const summonerArr = (await Promise.allSettled(promiseArr))
     .map((item, index) => {
       findSummonerCount++;
-      if (item.status === "fulfilled" && item.value.length) {
-        item.value[0]["regionInfo"] = regionsItems[index];
-        return item.value[0];
+      if (item.status === "fulfilled" && item.value.data.length) {
+        item.value.data[0]["regionInfo"] = regionsItems[index];
+        return item.value.data[0];
       }
     })
     .filter((item) => item);
-
   const promiseSummonerNames = summonerArr.map((item) => {
     return api.riotApi.playerAccount.getPlayerAccountNameset([item!.puuid]);
   });
   const nameSetItemResArr = await Promise.allSettled(promiseSummonerNames);
   nameSetItemResArr.forEach((nameSetItemRes) => {
     if (nameSetItemRes.status === "fulfilled") {
-      const { namesets } = nameSetItemRes.value;
+      const { namesets } = nameSetItemRes.value.data;
       namesets.forEach((nameSetItem, index) => {
         if (nameSetItem.error) return;
         const { gnt } = nameSetItem;
@@ -911,8 +913,8 @@ const selectSummoner = async (summoner: Summoner | RecentPlayer) => {
       name: summoner?.summonerName ? summoner.summonerName : `${summoner.gameName}#${summoner.tagLine}`,
       avatar: summoner.avatar,
       region: summoner.region,
-      regionValue: summoner.sgpServerId ? summoner.sgpServerId.split('_')[1] : '',
-      sgpServerId: summoner.sgpServerId
+      regionValue: summoner.sgpServerId ? summoner.sgpServerId.split('_')[1] : summoner.regionDetail.split('_')[1],
+      sgpServerId: summoner.sgpServerId ? summoner.sgpServerId : summoner.regionDetail,
     });
     // 刷新最近搜索列表
     await loadRecentSearchPlayers();
